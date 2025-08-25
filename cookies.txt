@@ -1,0 +1,4 @@
+# Netscape HTTP Cookie File
+.youtube.com	TRUE	/	FALSE	1735689600	CONSENT	YES+cb.20210328-17-p0.en+FX+667
+.youtube.com	TRUE	/	FALSE	1735689600	VISITOR_INFO1_LIVE	your_value_here
+.youtube.com	TRUE	/	FALSE	1735689600	YSC	your_value_here
