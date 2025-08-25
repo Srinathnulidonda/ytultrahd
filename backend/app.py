@@ -26,7 +26,9 @@ USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15'
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
 ]
 
 class DownloadProgress:
@@ -55,7 +57,7 @@ class DownloadProgress:
             self.progress = 100
 
 def get_base_ydl_opts():
-    """Get base yt-dlp options with anti-bot measures for server environment"""
+    """Get base yt-dlp options with enhanced anti-bot measures"""
     opts = {
         'quiet': True,
         'no_warnings': True,
@@ -73,14 +75,16 @@ def get_base_ydl_opts():
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-Site': 'none',
             'Sec-Fetch-User': '?1',
-            'Cache-Control': 'max-age=0'
+            'Cache-Control': 'max-age=0',
+            'X-YouTube-Client-Name': '1',
+            'X-YouTube-Client-Version': '2.20231213.04.00'
         },
-        'sleep_interval': 2,
-        'max_sleep_interval': 5,
-        'sleep_interval_requests': 1,
+        'sleep_interval': 3,
+        'max_sleep_interval': 6,
+        'sleep_interval_requests': 2,
         'sleep_interval_subtitles': 1,
-        'retries': 10,
-        'fragment_retries': 10,
+        'retries': 15,
+        'fragment_retries': 15,
         'skip_unavailable_fragments': True,
         'ignoreerrors': False,
         'abort_on_unavailable_fragments': False,
@@ -90,11 +94,13 @@ def get_base_ydl_opts():
         'http_chunk_size': 10485760,
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'web', 'tv_embed'],
+                'player_client': ['ios', 'android', 'web', 'tv_embed', 'mediaconnect'],
                 'player_skip': ['configs'],
                 'skip': ['translated_subs'],
                 'max_comments': 0,
-                'max_comment_depth': 0
+                'max_comment_depth': 0,
+                'innertube_host': 'youtubei.googleapis.com',
+                'innertube_key': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8'
             }
         },
         'postprocessor_args': {
@@ -102,7 +108,7 @@ def get_base_ydl_opts():
         }
     }
     
-    # Only use cookies file if it exists, don't try browser extraction on server
+    # Only use cookies file if it exists
     if os.path.exists('cookies.txt'):
         opts['cookiefile'] = 'cookies.txt'
     
@@ -128,6 +134,20 @@ def extract_video_id(url):
     
     return None
 
+@app.route('/', methods=['GET'])
+def root():
+    return jsonify({
+        'service': 'YouTube Downloader API',
+        'version': '1.0.0',
+        'status': 'running',
+        'endpoints': {
+            'health': '/api/health',
+            'info': '/api/info',
+            'download': '/api/download',
+            'formats': '/api/formats'
+        }
+    })
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({
@@ -146,37 +166,77 @@ def get_video_info():
             return jsonify({'error': 'URL is required'}), 400
         
         # Add random delay to avoid detection
-        time.sleep(random.uniform(1, 3))
+        time.sleep(random.uniform(2, 4))
         
-        ydl_opts = get_base_ydl_opts()
-        ydl_opts.update({
-            'extract_flat': False,
-            'skip_download': True,
-            'getcomments': False,
-            'writesubtitles': False,
-            'writeautomaticsub': False,
-            'subtitleslangs': [],
-        })
-        
-        # Try different extraction strategies
+        # Multiple extraction strategies with different configurations
         strategies = [
-            # Strategy 1: Default
-            {},
-            # Strategy 2: Use TV embed client
-            {'extractor_args': {'youtube': {'player_client': ['tv_embed']}}},
-            # Strategy 3: Use Android client only
-            {'extractor_args': {'youtube': {'player_client': ['android']}}},
-            # Strategy 4: Bypass age gate
-            {'extractor_args': {'youtube': {'player_client': ['android', 'web'], 'bypass_age_gate': True}}}
+            # Strategy 1: iOS client (often works best)
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['ios'],
+                        'skip': ['webpage', 'configs'],
+                        'player_skip': ['js', 'configs', 'webpage']
+                    }
+                }
+            },
+            # Strategy 2: Android client
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android'],
+                        'skip': ['webpage'],
+                        'player_skip': ['js', 'configs']
+                    }
+                }
+            },
+            # Strategy 3: TV Embed client
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['tv_embed'],
+                        'skip': ['webpage', 'configs']
+                    }
+                }
+            },
+            # Strategy 4: MediaConnect client
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['mediaconnect'],
+                        'skip': ['webpage']
+                    }
+                }
+            },
+            # Strategy 5: Web client with bypass
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['web'],
+                        'bypass_age_gate': True,
+                        'skip': ['configs']
+                    }
+                }
+            }
         ]
         
         last_error = None
-        for strategy in strategies:
+        for i, strategy in enumerate(strategies):
             try:
-                current_opts = ydl_opts.copy()
-                current_opts.update(strategy)
+                print(f"Trying strategy {i+1}/{len(strategies)}")
                 
-                with yt_dlp.YoutubeDL(current_opts) as ydl:
+                ydl_opts = get_base_ydl_opts()
+                ydl_opts.update({
+                    'extract_flat': False,
+                    'skip_download': True,
+                    'getcomments': False,
+                    'writesubtitles': False,
+                    'writeautomaticsub': False,
+                    'subtitleslangs': [],
+                })
+                ydl_opts.update(strategy)
+                
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=False)
                     
                     # Extract available formats
@@ -190,7 +250,7 @@ def get_video_info():
                         if f.get('vcodec') != 'none' and f.get('acodec') == 'none':
                             # Video only format
                             height = f.get('height', 0)
-                            if height >= 480:  # Show 480p and above
+                            if height >= 360:  # Show 360p and above
                                 formats.append({
                                     'format_id': f['format_id'],
                                     'resolution': f"{height}p",
@@ -236,27 +296,52 @@ def get_video_info():
                         'best_video': best_video,
                         'best_audio': best_audio,
                         'video_id': extract_video_id(url),
-                        'webpage_url': info.get('webpage_url', url)
+                        'webpage_url': info.get('webpage_url', url),
+                        'strategy_used': i + 1
                     })
                     
-            except yt_dlp.utils.ExtractorError as e:
+            except Exception as e:
                 last_error = str(e)
-                if 'Sign in to confirm' not in last_error:
-                    # If it's not a bot detection error, break and return the error
-                    break
+                print(f"Strategy {i+1} failed: {last_error}")
+                if i < len(strategies) - 1:
+                    time.sleep(random.uniform(1, 3))  # Wait before trying next strategy
                 continue
                 
         # If all strategies failed
-        if 'Sign in to confirm' in str(last_error):
+        if 'Sign in to confirm' in str(last_error) or 'bot' in str(last_error).lower():
             return jsonify({
-                'error': 'Video access restricted. This may be due to YouTube\'s bot detection or regional restrictions.',
-                'details': 'Please try again later or try a different video.'
+                'error': 'YouTube has detected automated access. This video may be restricted.',
+                'details': 'Try again later, use cookies.txt file, or try a different video.',
+                'suggestions': [
+                    'Create a cookies.txt file from your browser',
+                    'Wait a few minutes before trying again',
+                    'Try a different video URL',
+                    'Check if the video is age-restricted or private'
+                ]
             }), 403
+        elif 'Failed to extract' in str(last_error):
+            return jsonify({
+                'error': 'Unable to extract video information from YouTube.',
+                'details': 'YouTube may have updated their systems. Try updating yt-dlp or try again later.',
+                'suggestions': [
+                    'Update yt-dlp: pip install --upgrade yt-dlp',
+                    'Try again in a few minutes',
+                    'Check if the video URL is correct',
+                    'Verify the video is publicly accessible'
+                ]
+            }), 503
         
-        return jsonify({'error': str(last_error)}), 400
+        return jsonify({
+            'error': 'Video extraction failed',
+            'details': str(last_error),
+            'suggestions': ['Try a different video URL', 'Check if video is publicly accessible']
+        }), 400
             
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': 'Server error during video extraction',
+            'details': str(e)
+        }), 500
 
 @app.route('/api/download', methods=['POST'])
 def download_video():
@@ -294,7 +379,7 @@ def perform_download(url, quality, audio_quality, progress_tracker):
     
     try:
         # Add random delay
-        time.sleep(random.uniform(2, 4))
+        time.sleep(random.uniform(2, 5))
         
         def progress_hook(d):
             progress_tracker.update(d)
@@ -314,23 +399,25 @@ def perform_download(url, quality, audio_quality, progress_tracker):
             format_string = 'bestvideo[height<=720]+bestaudio/best'
         elif quality == '480p':
             format_string = 'bestvideo[height<=480]+bestaudio/best'
+        elif quality == '360p':
+            format_string = 'bestvideo[height<=360]+bestaudio/best'
         else:
             format_string = f'{quality}+{audio_quality}'
         
         output_template = os.path.join(temp_dir, '%(title).200B.%(ext)s')
         
-        # Try multiple strategies for downloading
+        # Try the same strategies as info extraction
         strategies = [
-            # Strategy 1: Standard download
-            {},
-            # Strategy 2: TV embed client
-            {'extractor_args': {'youtube': {'player_client': ['tv_embed']}}},
-            # Strategy 3: Android client
+            {'extractor_args': {'youtube': {'player_client': ['ios']}}},
             {'extractor_args': {'youtube': {'player_client': ['android']}}},
+            {'extractor_args': {'youtube': {'player_client': ['tv_embed']}}},
+            {'extractor_args': {'youtube': {'player_client': ['web']}}},
         ]
         
-        for strategy in strategies:
+        for i, strategy in enumerate(strategies):
             try:
+                print(f"Download strategy {i+1}/{len(strategies)}")
+                
                 ydl_opts = get_base_ydl_opts()
                 ydl_opts.update({
                     'format': format_string,
@@ -364,20 +451,17 @@ def perform_download(url, quality, audio_quality, progress_tracker):
                         raise Exception("Downloaded file not found")
                         
                     progress_tracker.status = 'completed'
-                    return  # Success, exit the function
+                    return  # Success
                     
-            except yt_dlp.utils.ExtractorError as e:
-                if 'Sign in to confirm' in str(e):
-                    continue  # Try next strategy
+            except Exception as e:
+                print(f"Download strategy {i+1} failed: {str(e)}")
+                if i < len(strategies) - 1:
+                    time.sleep(random.uniform(1, 3))
+                    continue
                 else:
-                    progress_tracker.error = str(e)
+                    progress_tracker.error = f'All download strategies failed. Last error: {str(e)}'
                     progress_tracker.status = 'error'
-                    return
                     
-        # If all strategies failed
-        progress_tracker.error = 'Unable to download video. YouTube may have restricted access.'
-        progress_tracker.status = 'error'
-            
     except Exception as e:
         progress_tracker.status = 'error'
         progress_tracker.error = str(e)
@@ -458,6 +542,7 @@ def get_supported_formats():
             {'id': '1080p', 'label': '1080p', 'description': 'Full HD'},
             {'id': '720p', 'label': '720p', 'description': 'HD'},
             {'id': '480p', 'label': '480p', 'description': 'SD'},
+            {'id': '360p', 'label': '360p', 'description': 'Low'},
         ],
         'audio_qualities': [
             {'id': 'best', 'label': 'Best Audio', 'description': 'Highest quality audio'},
@@ -467,32 +552,36 @@ def get_supported_formats():
         ]
     })
 
-@app.route('/api/cleanup', methods=['POST'])
-def cleanup_old_downloads():
-    """Clean up old downloads and temporary files"""
+@app.route('/api/test', methods=['GET'])
+def test_endpoint():
+    """Test endpoint to verify yt-dlp is working"""
     try:
-        current_time = time.time()
-        to_remove = []
+        # Test with a simple video
+        test_url = "https://www.youtube.com/watch?v=jNQXAC9IVRw"  # "Me at the zoo" - first YouTube video
         
-        for download_id, progress in download_progress.items():
-            if progress.status == 'completed' and progress.file_path:
-                file_age = current_time - os.path.getmtime(progress.file_path)
-                if file_age > 3600:  # 1 hour
-                    to_remove.append(download_id)
-                    temp_dir = os.path.dirname(progress.file_path)
-                    if os.path.exists(temp_dir):
-                        shutil.rmtree(temp_dir)
+        ydl_opts = get_base_ydl_opts()
+        ydl_opts.update({
+            'skip_download': True,
+            'quiet': True,
+            'extractor_args': {'youtube': {'player_client': ['ios']}}
+        })
         
-        for download_id in to_remove:
-            del download_progress[download_id]
-        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(test_url, download=False)
+            
         return jsonify({
-            'status': 'ok',
-            'cleaned': len(to_remove)
+            'status': 'success',
+            'message': 'yt-dlp is working correctly',
+            'test_video': info.get('title', 'Unknown'),
+            'formats_available': len(info.get('formats', []))
         })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'status': 'error',
+            'message': 'yt-dlp test failed',
+            'error': str(e)
+        }), 500
 
 @app.errorhandler(404)
 def not_found(e):
