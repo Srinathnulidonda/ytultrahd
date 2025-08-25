@@ -8,8 +8,8 @@ import hashlib
 import multiprocessing
 import random
 from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from functools import lru_cache, wraps
+from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from collections import defaultdict, deque
 from queue import Queue, Empty
 import gc
@@ -31,7 +31,7 @@ MAX_PROCESSES = 2
 DOWNLOAD_WORKERS = min(4, CPU_COUNT)
 CHUNK_SIZE = 512 * 1024
 BUFFER_SIZE = 2 * 1024 * 1024
-MAX_CONCURRENT_DOWNLOADS = 3  # Consider 1-2 if still getting 429s
+MAX_CONCURRENT_DOWNLOADS = 3  # Consider 1-2 if hitting 429
 MAX_FILE_SIZE = 1024 * 1024 * 1024
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'yt_render')
 CACHE_DURATION = 600
@@ -39,7 +39,7 @@ FILE_RETENTION_TIME = 1800
 MAX_CACHE_SIZE = 100
 
 # Rate limiting to avoid bot detection
-RATE_LIMIT_DELAY = 2  # Minimum seconds between requests
+RATE_LIMIT_DELAY = 2  # seconds between requests
 last_request_time = 0
 request_count = 0
 
@@ -62,6 +62,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger('app')
 logging.getLogger('yt_dlp').setLevel(logging.WARNING)
+logger.info(f"Render $PORT env is: {os.environ.get('PORT')}")
 
 # =========================
 # Flask App
@@ -299,7 +300,7 @@ def get_anti_bot_ydl_opts(cookiefile=None, proxy=None, cookie_header=None, hl='e
         'extractor_retries': 2,
         # Additional anti-detection measures
         'sleep_interval_requests': random.uniform(1.5, 3.5),  # Random delay between requests
-        'max_sleep_interval': 6,  # Keep compatible with earlier code
+        'max_sleep_interval': 6,
         'http_chunk_size': random.randint(16384, 65536),  # Random chunk size
         'retries': 3,
         'fragment_retries': 3,
@@ -312,7 +313,6 @@ def get_anti_bot_ydl_opts(cookiefile=None, proxy=None, cookie_header=None, hl='e
                 'max_comments': [0],  # Don't extract comments
                 'comment_sort': ['top'],
                 'max_comment_depth': 1,
-                # Locale hints (ignored if not recognized)
                 'lang': [hl],
                 'geo_bypass_country': [gl],
             }
@@ -661,6 +661,17 @@ def start_cleanup_thread():
     thread = threading.Thread(target=cleanup_worker, daemon=True)
     thread.start()
 
+# Start background tasks under Gunicorn on first request
+@app.before_first_request
+def _start_bg_on_first_request():
+    if not getattr(app, '_bg_started', False):
+        try:
+            start_cleanup_thread()
+            app._bg_started = True
+            logger.info("Background cleanup thread started (before_first_request)")
+        except Exception as e:
+            logger.error(f"Failed to start background thread: {e}")
+
 # =========================
 # API Routes
 # =========================
@@ -910,9 +921,10 @@ def after_request(response):
     return response
 
 # =========================
-# Entrypoint
+# Entrypoint (for local runs)
 # =========================
 if __name__ == '__main__':
+    # Start cleanup thread locally as well
     start_cleanup_thread()
     
     port = int(os.environ.get('PORT', 5000))
