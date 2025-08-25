@@ -661,16 +661,17 @@ def start_cleanup_thread():
     thread = threading.Thread(target=cleanup_worker, daemon=True)
     thread.start()
 
-# Start background tasks under Gunicorn on first request
-@app.before_first_request
-def _start_bg_on_first_request():
-    if not getattr(app, '_bg_started', False):
-        try:
-            start_cleanup_thread()
-            app._bg_started = True
-            logger.info("Background cleanup thread started (before_first_request)")
-        except Exception as e:
-            logger.error(f"Failed to start background thread: {e}")
+# Start background tasks lazily on first request (Flask 3.x-safe)
+_bg_lock = threading.Lock()
+_bg_started = False
+def ensure_bg_started():
+    global _bg_started
+    if not _bg_started:
+        with _bg_lock:
+            if not _bg_started:
+                start_cleanup_thread()
+                _bg_started = True
+                logger.info("Background cleanup thread started")
 
 # =========================
 # API Routes
@@ -902,6 +903,8 @@ def internal_error(e):
 # =========================
 @app.before_request
 def before_request():
+    # Start background tasks lazily at first request
+    ensure_bg_started()
     g.start_time = time.time()
 
 @app.after_request
@@ -924,9 +927,8 @@ def after_request(response):
 # Entrypoint (for local runs)
 # =========================
 if __name__ == '__main__':
-    # Start cleanup thread locally as well
-    start_cleanup_thread()
-    
+    # For local development: start background thread immediately
+    ensure_bg_started()
     port = int(os.environ.get('PORT', 5000))
     
     logger.info(f"""
