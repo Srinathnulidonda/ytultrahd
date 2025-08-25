@@ -1,174 +1,1031 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="dark">
 
 <head>
-    <title>Generate Icons for YT Ultra</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidLux - Premium Video Downloader</title>
+    <meta name="description" content="Luxury video downloading experience with cinematic interface">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'luxury-black': '#0A0A0A',
+                        'luxury-gray': '#1A1A1A',
+                        'platinum': '#E5E7EB',
+                        'accent-gold': '#F59E0B',
+                        'accent-purple': '#8B5CF6',
+                    },
+                    fontFamily: {
+                        'display': ['SF Pro Display', 'system-ui', 'sans-serif'],
+                        'body': ['SF Pro Text', 'system-ui', 'sans-serif'],
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles -->
     <style>
+        :root {
+            --luxury-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f5f5f5;
+            background: #0A0A0A;
+            overflow-x: hidden;
         }
 
-        .icon-preview {
-            display: inline-block;
-            margin: 10px;
-            text-align: center;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .hero-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 50%, #2A2A2A 100%);
+            z-index: -1;
         }
 
-        canvas {
-            display: block;
-            margin: 0 auto 10px;
-            border: 1px solid #ddd;
+        .hero-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="0.5" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="0.3" fill="%23ffffff" opacity="0.05"/><circle cx="50" cy="10" r="0.2" fill="%23ffffff" opacity="0.08"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
         }
 
-        .download-btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #dc2626;
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .luxury-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .luxury-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+
+        .download-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .download-card:hover::before {
+            left: 100%;
+        }
+
+        .download-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .quality-badge {
+            background: linear-gradient(135deg, #8B5CF6, #F59E0B);
             color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(139, 92, 246, 0.8), 0 0 40px rgba(245, 158, 11, 0.3);
+            }
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #8B5CF6, #F59E0B);
+            height: 8px;
+            border-radius: 12px;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: linear-gradient(135deg, #8B5CF6, #F59E0B);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.6);
+        }
+
+        .trending-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #EF4444, #F59E0B);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            animation: trending-pulse 3s infinite;
+        }
+
+        @keyframes trending-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .nav-glass {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                padding: 2rem 1rem;
+            }
+
+            .download-card {
+                margin-bottom: 1rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 
-<body>
-    <h1>YT Ultra Icon Generator</h1>
-    <p>This page generates all required icons for the PWA. Right-click and save each icon.</p>
+<body class="dark:bg-luxury-black text-white">
+    <div class="hero-background"></div>
 
-    <div id="icons"></div>
+    <!-- Navigation -->
+    <nav class="nav-glass fixed w-full top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <div
+                        class="w-8 h-8 bg-gradient-to-r from-accent-purple to-accent-gold rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">V</span>
+                    </div>
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-gold bg-clip-text text-transparent">VidLux</span>
+                </div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#" class="text-platinum hover:text-accent-purple transition-colors">Discover</a>
+                    <a href="#" class="text-platinum hover:text-accent-purple transition-colors">Downloads</a>
+                    <a href="#" class="text-platinum hover:text-accent-purple transition-colors">Premium</a>
+                </div>
+                <button class="md:hidden text-platinum">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center relative pt-20">
+        <div class="container mx-auto px-4 text-center hero-content">
+            <h1
+                class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-platinum to-accent-purple bg-clip-text text-transparent fade-in">
+                Cinematic Downloads
+            </h1>
+            <p class="text-xl md:text-2xl text-platinum mb-12 max-w-3xl mx-auto fade-in" style="animation-delay: 0.2s">
+                Transform video downloading into a premium experience. Netflix-quality interface meets Google-speed
+                performance.
+            </p>
+
+            <!-- Smart URL Input -->
+            <div class="max-w-4xl mx-auto mb-16 slide-up" style="animation-delay: 0.4s">
+                <div class="glass-morphism rounded-2xl p-8">
+                    <div class="relative">
+                        <input type="url" id="videoUrl" placeholder="Paste any video URL to experience the magic..."
+                            class="luxury-input w-full py-4 px-6 rounded-xl text-white placeholder-gray-400 text-lg">
+                        <button id="analyzeBtn"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-accent-purple to-accent-gold text-white px-6 py-2 rounded-lg font-semibold transition-all hover:scale-105">
+                            Analyze
+                        </button>
+                    </div>
+
+                    <!-- Instant Preview -->
+                    <div id="instantPreview" class="mt-6 hidden">
+                        <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
+                            <div
+                                class="w-24 h-16 bg-gradient-to-br from-accent-purple to-accent-gold rounded-lg flex-shrink-0 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-white font-semibold">Video Preview</h3>
+                                <p class="text-gray-400 text-sm">Analyzing content...</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <span class="quality-badge px-3 py-1 rounded-full">4K</span>
+                                <span class="quality-badge px-3 py-1 rounded-full">HD</span>
+                                <span class="quality-badge px-3 py-1 rounded-full">Audio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Discovery Hub -->
+    <section class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <h2
+                class="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-white to-accent-purple bg-clip-text text-transparent">
+                Discover Premium Content
+            </h2>
+
+            <!-- Trending Downloads -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-semibold mb-8 text-platinum">Trending Now</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="download-card rounded-2xl p-6 relative">
+                        <div class="trending-indicator">🔥 Trending</div>
+                        <div
+                            class="w-full h-48 bg-gradient-to-br from-accent-purple to-accent-gold rounded-xl mb-4 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2 text-white">Premium Tutorial Series</h4>
+                        <p class="text-gray-400 mb-4">High-quality educational content</p>
+                        <div class="flex justify-between items-center">
+                            <span class="quality-badge px-3 py-1 rounded-full">4K Ultra</span>
+                            <button
+                                class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="download-card rounded-2xl p-6 relative">
+                        <div
+                            class="w-full h-48 bg-gradient-to-br from-accent-gold to-red-500 rounded-xl mb-4 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2 text-white">Music Collection</h4>
+                        <p class="text-gray-400 mb-4">Curated audio experiences</p>
+                        <div class="flex justify-between items-center">
+                            <span class="quality-badge px-3 py-1 rounded-full">Hi-Fi</span>
+                            <button
+                                class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="download-card rounded-2xl p-6 relative">
+                        <div
+                            class="w-full h-48 bg-gradient-to-br from-green-500 to-blue-500 rounded-xl mb-4 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2 text-white">Documentary Films</h4>
+                        <p class="text-gray-400 mb-4">Award-winning documentaries</p>
+                        <div class="flex justify-between items-center">
+                            <span class="quality-badge px-3 py-1 rounded-full">HDR</span>
+                            <button
+                                class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Collections -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-semibold mb-8 text-platinum">Your Collections</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-morphism rounded-2xl p-6 text-center">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-r from-accent-purple to-accent-gold rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-2xl">🎵</span>
+                        </div>
+                        <h4 class="text-lg font-semibold mb-2">Your Music Videos</h4>
+                        <p class="text-gray-400 text-sm mb-4">47 videos • 12.3 GB</p>
+                        <button
+                            class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Explore</button>
+                    </div>
+
+                    <div class="glass-morphism rounded-2xl p-6 text-center">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-2xl">📚</span>
+                        </div>
+                        <h4 class="text-lg font-semibold mb-2">Educational Content</h4>
+                        <p class="text-gray-400 text-sm mb-4">23 videos • 8.7 GB</p>
+                        <button
+                            class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Explore</button>
+                    </div>
+
+                    <div class="glass-morphism rounded-2xl p-6 text-center">
+                        <div
+                            class="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-2xl">🔥</span>
+                        </div>
+                        <h4 class="text-lg font-semibold mb-2">Recently Popular</h4>
+                        <p class="text-gray-400 text-sm mb-4">15 videos • 5.2 GB</p>
+                        <button
+                            class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Explore</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Management Theater -->
+    <section class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <h2
+                class="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-white to-accent-purple bg-clip-text text-transparent">
+                Download Orchestra
+            </h2>
+
+            <div class="glass-morphism rounded-2xl p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-2xl font-semibold text-white">Active Downloads</h3>
+                    <button
+                        class="bg-gradient-to-r from-accent-purple to-accent-gold text-white px-6 py-2 rounded-lg font-semibold hover:scale-105 transition-transform">
+                        Add to Queue
+                    </button>
+                </div>
+
+                <!-- Download Items -->
+                <div class="space-y-6">
+                    <div class="download-item flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
+                        <div
+                            class="w-16 h-12 bg-gradient-to-br from-accent-purple to-accent-gold rounded-lg flex-shrink-0 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="text-white font-semibold">Amazing Tutorial - Part 1</h4>
+                            <p class="text-gray-400 text-sm">4K • 1.2 GB • 45% complete</p>
+                            <div class="progress-container mt-2">
+                                <div class="progress-bar" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        <div class="text-accent-purple font-semibold">2.3 MB/s</div>
+                        <button class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="download-item flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
+                        <div
+                            class="w-16 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex-shrink-0 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="text-white font-semibold">Epic Music Compilation</h4>
+                            <p class="text-gray-400 text-sm">Hi-Fi Audio • 450 MB • 78% complete</p>
+                            <div class="progress-container mt-2">
+                                <div class="progress-bar" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div class="text-accent-purple font-semibold">1.8 MB/s</div>
+                        <button class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-accent-purple mb-2">156</div>
+                        <div class="text-gray-400">Total Downloads</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-accent-gold mb-2">89.4 GB</div>
+                        <div class="text-gray-400">Total Size</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-400 mb-2">4.2 MB/s</div>
+                        <div class="text-gray-400">Average Speed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premium Features Showcase -->
+    <section class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <h2
+                class="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-white to-accent-purple bg-clip-text text-transparent">
+                Premium Features
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-morphism rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-accent-purple to-accent-gold rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-white">AI Enhancement</h3>
+                    </div>
+                    <p class="text-gray-400 mb-6">Intelligent upscaling and quality enhancement powered by machine
+                        learning algorithms.</p>
+                    <button
+                        class="bg-gradient-to-r from-accent-purple to-accent-gold text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
+                        Try Enhancement
+                    </button>
+                </div>
+
+                <div class="glass-morphism rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-white">Format Alchemy</h3>
+                    </div>
+                    <p class="text-gray-400 mb-6">Convert between any format with lossless quality and intelligent
+                        optimization.</p>
+                    <button
+                        class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
+                        Convert Now
+                    </button>
+                </div>
+
+                <div class="glass-morphism rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-white">Subtitle Magic</h3>
+                    </div>
+                    <p class="text-gray-400 mb-6">Auto-generate, translate, and customize subtitles with advanced
+                        styling options.</p>
+                    <button
+                        class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
+                        Generate Subtitles
+                    </button>
+                </div>
+
+                <div class="glass-morphism rounded-2xl p-8">
+                    <div class="flex items-center mb-6">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM15.657 6.343a1 1 0 011.414 0A9.972 9.972 0 0119 12a9.972 9.972 0 01-1.929 5.657 1 1 0 11-1.414-1.414A7.971 7.971 0 0017 12a7.971 7.971 0 00-1.343-4.243 1 1 0 010-1.414z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-white">Audio Extraction Studio</h3>
+                    </div>
+                    <p class="text-gray-400 mb-6">Extract pristine audio with professional-grade waveform visualization
+                        and editing.</p>
+                    <button
+                        class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
+                        Extract Audio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Action Button -->
+    <button class="floating-action" id="quickDownload" title="Quick Download">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+        </svg>
+    </button>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
     <script>
-        // Icon sizes needed
-        const sizes = [16, 32, 48, 64, 96, 128, 192, 256, 512];
-        const container = document.getElementById('icons');
+        class VidLuxDownloader {
+            constructor() {
+                this.init();
+                this.setupEventListeners();
+                this.setupAnimations();
+            }
 
-        // Create icons
-        sizes.forEach(size => {
-            const div = document.createElement('div');
-            div.className = 'icon-preview';
+            init() {
+                // Initialize app state
+                this.downloads = [];
+                this.currentDownloads = 0;
+                this.totalDownloaded = 156;
+                this.totalSize = 89.4;
+                this.averageSpeed = 4.2;
+            }
 
-            const canvas = document.createElement('canvas');
-            canvas.width = size;
-            canvas.height = size;
+            setupEventListeners() {
+                // URL input analysis
+                const urlInput = document.getElementById('videoUrl');
+                const analyzeBtn = document.getElementById('analyzeBtn');
 
-            const ctx = canvas.getContext('2d');
+                urlInput.addEventListener('input', this.handleUrlInput.bind(this));
+                urlInput.addEventListener('paste', this.handleUrlPaste.bind(this));
+                analyzeBtn.addEventListener('click', this.analyzeVideo.bind(this));
 
-            // Background
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(0, 0, size, size);
+                // Enter key support
+                urlInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.analyzeVideo();
+                    }
+                });
 
-            // Draw play button
-            ctx.fillStyle = 'white';
-            const centerX = size / 2;
-            const centerY = size / 2;
-            const triangleSize = size * 0.3;
+                // Floating action button
+                document.getElementById('quickDownload').addEventListener('click', this.showQuickDownload.bind(this));
 
-            ctx.beginPath();
-            ctx.moveTo(centerX - triangleSize / 2, centerY - triangleSize);
-            ctx.lineTo(centerX - triangleSize / 2, centerY + triangleSize);
-            ctx.lineTo(centerX + triangleSize, centerY);
-            ctx.closePath();
-            ctx.fill();
+                // Download cards hover effects
+                this.setupCardInteractions();
 
-            // Add to DOM
-            div.appendChild(canvas);
+                // Progress bar animations
+                this.animateProgressBars();
+            }
 
-            // Add label
-            const label = document.createElement('div');
-            label.textContent = `${size}x${size}`;
-            div.appendChild(label);
+            handleUrlInput(e) {
+                const url = e.target.value;
+                const preview = document.getElementById('instantPreview');
 
-            // Add download link
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = `icon-${size}x${size}.png`;
-            link.className = 'download-btn';
-            link.textContent = 'Download';
-            div.appendChild(link);
+                if (this.isValidUrl(url)) {
+                    this.showInstantPreview(url);
+                } else {
+                    preview.classList.add('hidden');
+                }
+            }
 
-            container.appendChild(div);
-        });
+            handleUrlPaste(e) {
+                setTimeout(() => {
+                    const url = e.target.value;
+                    if (this.isValidUrl(url)) {
+                        this.triggerHapticFeedback();
+                        this.showInstantPreview(url);
+                        this.analyzeVideo();
+                    }
+                }, 100);
+            }
 
-        // Create maskable icon
-        const maskableDiv = document.createElement('div');
-        maskableDiv.className = 'icon-preview';
+            isValidUrl(string) {
+                try {
+                    new URL(string);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            }
 
-        const maskableCanvas = document.createElement('canvas');
-        maskableCanvas.width = 512;
-        maskableCanvas.height = 512;
+            showInstantPreview(url) {
+                const preview = document.getElementById('instantPreview');
+                preview.classList.remove('hidden');
 
-        const mCtx = maskableCanvas.getContext('2d');
+                // Simulate smart detection
+                setTimeout(() => {
+                    const videoTitle = this.extractVideoTitle(url);
+                    const qualityBadges = preview.querySelectorAll('.quality-badge');
 
-        // Background with safe area
-        mCtx.fillStyle = '#dc2626';
-        mCtx.fillRect(0, 0, 512, 512);
+                    preview.querySelector('h3').textContent = videoTitle;
+                    preview.querySelector('p').textContent = 'Ready to download • Multiple formats available';
 
-        // Draw play button (smaller for safe area)
-        mCtx.fillStyle = 'white';
-        const mCenterX = 256;
-        const mCenterY = 256;
-        const mTriangleSize = 120;
+                    // Animate quality badges
+                    qualityBadges.forEach((badge, index) => {
+                        setTimeout(() => {
+                            badge.style.animation = 'pulse-glow 2s infinite';
+                        }, index * 200);
+                    });
+                }, 500);
+            }
 
-        mCtx.beginPath();
-        mCtx.moveTo(mCenterX - mTriangleSize / 2, mCenterY - mTriangleSize);
-        mCtx.lineTo(mCenterX - mTriangleSize / 2, mCenterY + mTriangleSize);
-        mCtx.lineTo(mCenterX + mTriangleSize, mCenterY);
-        mCtx.closePath();
-        mCtx.fill();
+            extractVideoTitle(url) {
+                // Simulate smart title extraction
+                const titles = [
+                    'Amazing Tutorial Series - Episode 1',
+                    'Epic Music Video Compilation',
+                    'Documentary: The Future of Technology',
+                    'Coding Masterclass - Advanced Techniques',
+                    'Nature Documentary - 4K Ultra HD'
+                ];
+                return titles[Math.floor(Math.random() * titles.length)];
+            }
 
-        maskableDiv.appendChild(maskableCanvas);
+            analyzeVideo() {
+                const urlInput = document.getElementById('videoUrl');
+                const url = urlInput.value;
 
-        const mLabel = document.createElement('div');
-        mLabel.textContent = 'Maskable Icon (512x512)';
-        maskableDiv.appendChild(mLabel);
+                if (!this.isValidUrl(url)) {
+                    this.showNotification('Please enter a valid URL', 'error');
+                    return;
+                }
 
-        const mLink = document.createElement('a');
-        mLink.href = maskableCanvas.toDataURL('image/png');
-        mLink.download = 'maskable-icon.png';
-        mLink.className = 'download-btn';
-        mLink.textContent = 'Download';
-        maskableDiv.appendChild(mLink);
+                this.triggerHapticFeedback();
+                this.showAnalysisAnimation();
 
-        container.appendChild(maskableDiv);
+                // Simulate analysis
+                setTimeout(() => {
+                    this.showDownloadOptions();
+                    this.showNotification('Video analyzed successfully!', 'success');
+                }, 2000);
+            }
 
-        // Create favicon
-        const faviconCanvas = document.createElement('canvas');
-        faviconCanvas.width = 32;
-        faviconCanvas.height = 32;
-        const fCtx = faviconCanvas.getContext('2d');
+            showAnalysisAnimation() {
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                const originalText = analyzeBtn.textContent;
 
-        fCtx.fillStyle = '#dc2626';
-        fCtx.fillRect(0, 0, 32, 32);
-
-        fCtx.fillStyle = 'white';
-        fCtx.beginPath();
-        fCtx.moveTo(11, 8);
-        fCtx.lineTo(11, 24);
-        fCtx.lineTo(24, 16);
-        fCtx.closePath();
-        fCtx.fill();
-
-        // Convert to favicon
-        faviconCanvas.toBlob(blob => {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const faviconDiv = document.createElement('div');
-                faviconDiv.className = 'icon-preview';
-                faviconDiv.innerHTML = `
-                    <p>Favicon.ico - Save the 32x32 PNG and convert to ICO format</p>
-                    <a href="${e.target.result}" download="favicon-32.png" class="download-btn">Download PNG</a>
+                analyzeBtn.innerHTML = `
+                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing...
                 `;
-                container.appendChild(faviconDiv);
-            };
-            reader.readAsDataURL(blob);
+
+                setTimeout(() => {
+                    analyzeBtn.textContent = originalText;
+                }, 2000);
+            }
+
+            showDownloadOptions() {
+                // Create download options modal or expand interface
+                console.log('Showing download options...');
+            }
+
+            setupCardInteractions() {
+                const cards = document.querySelectorAll('.download-card');
+
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        this.triggerHapticFeedback('light');
+                    });
+
+                    card.addEventListener('click', () => {
+                        this.triggerHapticFeedback();
+                        this.selectCard(card);
+                    });
+                });
+            }
+
+            selectCard(card) {
+                // Remove previous selections
+                document.querySelectorAll('.download-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+
+                // Add selection to clicked card
+                card.classList.add('selected');
+                card.style.borderColor = 'rgba(139, 92, 246, 0.5)';
+                card.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.3)';
+            }
+
+            animateProgressBars() {
+                const progressBars = document.querySelectorAll('.progress-bar');
+
+                progressBars.forEach(bar => {
+                    const width = parseInt(bar.style.width);
+                    bar.style.width = '0%';
+
+                    setTimeout(() => {
+                        bar.style.width = width + '%';
+                    }, 500);
+                });
+            }
+
+            showQuickDownload() {
+                this.triggerHapticFeedback();
+
+                // Create quick download modal
+                const modal = this.createQuickDownloadModal();
+                document.body.appendChild(modal);
+
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 100);
+            }
+
+            createQuickDownloadModal() {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 transition-opacity duration-300';
+
+                modal.innerHTML = `
+                    <div class="glass-morphism rounded-2xl p-8 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
+                        <h3 class="text-2xl font-bold mb-6 text-center text-white">Quick Download</h3>
+                        <input type="url" placeholder="Paste URL here..." class="luxury-input w-full py-3 px-4 rounded-lg mb-4 text-white">
+                        <div class="flex space-x-4">
+                            <button class="flex-1 bg-gradient-to-r from-accent-purple to-accent-gold text-white py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
+                                Download
+                            </button>
+                            <button class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-500 transition-colors" onclick="this.closest('.fixed').remove()">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+
+                return modal;
+            }
+
+            setupAnimations() {
+                // Intersection Observer for scroll animations
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('fade-in');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                // Observe elements for animation
+                document.querySelectorAll('.download-card, .glass-morphism').forEach(el => {
+                    observer.observe(el);
+                });
+
+                // Parallax effect for hero background
+                window.addEventListener('scroll', this.handleParallaxScroll.bind(this));
+            }
+
+            handleParallaxScroll() {
+                const scrolled = window.pageYOffset;
+                const parallax = document.querySelector('.hero-background');
+                const speed = scrolled * 0.5;
+
+                parallax.style.transform = `translateY(${speed}px)`;
+            }
+
+            triggerHapticFeedback(intensity = 'medium') {
+                // Trigger haptic feedback if available
+                if (navigator.vibrate) {
+                    const patterns = {
+                        light: 10,
+                        medium: 50,
+                        strong: 100
+                    };
+                    navigator.vibrate(patterns[intensity] || 50);
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-50 glass-morphism rounded-lg p-4 text-white transform translate-x-full transition-transform duration-300`;
+
+                const colors = {
+                    success: 'border-green-500',
+                    error: 'border-red-500',
+                    info: 'border-blue-500'
+                };
+
+                notification.classList.add(colors[type] || colors.info);
+                notification.textContent = message;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+
+            // Advanced features
+            enableVoiceCommands() {
+                if ('speechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const recognition = new SpeechRecognition();
+
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+
+                    recognition.onresult = (event) => {
+                        const command = event.results[0][0].transcript.toLowerCase();
+                        this.processVoiceCommand(command);
+                    };
+
+                    // Add voice command button
+                    this.addVoiceCommandButton(recognition);
+                }
+            }
+
+            processVoiceCommand(command) {
+                if (command.includes('download') && command.includes('4k')) {
+                    this.showNotification('Voice command recognized: Download in 4K', 'success');
+                } else if (command.includes('pause')) {
+                    this.showNotification('Voice command recognized: Pause downloads', 'info');
+                } else {
+                    this.showNotification('Voice command not recognized', 'error');
+                }
+            }
+
+            addVoiceCommandButton(recognition) {
+                const voiceBtn = document.createElement('button');
+                voiceBtn.className = 'fixed bottom-32 right-4 w-12 h-12 bg-gradient-to-r from-accent-purple to-accent-gold rounded-full flex items-center justify-center z-50';
+                voiceBtn.innerHTML = `
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path>
+                    </svg>
+                `;
+
+                voiceBtn.addEventListener('click', () => {
+                    recognition.start();
+                    this.triggerHapticFeedback();
+                });
+
+                document.body.appendChild(voiceBtn);
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new VidLuxDownloader();
+
+            // Enable advanced features
+            app.enableVoiceCommands();
+
+            // Add some demo interactions
+            setTimeout(() => {
+                app.showNotification('Welcome to VidLux Premium Experience!', 'success');
+            }, 1000);
         });
+
+        // Service Worker registration for offline functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
     </script>
 </body>
 
