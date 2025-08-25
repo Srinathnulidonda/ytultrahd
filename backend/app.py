@@ -5,13 +5,17 @@ import asyncio
 import threading
 import tempfile
 import hashlib
+import gzip
+import io
 import multiprocessing
-from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
+import random
+from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache, wraps
-from collections import defaultdict
+from collections import defaultdict, deque
+from queue import Queue, Empty
 import gc
-import traceback
+import weakref
 
 from flask import Flask, request, jsonify, send_file, Response, g
 from flask_cors import CORS
@@ -19,579 +23,712 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import yt_dlp
 import logging
 
-# Render Free Tier Configuration
+# Render Free Tier Optimizations
 CPU_COUNT = max(1, multiprocessing.cpu_count() // 2)
-MAX_WORKERS = min(6, CPU_COUNT * 2)
-DOWNLOAD_WORKERS = 3
-CHUNK_SIZE = 512 * 1024  # 512KB
-MAX_CONCURRENT_DOWNLOADS = 3
-MAX_FILE_SIZE = 800 * 1024 * 1024  # 800MB for safety
+MAX_WORKERS = min(8, CPU_COUNT * 2)
+MAX_PROCESSES = 2
+DOWNLOAD_WORKERS = min(4, CPU_COUNT)
+CHUNK_SIZE = 512 * 1024
+BUFFER_SIZE = 2 * 1024 * 1024
+MAX_CONCURRENT_DOWNLOADS = 3  # Reduced further to avoid rate limits
+MAX_FILE_SIZE = 1024 * 1024 * 1024
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'yt_render')
-CACHE_DURATION = 600  # 10 minutes
-FILE_RETENTION_TIME = 1800  # 30 minutes
+CACHE_DURATION = 600
+FILE_RETENTION_TIME = 1800
+MAX_CACHE_SIZE = 100
 
-# Ensure temp directory exists
+# Rate limiting to avoid bot detection
+RATE_LIMIT_DELAY = 2  # Minimum seconds between requests
+last_request_time = 0
+request_count = 0
+
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# Configure logging
+# Enhanced logging for debugging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
-
-# Suppress yt-dlp logs
-logging.getLogger('yt_dlp').setLevel(logging.ERROR)
+logging.getLogger('yt_dlp').setLevel(logging.WARNING)
 
 app = Flask(__name__)
-
-# Enhanced CORS for Render
-CORS(app, 
-     resources={
-         r"/api/*": {
-             "origins": "*",
-             "methods": ["GET", "POST", "OPTIONS"],
-             "allow_headers": ["Content-Type", "Accept", "Authorization"]
-         }
-     })
-
+CORS(app, origins=["*"], methods=["GET", "POST", "OPTIONS"])
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 # Global structures
-executor = ThreadPoolExecutor(max_workers=MAX_WORKERS)
-download_status = {}
+executor = ThreadPoolExecutor(max_workers=MAX_WORKERS, thread_name_prefix='API')
+download_status = weakref.WeakValueDictionary()
 active_downloads = {}
-simple_cache = {}
 performance_metrics = {
     'total_requests': 0,
-    'errors': 0,
-    'successful_downloads': 0,
+    'successful_extractions': 0,
+    'failed_extractions': 0,
+    'bot_detections': 0,
     'start_time': time.time()
 }
 
-class SimpleProgressHook:
-    """Simplified progress tracking"""
+# User agents rotation for bot avoidance
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0'
+]
+
+def get_random_user_agent():
+    return random.choice(USER_AGENTS)
+
+class LimitedCache:
+    def __init__(self, max_size=MAX_CACHE_SIZE):
+        self.cache = {}
+        self.max_size = max_size
+        self.access_times = {}
+    
+    def get(self, key):
+        if key in self.cache:
+            data, timestamp = self.cache[key]
+            if time.time() - timestamp < CACHE_DURATION:
+                self.access_times[key] = time.time()
+                return data
+            else:
+                del self.cache[key]
+                self.access_times.pop(key, None)
+        return None
+    
+    def set(self, key, data):
+        if len(self.cache) >= self.max_size:
+            oldest_keys = sorted(self.access_times.keys(), 
+                               key=lambda k: self.access_times[k])[:self.max_size//4]
+            for old_key in oldest_keys:
+                self.cache.pop(old_key, None)
+                self.access_times.pop(old_key, None)
+        
+        self.cache[key] = (data, time.time())
+        self.access_times[key] = time.time()
+
+memory_cache = LimitedCache()
+
+class Status:
+    def __init__(self, download_id):
+        self.download_id = download_id
+        self.data = {
+            'status': 'initializing',
+            'progress': 0,
+            'start_time': time.time()
+        }
+    
+    def update(self, **kwargs):
+        self.data.update(kwargs)
+    
+    def get(self, key, default=None):
+        return self.data.get(key, default)
+    
+    def copy(self):
+        return self.data.copy()
+
+class RenderProgressHook:
     def __init__(self, download_id):
         self.download_id = download_id
         self.last_update = 0
+        self.update_count = 0
         
     def __call__(self, d):
         current_time = time.time()
+        self.update_count += 1
         
-        # Update every 3 seconds
-        if current_time - self.last_update < 3.0:
+        if (current_time - self.last_update < 2.0) and (self.update_count % 20 != 0):
             return
-            
+        
         self.last_update = current_time
         
         try:
-            if self.download_id not in download_status:
-                return
+            if self.download_id in active_downloads:
+                status_obj = active_downloads[self.download_id]
                 
-            if d['status'] == 'downloading':
-                total = d.get('total_bytes') or d.get('total_bytes_estimate', 0)
-                downloaded = d.get('downloaded_bytes', 0)
-                
-                if total > 0:
-                    progress = (downloaded / total) * 100
-                    download_status[self.download_id].update({
-                        'status': 'downloading',
-                        'progress': round(progress, 1),
-                        'speed': d.get('speed', 0),
-                        'downloaded_bytes': downloaded,
-                        'total_bytes': total
-                    })
+                if d['status'] == 'downloading':
+                    total = d.get('total_bytes') or d.get('total_bytes_estimate', 0)
+                    downloaded = d.get('downloaded_bytes', 0)
+                    progress = (downloaded / total * 100) if total > 0 else 0
                     
-            elif d['status'] == 'finished':
-                download_status[self.download_id].update({
-                    'status': 'processing',
-                    'progress': 90,
-                    'message': 'Processing download...'
-                })
-                
+                    status_obj.update(
+                        status='downloading',
+                        progress=round(progress, 1),
+                        speed=d.get('speed', 0),
+                        eta=d.get('eta', 0),
+                        downloaded_bytes=downloaded,
+                        total_bytes=total
+                    )
+                    
+                elif d['status'] == 'finished':
+                    status_obj.update(
+                        status='finalizing',
+                        progress=95,
+                        message='Processing...'
+                    )
+                    
         except Exception as e:
-            logger.error(f"Progress hook error: {e}")
+            logger.error(f"Progress update error: {e}")
 
-def safe_json_response(data, status_code=200):
-    """Safe JSON response with error handling"""
-    try:
-        return jsonify(data), status_code
-    except Exception as e:
-        logger.error(f"JSON response error: {e}")
-        return jsonify({'error': 'Response formatting error'}), 500
+@lru_cache(maxsize=1000)
+def get_cache_key(url: str) -> str:
+    return hashlib.md5(url.encode()).hexdigest()[:12]
 
-def validate_url(url):
-    """Basic URL validation"""
-    if not url or not isinstance(url, str):
-        return False
+def apply_rate_limiting():
+    """Apply rate limiting to avoid bot detection"""
+    global last_request_time, request_count
     
-    url = url.strip()
+    current_time = time.time()
     
-    # Basic URL patterns
-    valid_patterns = [
-        'youtube.com/watch',
-        'youtu.be/',
-        'm.youtube.com/watch',
-        'youtube.com/shorts/',
-        'youtube.com/embed/'
+    # Reset counter every hour
+    if current_time - last_request_time > 3600:
+        request_count = 0
+    
+    # Apply delay between requests
+    if current_time - last_request_time < RATE_LIMIT_DELAY:
+        sleep_time = RATE_LIMIT_DELAY - (current_time - last_request_time)
+        time.sleep(sleep_time)
+    
+    request_count += 1
+    last_request_time = time.time()
+    
+    # Add extra delay if too many requests
+    if request_count > 20:  # After 20 requests, add random delay
+        time.sleep(random.uniform(1, 3))
+
+def get_anti_bot_ydl_opts() -> dict:
+    """Get yt-dlp options designed to avoid bot detection"""
+    user_agent = get_random_user_agent()
+    
+    return {
+        'quiet': False,
+        'no_warnings': False,  # Keep warnings for debugging
+        'extract_flat': False,
+        'skip_download': True,
+        'socket_timeout': 30,
+        'http_headers': {
+            'User-Agent': user_agent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Cache-Control': 'max-age=0'
+        },
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['web', 'android', 'ios'],
+                'player_skip': ['webpage'],
+                'skip': ['dash'],
+                'max_comments': [0],  # Don't extract comments
+                'comment_sort': ['top'],
+                'max_comment_depth': 1
+            }
+        },
+        # Additional anti-detection measures
+        'sleep_interval_requests': random.uniform(1, 3),  # Random delay between requests
+        'max_sleep_interval': 5,
+        'http_chunk_size': random.randint(8192, 65536),  # Random chunk size
+        'retries': 3,
+        'fragment_retries': 3,
+        'ignoreerrors': True,
+    }
+
+def extract_info_with_fallbacks(url: str) -> dict:
+    """Extract info with multiple fallback strategies"""
+    apply_rate_limiting()
+    
+    strategies = [
+        # Strategy 1: Standard extraction with anti-bot measures
+        lambda: extract_with_strategy(url, get_anti_bot_ydl_opts()),
+        
+        # Strategy 2: Mobile client preference
+        lambda: extract_with_strategy(url, {
+            **get_anti_bot_ydl_opts(),
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'ios'],
+                    'player_skip': ['webpage', 'configs'],
+                }
+            }
+        }),
+        
+        # Strategy 3: Embedded extraction
+        lambda: extract_with_strategy(url, {
+            **get_anti_bot_ydl_opts(),
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['web_embedded'],
+                }
+            }
+        }),
+        
+        # Strategy 4: Age gate bypass
+        lambda: extract_with_strategy(url, {
+            **get_anti_bot_ydl_opts(),
+            'age_limit': 99,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['web_age_gate_bypass'],
+                }
+            }
+        })
     ]
     
-    return any(pattern in url.lower() for pattern in valid_patterns)
-
-def get_safe_ydl_opts(quality, download_id):
-    """Safe yt-dlp options for Render"""
-    timestamp = int(time.time())
-    output_path = os.path.join(TEMP_DIR, f'download_{download_id}_{timestamp}.%(ext)s')
+    last_error = None
     
-    # Very conservative options
+    for i, strategy in enumerate(strategies, 1):
+        try:
+            logger.info(f"Trying extraction strategy {i}/4")
+            result = strategy()
+            if result:
+                performance_metrics['successful_extractions'] += 1
+                logger.info(f"Strategy {i} succeeded")
+                return result
+        except Exception as e:
+            last_error = e
+            error_msg = str(e).lower()
+            
+            # Check for bot detection
+            if any(phrase in error_msg for phrase in ['bot', 'sign in', 'captcha', '429']):
+                performance_metrics['bot_detections'] += 1
+                logger.warning(f"Bot detection in strategy {i}: {str(e)[:100]}")
+                # Add longer delay before next attempt
+                time.sleep(random.uniform(3, 6))
+            else:
+                logger.warning(f"Strategy {i} failed: {str(e)[:100]}")
+                time.sleep(1)  # Short delay between strategies
+    
+    performance_metrics['failed_extractions'] += 1
+    raise Exception(f"All extraction strategies failed. Last error: {str(last_error)[:150]}")
+
+def extract_with_strategy(url: str, opts: dict) -> dict:
+    """Extract with specific strategy"""
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        return ydl.extract_info(url, download=False)
+
+def process_info_safely(info: dict) -> dict:
+    """Safely process extracted info"""
+    try:
+        processed = {
+            'title': (info.get('title', '') or info.get('display_title', '') or 'Unknown Title')[:80],
+            'duration': info.get('duration', 0) or 0,
+            'uploader': (info.get('uploader', '') or info.get('channel', '') or 'Unknown')[:30],
+            'view_count': info.get('view_count', 0) or 0,
+            'thumbnail': info.get('thumbnail', '') or '',
+            'id': info.get('id', '') or info.get('display_id', ''),
+            'description': ((info.get('description', '') or '')[:150] + '...') if info.get('description') else 'No description available',
+            'upload_date': info.get('upload_date', '') or '',
+            'webpage_url': info.get('webpage_url', '') or '',
+            'extractor': info.get('extractor', 'youtube')
+        }
+        
+        # Process available formats more safely
+        available_qualities = []
+        if 'formats' in info and info['formats']:
+            heights = set()
+            for fmt in info['formats']:
+                height = fmt.get('height', 0)
+                if height and height >= 144 and height <= 2160:  # Valid video heights
+                    heights.add(height)
+            
+            available_qualities = sorted(list(heights), reverse=True)[:6]  # Max 6 qualities
+        
+        # Add default qualities if none found
+        if not available_qualities:
+            available_qualities = [720, 480, 360, 240]
+        
+        processed['available_qualities'] = available_qualities
+        
+        # Add audio availability
+        has_audio = any(fmt.get('acodec', 'none') != 'none' for fmt in info.get('formats', []))
+        processed['has_audio'] = has_audio
+        
+        return processed
+        
+    except Exception as e:
+        logger.error(f"Error processing info: {e}")
+        # Return minimal safe info
+        return {
+            'title': 'Video Title Unavailable',
+            'duration': 0,
+            'uploader': 'Unknown',
+            'view_count': 0,
+            'thumbnail': '',
+            'id': info.get('id', 'unknown'),
+            'description': 'Description unavailable',
+            'available_qualities': [720, 480, 360],
+            'has_audio': True,
+            'extractor': 'youtube'
+        }
+
+def get_download_opts(quality: str, download_id: str) -> dict:
+    """Get download options with anti-bot measures"""
+    timestamp = int(time.time())
+    output_path = os.path.join(TEMP_DIR, f'render_{download_id}_{timestamp}.%(ext)s')
+    
+    base_opts = get_anti_bot_ydl_opts()
+    
     opts = {
+        **base_opts,
         'outtmpl': output_path,
-        'format': 'best[height<=720][filesize<400M]/best[height<=480]',  # Conservative format
+        'format_sort': ['res:1080', 'fps:30', 'source'],
         'merge_output_format': 'mp4',
-        'concurrent_fragment_downloads': 1,  # Single thread
-        'retries': 1,
-        'fragment_retries': 1,
-        'socket_timeout': 30,
+        'concurrent_fragment_downloads': 2,
+        'http_chunk_size': CHUNK_SIZE,
+        'buffersize': BUFFER_SIZE,
         'keep_fragments': False,
         'writeinfojson': False,
         'writesubtitles': False,
+        'writeautomaticsub': False,
         'writethumbnail': False,
-        'quiet': False,  # Keep logs for debugging
-        'no_warnings': False,
-        'progress_hooks': [SimpleProgressHook(download_id)],
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+        'writedescription': False,
+        'skip_download': False,  # We want to download now
+        'progress_hooks': [RenderProgressHook(download_id)],
     }
     
-    # Quality-specific adjustments
+    # Quality-specific format selection
+    format_map = {
+        'best': 'best[height<=1080][filesize<800M]/best[height<=720]',
+        '1080p': 'best[height<=1080][filesize<800M]',
+        '720p': 'best[height<=720][filesize<500M]',
+        '480p': 'best[height<=480][filesize<300M]',
+        '360p': 'best[height<=360][filesize<200M]',
+        'audio': 'bestaudio[abr<=192]/bestaudio'
+    }
+    
+    opts['format'] = format_map.get(quality, format_map['720p'])
+    
     if quality == 'audio':
-        opts['format'] = 'bestaudio[abr<=128]/bestaudio'
         opts['postprocessors'] = [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '128'
+            'preferredquality': '192'
         }]
-    elif quality == '480p':
-        opts['format'] = 'best[height<=480][filesize<200M]'
-    elif quality == '720p':
-        opts['format'] = 'best[height<=720][filesize<400M]'
     
     return opts
 
-def extract_video_info(url):
-    """Extract video information safely"""
-    try:
-        ydl_opts = {
-            'quiet': False,
-            'no_warnings': False,
-            'skip_download': True,
-            'socket_timeout': 20,
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['web']
-                }
-            }
-        }
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
+async def download_with_render_limits(url: str, quality: str, download_id: str):
+    """Download with anti-bot measures"""
+    loop = asyncio.get_event_loop()
+    
+    def download_worker():
+        try:
+            status_obj = Status(download_id)
+            active_downloads[download_id] = status_obj
             
-        return {
-            'title': (info.get('title', '') or 'Unknown Title')[:80],
-            'duration': info.get('duration', 0),
-            'uploader': (info.get('uploader', '') or 'Unknown')[:50],
-            'view_count': info.get('view_count', 0),
-            'thumbnail': info.get('thumbnail', ''),
-            'id': info.get('id', ''),
-            'description': (info.get('description', '') or '')[:200],
-            'available_qualities': ['720p', '480p', '360p', 'audio']
-        }
-        
-    except Exception as e:
-        logger.error(f"Info extraction error: {e}")
-        raise Exception(f"Failed to extract video info: {str(e)[:100]}")
+            status_obj.update(
+                status='starting',
+                message='Initializing download...'
+            )
+            
+            # Apply rate limiting before download
+            apply_rate_limiting()
+            
+            opts = get_download_opts(quality, download_id)
+            
+            status_obj.update(
+                status='downloading',
+                message='Download in progress...'
+            )
+            
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.download([url])
+            
+            # Find downloaded file
+            prefix = f'render_{download_id}_'
+            downloaded_file = None
+            
+            for file in os.listdir(TEMP_DIR):
+                if file.startswith(prefix) and not file.endswith(('.part', '.info.json', '.temp')):
+                    downloaded_file = os.path.join(TEMP_DIR, file)
+                    break
+            
+            if not downloaded_file or not os.path.exists(downloaded_file):
+                raise Exception("Download completed but file not found")
+            
+            file_size = os.path.getsize(downloaded_file)
+            
+            if file_size > MAX_FILE_SIZE:
+                os.remove(downloaded_file)
+                raise Exception(f'File too large: {file_size / (1024**3):.1f}GB')
+            
+            # Success
+            end_time = time.time()
+            download_time = end_time - status_obj.get('start_time')
+            
+            status_obj.update(
+                status='completed',
+                progress=100,
+                message='Download completed!',
+                file_path=downloaded_file,
+                file_size=file_size,
+                filename=os.path.basename(downloaded_file),
+                download_time=download_time,
+                completion_time=end_time
+            )
+            
+            return downloaded_file
+            
+        except Exception as e:
+            logger.error(f"Download error: {e}")
+            status_obj = active_downloads.get(download_id)
+            if status_obj:
+                status_obj.update(
+                    status='error',
+                    message=str(e)[:150],
+                    error_time=time.time()
+                )
+            raise
+    
+    return await loop.run_in_executor(executor, download_worker)
 
-def perform_download(url, quality, download_id):
-    """Perform the actual download"""
-    try:
-        logger.info(f"Starting download {download_id} for URL: {url[:50]}...")
-        
-        # Initialize status
-        download_status[download_id] = {
-            'status': 'starting',
-            'progress': 0,
-            'start_time': time.time(),
-            'message': 'Initializing download...',
-            'quality': quality
-        }
-        
-        # Get download options
-        opts = get_safe_ydl_opts(quality, download_id)
-        
-        # Update status
-        download_status[download_id]['status'] = 'downloading'
-        download_status[download_id]['message'] = 'Downloading video...'
-        
-        # Perform download
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([url])
-        
-        # Find downloaded file
-        prefix = f'download_{download_id}_'
-        downloaded_file = None
-        
-        for filename in os.listdir(TEMP_DIR):
-            if filename.startswith(prefix) and not filename.endswith(('.part', '.info.json')):
-                downloaded_file = os.path.join(TEMP_DIR, filename)
-                break
-        
-        if not downloaded_file or not os.path.exists(downloaded_file):
-            raise Exception("Download completed but file not found")
-        
-        # Check file size
-        file_size = os.path.getsize(downloaded_file)
-        if file_size > MAX_FILE_SIZE:
-            os.remove(downloaded_file)
-            raise Exception(f'File too large: {file_size / (1024**2):.1f}MB')
-        
-        # Success
-        end_time = time.time()
-        download_time = end_time - download_status[download_id]['start_time']
-        
-        download_status[download_id].update({
-            'status': 'completed',
-            'progress': 100,
-            'message': 'Download completed successfully!',
-            'file_path': downloaded_file,
-            'file_size': file_size,
-            'filename': os.path.basename(downloaded_file),
-            'download_time': round(download_time, 2),
-            'completion_time': end_time
-        })
-        
-        performance_metrics['successful_downloads'] += 1
-        logger.info(f"Download {download_id} completed successfully")
-        
-        return downloaded_file
-        
-    except Exception as e:
-        error_msg = str(e)[:200]
-        logger.error(f"Download {download_id} failed: {error_msg}")
-        
-        download_status[download_id] = {
-            'status': 'error',
-            'message': error_msg,
-            'error_time': time.time(),
-            'progress': 0
-        }
-        
-        performance_metrics['errors'] += 1
-        raise
-
-def cleanup_files():
-    """Clean up old files"""
+def cleanup_render_friendly():
+    """Enhanced cleanup"""
     try:
         current_time = time.time()
         cleaned = 0
         
         if os.path.exists(TEMP_DIR):
-            for filename in os.listdir(TEMP_DIR):
-                if filename.startswith('download_'):
-                    file_path = os.path.join(TEMP_DIR, filename)
+            for file in os.listdir(TEMP_DIR):
+                if file.startswith('render_'):
+                    file_path = os.path.join(TEMP_DIR, file)
                     try:
                         if current_time - os.path.getctime(file_path) > FILE_RETENTION_TIME:
                             os.remove(file_path)
                             cleaned += 1
-                    except Exception:
+                            if cleaned > 10:  # Limit cleanup per run
+                                break
+                    except:
                         pass
         
-        # Clean old download status
-        expired_downloads = []
-        for download_id, status in download_status.items():
-            if current_time - status.get('start_time', current_time) > FILE_RETENTION_TIME:
-                expired_downloads.append(download_id)
-        
-        for download_id in expired_downloads:
-            download_status.pop(download_id, None)
-            active_downloads.pop(download_id, None)
+        # Clean old downloads
+        if len(active_downloads) > 30:
+            old_downloads = list(active_downloads.keys())[:10]
+            for download_id in old_downloads:
+                if download_id in active_downloads:
+                    status_obj = active_downloads[download_id]
+                    if status_obj.get('file_path'):
+                        try:
+                            os.remove(status_obj.get('file_path'))
+                        except:
+                            pass
+                    del active_downloads[download_id]
         
         if cleaned > 0:
-            logger.info(f"Cleaned up {cleaned} files")
             gc.collect()
+            logger.info(f"Cleaned {cleaned} files")
             
     except Exception as e:
         logger.error(f"Cleanup error: {e}")
 
 def start_cleanup_thread():
-    """Start background cleanup"""
     def cleanup_worker():
         while True:
             try:
-                cleanup_files()
+                cleanup_render_friendly()
                 time.sleep(600)  # Every 10 minutes
             except Exception as e:
                 logger.error(f"Cleanup thread error: {e}")
                 time.sleep(300)
     
-    cleanup_thread = threading.Thread(target=cleanup_worker, daemon=True)
-    cleanup_thread.start()
-    logger.info("Cleanup thread started")
+    thread = threading.Thread(target=cleanup_worker, daemon=True)
+    thread.start()
 
 # API Routes
 @app.route('/')
 def index():
     uptime = time.time() - performance_metrics['start_time']
-    return safe_json_response({
-        'name': 'YouTube Downloader - Render Edition',
-        'version': '1.0.1',
+    success_rate = 0
+    total_extractions = performance_metrics['successful_extractions'] + performance_metrics['failed_extractions']
+    if total_extractions > 0:
+        success_rate = (performance_metrics['successful_extractions'] / total_extractions) * 100
+    
+    return jsonify({
+        'name': 'YouTube Downloader - Render Anti-Bot Edition',
+        'version': '2.0',
         'status': 'operational',
-        'uptime_minutes': round(uptime / 60, 1),
+        'uptime_seconds': round(uptime, 1),
+        'anti_bot_features': [
+            'Multiple extraction strategies',
+            'User-agent rotation',
+            'Rate limiting',
+            'Fallback mechanisms',
+            'Mobile client support'
+        ],
         'stats': {
             'total_requests': performance_metrics['total_requests'],
-            'successful_downloads': performance_metrics['successful_downloads'],
-            'errors': performance_metrics['errors'],
-            'active_downloads': len([s for s in download_status.values() 
-                                   if s.get('status') == 'downloading']),
-            'max_concurrent': MAX_CONCURRENT_DOWNLOADS
-        },
-        'supported_qualities': ['720p', '480p', '360p', 'audio']
+            'successful_extractions': performance_metrics['successful_extractions'],
+            'failed_extractions': performance_metrics['failed_extractions'],
+            'bot_detections': performance_metrics['bot_detections'],
+            'success_rate': f"{success_rate:.1f}%",
+            'active_downloads': len([d for d in active_downloads.values() 
+                                   if d.get('status') == 'downloading']),
+            'cache_size': len(memory_cache.cache)
+        }
     })
 
 @app.route('/api/health')
 def health():
-    return safe_json_response({
+    return jsonify({
         'status': 'healthy',
         'timestamp': int(time.time()),
+        'metrics': performance_metrics,
         'active_downloads': len(active_downloads),
-        'total_files': len([f for f in os.listdir(TEMP_DIR) if f.startswith('download_')]),
-        'memory_usage': f"{len(download_status)} statuses"
+        'temp_files': len([f for f in os.listdir(TEMP_DIR) if f.startswith('render_')])
     })
 
-@app.route('/api/info', methods=['POST', 'OPTIONS'])
+@app.route('/api/info', methods=['POST'])
 def get_info():
-    if request.method == 'OPTIONS':
-        return '', 200
-        
-    performance_metrics['total_requests'] += 1
     start_time = time.time()
+    performance_metrics['total_requests'] += 1
     
     try:
-        # Parse request data
-        try:
-            if request.is_json:
-                data = request.get_json()
-            else:
-                data = request.form.to_dict()
-        except Exception as e:
-            logger.error(f"Request parsing error: {e}")
-            return safe_json_response({
-                'success': False, 
-                'error': 'Invalid request format'
-            }, 400)
+        data = request.get_json()
+        if not data or 'url' not in data:
+            return jsonify({'success': False, 'error': 'URL required'}), 400
         
-        if not data:
-            return safe_json_response({
-                'success': False, 
-                'error': 'No data provided'
-            }, 400)
+        url = data['url'].strip()
+        cache_key = get_cache_key(url)
         
-        url = data.get('url')
-        if not url:
-            return safe_json_response({
-                'success': False, 
-                'error': 'URL is required'
-            }, 400)
+        # Check cache first
+        cached = memory_cache.get(cache_key)
+        if cached:
+            return jsonify({
+                'success': True,
+                'data': cached,
+                'cached': True,
+                'response_time_ms': round((time.time() - start_time) * 1000, 1)
+            })
         
-        url = str(url).strip()
+        # Extract with anti-bot strategies
+        logger.info(f"Extracting info for: {url[:50]}...")
+        info = extract_info_with_fallbacks(url)
+        processed = process_info_safely(info)
         
-        # Validate URL
-        if not validate_url(url):
-            return safe_json_response({
-                'success': False, 
-                'error': 'Invalid YouTube URL'
-            }, 400)
+        # Cache successful extraction
+        memory_cache.set(cache_key, processed)
         
-        # Check cache
-        cache_key = hashlib.md5(url.encode()).hexdigest()[:12]
-        if cache_key in simple_cache:
-            cached_data, cache_time = simple_cache[cache_key]
-            if time.time() - cache_time < CACHE_DURATION:
-                return safe_json_response({
-                    'success': True,
-                    'data': cached_data,
-                    'cached': True,
-                    'response_time_ms': round((time.time() - start_time) * 1000, 1)
-                })
-        
-        # Extract info
-        info = extract_video_info(url)
-        
-        # Cache the result
-        simple_cache[cache_key] = (info, time.time())
-        
-        # Limit cache size
-        if len(simple_cache) > 100:
-            oldest_key = min(simple_cache.keys(), 
-                           key=lambda k: simple_cache[k][1])
-            del simple_cache[oldest_key]
-        
-        return safe_json_response({
+        return jsonify({
             'success': True,
-            'data': info,
+            'data': processed,
             'cached': False,
             'response_time_ms': round((time.time() - start_time) * 1000, 1)
         })
         
     except Exception as e:
-        logger.error(f"Info extraction error: {e}\n{traceback.format_exc()}")
-        performance_metrics['errors'] += 1
-        return safe_json_response({
+        logger.error(f"Info extraction failed: {str(e)[:200]}")
+        return jsonify({
             'success': False,
-            'error': str(e)[:150],
+            'error': str(e)[:200],
+            'suggestion': 'Try again in a few minutes. The video might be restricted or temporarily unavailable.',
             'response_time_ms': round((time.time() - start_time) * 1000, 1)
-        }, 400)
+        }), 400
 
-@app.route('/api/download', methods=['POST', 'OPTIONS'])
+@app.route('/api/download', methods=['POST'])
 def start_download():
-    if request.method == 'OPTIONS':
-        return '', 200
-        
     try:
-        # Parse request
-        try:
-            if request.is_json:
-                data = request.get_json()
-            else:
-                data = request.form.to_dict()
-        except Exception:
-            return safe_json_response({
-                'success': False, 
-                'error': 'Invalid request format'
-            }, 400)
-        
-        if not data:
-            return safe_json_response({
-                'success': False, 
-                'error': 'No data provided'
-            }, 400)
-        
-        url = data.get('url')
-        if not url:
-            return safe_json_response({
-                'success': False, 
-                'error': 'URL is required'
-            }, 400)
-        
-        url = str(url).strip()
-        quality = data.get('quality', '720p')
-        
-        # Validate inputs
-        if not validate_url(url):
-            return safe_json_response({
-                'success': False, 
-                'error': 'Invalid YouTube URL'
-            }, 400)
-        
-        if quality not in ['720p', '480p', '360p', 'audio']:
-            quality = '720p'
+        data = request.get_json()
+        if not data or 'url' not in data:
+            return jsonify({'success': False, 'error': 'URL required'}), 400
         
         # Check capacity
-        active_count = len([s for s in download_status.values() 
-                          if s.get('status') in ['downloading', 'starting']])
+        active_count = len([d for d in active_downloads.values() 
+                          if d.get('status') in ['downloading', 'starting']])
         if active_count >= MAX_CONCURRENT_DOWNLOADS:
-            return safe_json_response({
+            return jsonify({
                 'success': False, 
-                'error': f'Server busy. Active downloads: {active_count}',
+                'error': 'Server busy. Please try again in a few minutes.',
+                'active_downloads': active_count,
+                'max_concurrent': MAX_CONCURRENT_DOWNLOADS,
                 'retry_after': 60
-            }, 429)
+            }), 429
         
-        # Generate download ID
-        download_id = f"dl_{int(time.time() * 1000)}"
+        url = data['url'].strip()
+        quality = data.get('quality', '720p')
+        download_id = f"render_{int(time.time() * 1000)}"
         
-        # Start download in background
-        def download_worker():
+        # Start download
+        def download_starter():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             try:
-                perform_download(url, quality, download_id)
+                loop.run_until_complete(download_with_render_limits(url, quality, download_id))
             except Exception as e:
-                logger.error(f"Download worker error: {e}")
+                logger.error(f"Download failed: {e}")
+            finally:
+                loop.close()
         
-        thread = threading.Thread(target=download_worker, daemon=True)
+        thread = threading.Thread(target=download_starter, daemon=True)
         thread.start()
-        active_downloads[download_id] = thread
         
-        return safe_json_response({
+        return jsonify({
             'success': True,
             'download_id': download_id,
-            'message': 'Download started',
+            'message': 'Download started with anti-bot protection',
             'quality': quality,
-            'estimated_time': '1-5 minutes'
+            'estimated_start': '<15 seconds'
         })
         
     except Exception as e:
-        logger.error(f"Start download error: {e}\n{traceback.format_exc()}")
-        return safe_json_response({
+        logger.error(f"Start download error: {e}")
+        return jsonify({
             'success': False,
             'error': str(e)[:150]
-        }, 400)
+        }), 400
 
 @app.route('/api/status/<download_id>')
 def get_status(download_id):
-    try:
-        if download_id not in download_status:
-            return safe_json_response({
-                'success': False, 
-                'error': 'Download not found'
-            }, 404)
+    if download_id not in active_downloads:
+        return jsonify({'success': False, 'error': 'Download not found'}), 404
+    
+    status_obj = active_downloads[download_id]
+    status = status_obj.copy()
+    
+    # Add computed fields
+    if 'start_time' in status:
+        elapsed = time.time() - status['start_time']
+        status['elapsed_seconds'] = round(elapsed, 1)
         
-        status = download_status[download_id].copy()
-        
-        # Add computed fields
-        if 'start_time' in status:
-            elapsed = time.time() - status['start_time']
-            status['elapsed_seconds'] = round(elapsed, 1)
-            
-            # Calculate ETA
-            if status.get('progress', 0) > 5 and elapsed > 10:
-                estimated_total = elapsed / (status['progress'] / 100)
-                status['eta_seconds'] = round(max(0, estimated_total - elapsed), 1)
-        
-        # Remove sensitive data
-        status.pop('file_path', None)
-        
-        # Format file size
-        if 'file_size' in status:
-            status['file_size_mb'] = round(status['file_size'] / (1024**2), 2)
-        
-        return safe_json_response({
-            'success': True,
-            'status': status
-        })
-        
-    except Exception as e:
-        logger.error(f"Status check error: {e}")
-        return safe_json_response({
-            'success': False,
-            'error': 'Status check failed'
-        }, 500)
+        if status.get('progress', 0) > 10 and elapsed > 10:
+            estimated_total = elapsed / (status['progress'] / 100)
+            status['eta_seconds'] = round(max(0, estimated_total - elapsed), 1)
+    
+    # Remove sensitive data
+    status.pop('file_path', None)
+    
+    # Format speed
+    if 'speed' in status and status['speed']:
+        speed_mbps = status['speed'] * 8 / (1024**2)
+        status['speed_mbps'] = round(speed_mbps, 2)
+    
+    return jsonify({
+        'success': True,
+        'status': status
+    })
 
 @app.route('/api/file/<download_id>')
 def download_file(download_id):
+    if download_id not in active_downloads:
+        return jsonify({'error': 'Download not found'}), 404
+    
+    status_obj = active_downloads[download_id]
+    if status_obj.get('status') != 'completed':
+        return jsonify({'error': 'Download not ready'}), 400
+    
+    file_path = status_obj.get('file_path')
+    if not file_path or not os.path.exists(file_path):
+        return jsonify({'error': 'File not available'}), 404
+    
     try:
-        if download_id not in download_status:
-            return safe_json_response({'error': 'Download not found'}, 404)
-        
-        status = download_status[download_id]
-        if status.get('status') != 'completed':
-            return safe_json_response({
-                'error': f'Download not ready. Status: {status.get("status", "unknown")}'
-            }, 400)
-        
-        file_path = status.get('file_path')
-        if not file_path or not os.path.exists(file_path):
-            return safe_json_response({'error': 'File not available'}, 404)
-        
-        filename = status.get('filename', f'video_{download_id}.mp4')
+        filename = status_obj.get('filename', f'video_{download_id}.mp4')
         
         return send_file(
             file_path,
@@ -599,52 +736,80 @@ def download_file(download_id):
             download_name=filename,
             mimetype='application/octet-stream'
         )
-        
     except Exception as e:
         logger.error(f"File download error: {e}")
-        return safe_json_response({'error': 'File download failed'}, 500)
+        return jsonify({'error': 'File download failed'}), 500
 
 # Error handlers
 @app.errorhandler(404)
 def not_found(e):
-    return safe_json_response({'error': 'Endpoint not found'}, 404)
+    return jsonify({'error': 'Not found'}), 404
 
-@app.errorhandler(405)
-def method_not_allowed(e):
-    return safe_json_response({'error': 'Method not allowed'}, 405)
+@app.errorhandler(429)
+def rate_limit_exceeded(e):
+    return jsonify({
+        'error': 'Rate limit exceeded',
+        'message': 'Too many requests. Please wait before trying again.',
+        'retry_after': 60
+    }), 429
 
 @app.errorhandler(500)
 def internal_error(e):
-    logger.error(f"Internal server error: {e}")
-    return safe_json_response({'error': 'Internal server error'}, 500)
+    logger.error(f"Internal error: {e}")
+    return jsonify({'error': 'Internal server error'}), 500
 
 @app.before_request
-def log_request():
-    logger.info(f"{request.method} {request.path} - {request.remote_addr}")
+def before_request():
+    g.start_time = time.time()
 
 @app.after_request
 def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Accept, Authorization'
+    if hasattr(g, 'start_time'):
+        duration = (time.time() - g.start_time) * 1000
+        response.headers['X-Response-Time'] = f'{duration:.1f}ms'
+    
+    # Add anti-bot headers
+    response.headers.update({
+        'X-Robots-Tag': 'noindex, nofollow',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+    })
+    
     return response
 
 if __name__ == '__main__':
-    # Start cleanup thread
     start_cleanup_thread()
     
     port = int(os.environ.get('PORT', 5000))
     
     logger.info(f"""
-🚀 YouTube Downloader Starting...
-Port: {port}
-Max Downloads: {MAX_CONCURRENT_DOWNLOADS}
-Temp Dir: {TEMP_DIR}
+🚀 YouTube Downloader - Anti-Bot Edition
+🛡️  Multiple extraction strategies enabled
+🔄 User-agent rotation active
+📊 Rate limiting: {RATE_LIMIT_DELAY}s between requests
+💾 Cache enabled: {MAX_CACHE_SIZE} entries
+🧹 Auto-cleanup: {FILE_RETENTION_TIME}s retention
+⚡ Max workers: {MAX_WORKERS}
+🔗 Max concurrent downloads: {MAX_CONCURRENT_DOWNLOADS}
+
+Server starting on port {port}...
     """)
     
-    app.run(
-        host='0.0.0.0',
-        port=port,
-        debug=False,
-        threaded=True
-    )
+    try:
+        app.run(
+            host='0.0.0.0',
+            port=port,
+            debug=False,
+            threaded=True,
+            use_reloader=False
+        )
+    except KeyboardInterrupt:
+        logger.info("Shutting down gracefully...")
+    except Exception as e:
+        logger.error(f"Server error: {e}")
+    finally:
+        # Cleanup on shutdown
+        logger.info("Performing final cleanup...")
+        cleanup_render_friendly()
+        executor.shutdown(wait=True)
