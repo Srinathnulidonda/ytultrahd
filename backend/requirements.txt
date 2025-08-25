@@ -1,6 +1,8 @@
-Flask
-Flask-Cors
 yt-dlp
 gunicorn
 gevent
 werkzeug
+flask
+flask-cors
+yt-dlp
+psutil
