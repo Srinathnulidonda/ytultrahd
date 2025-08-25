@@ -27,13 +27,15 @@ o	Implement API caching, retries, error states, and graceful fallback UIs.
 o	Ensure global i18n readiness (RTL, UTF-8, multilingual SEO).
 5.	Mobile UX Enhancements
 o	Topbar navigation (adaptive, collapsible, fixed).
-o	Bottom mobile nav bar (only visible on mobile, sticky, icons-based).
 o	Smooth gesture-friendly transitions.
 6.	Deployment & Production Standards
 o	Must deploy seamlessly to Vercel with zero config conflicts.
 o	Avoid framework bloat (no React/Vue unless explicitly required).
 o	Clean file structure: /index.html, /assets/, /css/, /js/, /api/.
 o	Strictly no unused CSS/JS (purge Tailwind, tree-shake Bootstrap).
+
+Brand Name:
+YT Ultra HD
 
 URLs must be clean and extensionless (e.g., /about not /about.html). Configure Vercel routing (vercel.json rewrites) to remove .html from all routes."*
 ⚙️ Vercel Config for Clean URLs
@@ -57,7 +59,7 @@ Project Structure Mandatory:
 Youtube
 └── frontend/
     ├── index.html                     # Landing page (mobile-first, SEO-optimized)
-    │
+    ├── top-navbar.html 
     ├── pages/                         # All static/secondary pages
     │   ├── about.html
     │   ├── contact.html
@@ -86,26 +88,6 @@ Youtube
     │   │
     │   └── videos/
     │       └── hero-video.mp4
-    │
-    ├── components/                    # Reusable UI components
-    │   ├── navigation/
-    │   │   ├── top-navbar.html
-    │   │   ├── mobile-bottom-nav.html
-    │   │   └── breadcrumb.html
-    │   │
-    │   ├── ui/
-    │   │   ├── skeleton-loader.html
-    │   │   ├── toast.html
-    │   │   ├── modal.html
-    │   │   ├── progress-bar.html
-    │   │   └── status-indicator.html
-    │   │
-    │   └── downloader/
-    │       ├── url-input.html
-    │       ├── quality-selector.html
-    │       ├── download-btn.html
-    │       ├── progress-tracker.html
-    │       └── history.html
     │
     ├── css/                           # Stylesheets (modular & optimized)
     │   ├── critical.css               # Inlined above-the-fold CSS
