@@ -1,9 +1,10 @@
-yt-dlp
 gunicorn
 gevent
 werkzeug
-flask
-flask-cors
-yt-dlp
 psutil
 requests
+flask==3.0.0
+flask-cors==4.0.0
+yt-dlp>=2023.12.30
+requests>=2.31.0
+browser_cookie3>=0.19.1
