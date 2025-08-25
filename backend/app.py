@@ -64,7 +64,7 @@ logging.getLogger('yt_dlp').setLevel(logging.CRITICAL)
 app = Flask(__name__)
 CORS(app, 
      origins="*",
-     methods=["GET", "POST", "OPTIONS"],
+     methods=["GET", "POST", "OPTIONS", "HEAD"],
      allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
      supports_credentials=False,
      max_age=86400)  # Cache preflight for 24 hours
@@ -107,44 +107,21 @@ def get_cookie_options():
     # Option 2: Extract from Chrome browser (primary method)
     if COOKIES_BROWSER:
         try:
-            # Try Chrome with different possible profile locations
-            browser_options = []
-            
-            # Standard Chrome
-            if COOKIES_BROWSER == 'chrome':
-                # Try default profile first
-                browser_options = [
-                    ('chrome',),  # Default Chrome profile
-                    ('chrome', '~/.config/google-chrome'),  # Linux
-                    ('chrome', '~/Library/Application Support/Google/Chrome'),  # macOS
-                    ('chrome', '%LOCALAPPDATA%/Google/Chrome/User Data'),  # Windows
-                ]
-            else:
-                browser_options = [(COOKIES_BROWSER,)]
-            
-            # Try each option
-            for browser_opt in browser_options:
-                try:
-                    cookie_opts['cookiesfrombrowser'] = browser_opt
-                    logger.info(f"Successfully configured cookies from: {browser_opt[0]}")
-                    return cookie_opts
-                except Exception:
-                    continue
-            
-            # If primary browser fails, try fallback browsers
+            # Try to extract cookies from the specified browser
+            cookie_opts['cookiesfrombrowser'] = (COOKIES_BROWSER,)
+            logger.info(f"Configured to extract cookies from browser: {COOKIES_BROWSER}")
+            return cookie_opts
+        except Exception as e:
+            logger.warning(f"Failed to configure cookies from {COOKIES_BROWSER}: {e}")
+            # Try fallback browsers
             for fallback_browser in FALLBACK_BROWSERS:
                 if fallback_browser != COOKIES_BROWSER:
                     try:
                         cookie_opts['cookiesfrombrowser'] = (fallback_browser,)
-                        logger.warning(f"Primary browser {COOKIES_BROWSER} failed, using fallback: {fallback_browser}")
+                        logger.warning(f"Using fallback browser for cookies: {fallback_browser}")
                         return cookie_opts
-                    except Exception:
+                    except:
                         continue
-            
-            logger.warning(f"Could not extract cookies from any browser, proceeding without cookies")
-            
-        except Exception as e:
-            logger.warning(f"Failed to configure browser cookies: {e}")
     
     return cookie_opts
 
@@ -562,9 +539,10 @@ def update_performance_metrics():
     performance_metrics['peak_concurrent'] = max(performance_metrics['peak_concurrent'], current_active)
 
 # Ultra-fast API routes
-@app.route('/')
+@app.route('/', methods=['GET', 'HEAD'])
 @ultra_gzip_response
 def index():
+    update_performance_metrics()
     cookie_status = "Enabled (Chrome)" if USE_COOKIES else "Disabled"
     
     return {
@@ -598,9 +576,10 @@ def index():
         ]
     }
 
-@app.route('/api/health')
+@app.route('/api/health', methods=['GET', 'HEAD'])
 @ultra_gzip_response
 def health():
+    update_performance_metrics()
     cpu_percent = psutil.cpu_percent()
     memory_percent = psutil.virtual_memory().percent
     
@@ -732,6 +711,8 @@ def start_download():
 @app.route('/api/status/<download_id>')
 @ultra_gzip_response
 def get_status(download_id):
+    update_performance_metrics()
+    
     if download_id not in download_status:
         return {'success': False, 'error': 'Download not found'}, 404
     
@@ -764,6 +745,8 @@ def get_status(download_id):
 
 @app.route('/api/file/<download_id>')
 def download_file(download_id):
+    update_performance_metrics()
+    
     if download_id not in download_status:
         return jsonify({'error': 'Download not found'}), 404
     
@@ -813,10 +796,16 @@ def after_request(response):
         duration_ms = (time.time() - g.start_time) * 1000
         response.headers['X-Response-Time'] = f'{duration_ms:.1f}ms'
         
-        # Update average response time
+        # Fixed: Handle division by zero
+        total_requests = max(performance_metrics.get('total_requests', 1), 1)
         current_avg = performance_metrics.get('avg_response_time', 0)
-        total_requests = performance_metrics.get('total_requests', 1)
-        new_avg = ((current_avg * (total_requests - 1)) + duration_ms) / total_requests
+        
+        # Calculate new average safely
+        if total_requests == 1:
+            new_avg = duration_ms
+        else:
+            new_avg = ((current_avg * (total_requests - 1)) + duration_ms) / total_requests
+        
         performance_metrics['avg_response_time'] = round(new_avg, 2)
     
     # Ultra-performance headers
