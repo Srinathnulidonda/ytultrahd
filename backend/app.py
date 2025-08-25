@@ -55,7 +55,7 @@ class DownloadProgress:
             self.progress = 100
 
 def get_base_ydl_opts():
-    """Get base yt-dlp options with anti-bot measures"""
+    """Get base yt-dlp options with anti-bot measures for server environment"""
     opts = {
         'quiet': True,
         'no_warnings': True,
@@ -75,12 +75,12 @@ def get_base_ydl_opts():
             'Sec-Fetch-User': '?1',
             'Cache-Control': 'max-age=0'
         },
-        'sleep_interval': 1,
-        'max_sleep_interval': 3,
+        'sleep_interval': 2,
+        'max_sleep_interval': 5,
         'sleep_interval_requests': 1,
         'sleep_interval_subtitles': 1,
-        'retries': 5,
-        'fragment_retries': 5,
+        'retries': 10,
+        'fragment_retries': 10,
         'skip_unavailable_fragments': True,
         'ignoreerrors': False,
         'abort_on_unavailable_fragments': False,
@@ -88,13 +88,11 @@ def get_base_ydl_opts():
         'concurrent_fragment_downloads': 1,
         'buffersize': 1024,
         'http_chunk_size': 10485760,
-        'throttledratelimit': 100000,  # 100 KB/s minimum
-        'ratelimit': 10000000,  # 10 MB/s maximum
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'web'],
-                'player_skip': ['webpage', 'configs', 'js'],
-                'skip': ['hls', 'dash', 'translated_subs'],
+                'player_client': ['android', 'web', 'tv_embed'],
+                'player_skip': ['configs'],
+                'skip': ['translated_subs'],
                 'max_comments': 0,
                 'max_comment_depth': 0
             }
@@ -104,24 +102,9 @@ def get_base_ydl_opts():
         }
     }
     
-    # Check if cookies file exists
+    # Only use cookies file if it exists, don't try browser extraction on server
     if os.path.exists('cookies.txt'):
         opts['cookiefile'] = 'cookies.txt'
-    else:
-        # Try to use cookies from browser
-        try:
-            # Try Chrome first
-            opts['cookiesfrombrowser'] = ('chrome',)
-        except:
-            try:
-                # Fall back to Firefox
-                opts['cookiesfrombrowser'] = ('firefox',)
-            except:
-                # If all fails, try Edge
-                try:
-                    opts['cookiesfrombrowser'] = ('edge',)
-                except:
-                    pass
     
     return opts
 
@@ -162,8 +145,8 @@ def get_video_info():
         if not url:
             return jsonify({'error': 'URL is required'}), 400
         
-        # Add small random delay to avoid detection
-        time.sleep(random.uniform(0.5, 1.5))
+        # Add random delay to avoid detection
+        time.sleep(random.uniform(1, 3))
         
         ydl_opts = get_base_ydl_opts()
         ydl_opts.update({
@@ -175,77 +158,102 @@ def get_video_info():
             'subtitleslangs': [],
         })
         
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
+        # Try different extraction strategies
+        strategies = [
+            # Strategy 1: Default
+            {},
+            # Strategy 2: Use TV embed client
+            {'extractor_args': {'youtube': {'player_client': ['tv_embed']}}},
+            # Strategy 3: Use Android client only
+            {'extractor_args': {'youtube': {'player_client': ['android']}}},
+            # Strategy 4: Bypass age gate
+            {'extractor_args': {'youtube': {'player_client': ['android', 'web'], 'bypass_age_gate': True}}}
+        ]
+        
+        last_error = None
+        for strategy in strategies:
+            try:
+                current_opts = ydl_opts.copy()
+                current_opts.update(strategy)
                 
-                # Extract available formats
-                formats = []
-                audio_formats = []
-                
-                for f in info.get('formats', []):
-                    if f.get('format_note') == 'storyboard':
-                        continue
-                        
-                    if f.get('vcodec') != 'none' and f.get('acodec') == 'none':
-                        # Video only format
-                        height = f.get('height', 0)
-                        if height >= 720:  # Show 720p and above
-                            formats.append({
+                with yt_dlp.YoutubeDL(current_opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    
+                    # Extract available formats
+                    formats = []
+                    audio_formats = []
+                    
+                    for f in info.get('formats', []):
+                        if f.get('format_note') == 'storyboard':
+                            continue
+                            
+                        if f.get('vcodec') != 'none' and f.get('acodec') == 'none':
+                            # Video only format
+                            height = f.get('height', 0)
+                            if height >= 480:  # Show 480p and above
+                                formats.append({
+                                    'format_id': f['format_id'],
+                                    'resolution': f"{height}p",
+                                    'height': height,
+                                    'fps': f.get('fps', 30),
+                                    'filesize': f.get('filesize', 0),
+                                    'filesize_approx': f.get('filesize_approx', 0),
+                                    'vcodec': f.get('vcodec', 'unknown'),
+                                    'ext': f.get('ext', 'mp4'),
+                                    'format_note': f.get('format_note', '')
+                                })
+                        elif f.get('acodec') != 'none' and f.get('vcodec') == 'none':
+                            # Audio only format
+                            audio_formats.append({
                                 'format_id': f['format_id'],
-                                'resolution': f"{height}p",
-                                'height': height,
-                                'fps': f.get('fps', 30),
+                                'abr': f.get('abr', 0),
+                                'asr': f.get('asr', 44100),
+                                'acodec': f.get('acodec', 'unknown'),
                                 'filesize': f.get('filesize', 0),
                                 'filesize_approx': f.get('filesize_approx', 0),
-                                'vcodec': f.get('vcodec', 'unknown'),
-                                'ext': f.get('ext', 'mp4'),
+                                'ext': f.get('ext', 'webm'),
                                 'format_note': f.get('format_note', '')
                             })
-                    elif f.get('acodec') != 'none' and f.get('vcodec') == 'none':
-                        # Audio only format
-                        audio_formats.append({
-                            'format_id': f['format_id'],
-                            'abr': f.get('abr', 0),
-                            'asr': f.get('asr', 44100),
-                            'acodec': f.get('acodec', 'unknown'),
-                            'filesize': f.get('filesize', 0),
-                            'filesize_approx': f.get('filesize_approx', 0),
-                            'ext': f.get('ext', 'webm'),
-                            'format_note': f.get('format_note', '')
-                        })
+                    
+                    # Sort formats by quality
+                    formats.sort(key=lambda x: x['height'], reverse=True)
+                    audio_formats.sort(key=lambda x: x['abr'], reverse=True)
+                    
+                    # Get best formats
+                    best_video = formats[0] if formats else None
+                    best_audio = audio_formats[0] if audio_formats else None
+                    
+                    return jsonify({
+                        'title': info.get('title', 'Unknown'),
+                        'thumbnail': info.get('thumbnail', ''),
+                        'duration': info.get('duration', 0),
+                        'uploader': info.get('uploader', 'Unknown'),
+                        'view_count': info.get('view_count', 0),
+                        'upload_date': info.get('upload_date', ''),
+                        'description': info.get('description', '')[:500],
+                        'video_formats': formats[:10],
+                        'audio_formats': audio_formats[:5],
+                        'best_video': best_video,
+                        'best_audio': best_audio,
+                        'video_id': extract_video_id(url),
+                        'webpage_url': info.get('webpage_url', url)
+                    })
+                    
+            except yt_dlp.utils.ExtractorError as e:
+                last_error = str(e)
+                if 'Sign in to confirm' not in last_error:
+                    # If it's not a bot detection error, break and return the error
+                    break
+                continue
                 
-                # Sort formats by quality
-                formats.sort(key=lambda x: x['height'], reverse=True)
-                audio_formats.sort(key=lambda x: x['abr'], reverse=True)
-                
-                # Get best formats
-                best_video = formats[0] if formats else None
-                best_audio = audio_formats[0] if audio_formats else None
-                
-                return jsonify({
-                    'title': info.get('title', 'Unknown'),
-                    'thumbnail': info.get('thumbnail', ''),
-                    'duration': info.get('duration', 0),
-                    'uploader': info.get('uploader', 'Unknown'),
-                    'view_count': info.get('view_count', 0),
-                    'upload_date': info.get('upload_date', ''),
-                    'description': info.get('description', '')[:500],  # Limit description length
-                    'video_formats': formats[:10],  # Limit to top 10
-                    'audio_formats': audio_formats[:5],  # Limit to top 5
-                    'best_video': best_video,
-                    'best_audio': best_audio,
-                    'video_id': extract_video_id(url),
-                    'webpage_url': info.get('webpage_url', url)
-                })
-        except yt_dlp.utils.ExtractorError as e:
-            error_msg = str(e)
-            if 'Sign in to confirm' in error_msg:
-                return jsonify({
-                    'error': 'YouTube requires authentication. Please try again later or use a different video.',
-                    'details': 'Bot detection triggered. Consider using cookies or waiting before retrying.'
-                }), 403
-            return jsonify({'error': error_msg}), 400
+        # If all strategies failed
+        if 'Sign in to confirm' in str(last_error):
+            return jsonify({
+                'error': 'Video access restricted. This may be due to YouTube\'s bot detection or regional restrictions.',
+                'details': 'Please try again later or try a different video.'
+            }), 403
+        
+        return jsonify({'error': str(last_error)}), 400
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -286,85 +294,89 @@ def perform_download(url, quality, audio_quality, progress_tracker):
     
     try:
         # Add random delay
-        time.sleep(random.uniform(1, 2))
+        time.sleep(random.uniform(2, 4))
         
         def progress_hook(d):
             progress_tracker.update(d)
         
         # Build format string based on quality selection
         if quality == 'best':
-            format_string = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+            format_string = 'best[ext=mp4]/best'
         elif quality == '8k':
-            format_string = 'bestvideo[height<=4320][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=4320]+bestaudio/best'
+            format_string = 'bestvideo[height<=4320]+bestaudio/best'
         elif quality == '4k':
-            format_string = 'bestvideo[height<=2160][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=2160]+bestaudio/best'
+            format_string = 'bestvideo[height<=2160]+bestaudio/best'
         elif quality == '2k':
-            format_string = 'bestvideo[height<=1440][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1440]+bestaudio/best'
+            format_string = 'bestvideo[height<=1440]+bestaudio/best'
         elif quality == '1080p':
-            format_string = 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best'
+            format_string = 'bestvideo[height<=1080]+bestaudio/best'
         elif quality == '720p':
-            format_string = 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best'
+            format_string = 'bestvideo[height<=720]+bestaudio/best'
+        elif quality == '480p':
+            format_string = 'bestvideo[height<=480]+bestaudio/best'
         else:
-            # Custom format selection
             format_string = f'{quality}+{audio_quality}'
         
         output_template = os.path.join(temp_dir, '%(title).200B.%(ext)s')
         
-        ydl_opts = get_base_ydl_opts()
-        ydl_opts.update({
-            'format': format_string,
-            'outtmpl': output_template,
-            'progress_hooks': [progress_hook],
-            'merge_output_format': 'mp4',
-            'postprocessors': [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
-            }],
-            'prefer_ffmpeg': True,
-            'keepvideo': False,
-            'writeinfojson': False,
-            'writethumbnail': False,
-            'writesubtitles': False,
-            'writeautomaticsub': False,
-            'subtitleslangs': [],
-            'matchtitle': None,
-            'rejecttitle': None,
-            'logger': None,
-            'logtostderr': False,
-            'consoletitle': False,
-            'nopart': False,
-            'updatetime': False,
-            'writedescription': False,
-            'writeannotations': False,
-            'writecomments': False,
-            'getcomments': False,
-        })
+        # Try multiple strategies for downloading
+        strategies = [
+            # Strategy 1: Standard download
+            {},
+            # Strategy 2: TV embed client
+            {'extractor_args': {'youtube': {'player_client': ['tv_embed']}}},
+            # Strategy 3: Android client
+            {'extractor_args': {'youtube': {'player_client': ['android']}}},
+        ]
         
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                progress_tracker.title = info.get('title', 'Unknown')
-                progress_tracker.thumbnail = info.get('thumbnail', '')
+        for strategy in strategies:
+            try:
+                ydl_opts = get_base_ydl_opts()
+                ydl_opts.update({
+                    'format': format_string,
+                    'outtmpl': output_template,
+                    'progress_hooks': [progress_hook],
+                    'merge_output_format': 'mp4',
+                    'prefer_ffmpeg': True,
+                    'keepvideo': False,
+                    'writeinfojson': False,
+                    'writethumbnail': False,
+                    'writesubtitles': False,
+                    'writeautomaticsub': False,
+                    'subtitleslangs': [],
+                    'getcomments': False,
+                })
+                ydl_opts.update(strategy)
                 
-                # Find the downloaded file
-                for file in os.listdir(temp_dir):
-                    if file.endswith(('.mp4', '.webm', '.mkv', '.mov', '.avi')):
-                        progress_tracker.file_path = os.path.join(temp_dir, file)
-                        progress_tracker.filename = file
-                        break
-                
-                if not progress_tracker.file_path:
-                    raise Exception("Downloaded file not found")
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    progress_tracker.title = info.get('title', 'Unknown')
+                    progress_tracker.thumbnail = info.get('thumbnail', '')
                     
-                progress_tracker.status = 'completed'
-                
-        except yt_dlp.utils.ExtractorError as e:
-            error_msg = str(e)
-            if 'Sign in to confirm' in error_msg:
-                progress_tracker.error = 'YouTube requires authentication. Please try again later.'
-            else:
-                progress_tracker.error = error_msg
-            progress_tracker.status = 'error'
+                    # Find the downloaded file
+                    for file in os.listdir(temp_dir):
+                        if file.endswith(('.mp4', '.webm', '.mkv', '.mov', '.avi')):
+                            progress_tracker.file_path = os.path.join(temp_dir, file)
+                            progress_tracker.filename = file
+                            break
+                    
+                    if not progress_tracker.file_path:
+                        raise Exception("Downloaded file not found")
+                        
+                    progress_tracker.status = 'completed'
+                    return  # Success, exit the function
+                    
+            except yt_dlp.utils.ExtractorError as e:
+                if 'Sign in to confirm' in str(e):
+                    continue  # Try next strategy
+                else:
+                    progress_tracker.error = str(e)
+                    progress_tracker.status = 'error'
+                    return
+                    
+        # If all strategies failed
+        progress_tracker.error = 'Unable to download video. YouTube may have restricted access.'
+        progress_tracker.status = 'error'
             
     except Exception as e:
         progress_tracker.status = 'error'
@@ -445,6 +457,7 @@ def get_supported_formats():
             {'id': '2k', 'label': '2K (1440p)', 'description': 'Quad HD'},
             {'id': '1080p', 'label': '1080p', 'description': 'Full HD'},
             {'id': '720p', 'label': '720p', 'description': 'HD'},
+            {'id': '480p', 'label': '480p', 'description': 'SD'},
         ],
         'audio_qualities': [
             {'id': 'best', 'label': 'Best Audio', 'description': 'Highest quality audio'},
@@ -458,7 +471,6 @@ def get_supported_formats():
 def cleanup_old_downloads():
     """Clean up old downloads and temporary files"""
     try:
-        # Remove completed downloads older than 1 hour
         current_time = time.time()
         to_remove = []
         
