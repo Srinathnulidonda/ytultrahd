@@ -12,6 +12,7 @@ import shutil
 from urllib.parse import urlparse, parse_qs
 import re
 import random
+import requests
 
 app = Flask(__name__)
 CORS(app, origins=["*"], allow_headers=["Content-Type"], methods=["GET", "POST", "OPTIONS"])
@@ -19,16 +20,15 @@ CORS(app, origins=["*"], allow_headers=["Content-Type"], methods=["GET", "POST",
 # Store download progress
 download_progress = {}
 
-# User agents to rotate
+# Enhanced user agents pool
 USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
     'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-    'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
+    'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 ]
 
 class DownloadProgress:
@@ -56,63 +56,61 @@ class DownloadProgress:
             self.status = 'processing'
             self.progress = 100
 
-def get_base_ydl_opts():
-    """Get base yt-dlp options with enhanced anti-bot measures"""
-    opts = {
+def get_aggressive_ydl_opts():
+    """Get yt-dlp options with aggressive bypass techniques"""
+    return {
         'quiet': True,
         'no_warnings': True,
         'no_color': True,
         'user_agent': random.choice(USER_AGENTS),
         'referer': 'https://www.youtube.com/',
         'http_headers': {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept': '*/*',
             'Accept-Language': 'en-US,en;q=0.5',
             'Accept-Encoding': 'gzip, deflate, br',
+            'Origin': 'https://www.youtube.com',
             'DNT': '1',
             'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-User': '?1',
-            'Cache-Control': 'max-age=0',
-            'X-YouTube-Client-Name': '1',
-            'X-YouTube-Client-Version': '2.20231213.04.00'
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
         },
-        'sleep_interval': 3,
-        'max_sleep_interval': 6,
-        'sleep_interval_requests': 2,
-        'sleep_interval_subtitles': 1,
-        'retries': 15,
-        'fragment_retries': 15,
+        'sleep_interval': 5,
+        'max_sleep_interval': 10,
+        'sleep_interval_requests': 3,
+        'retries': 20,
+        'fragment_retries': 20,
         'skip_unavailable_fragments': True,
-        'ignoreerrors': False,
-        'abort_on_unavailable_fragments': False,
         'keep_fragments': False,
         'concurrent_fragment_downloads': 1,
-        'buffersize': 1024,
         'http_chunk_size': 10485760,
+        'socket_timeout': 60,
         'extractor_args': {
             'youtube': {
-                'player_client': ['ios', 'android', 'web', 'tv_embed', 'mediaconnect'],
-                'player_skip': ['configs'],
-                'skip': ['translated_subs'],
-                'max_comments': 0,
-                'max_comment_depth': 0,
                 'innertube_host': 'youtubei.googleapis.com',
-                'innertube_key': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8'
+                'innertube_key': None,
+                'visitor_data': None,
+                'po_token': None,
+                'player_client': ['ios', 'android', 'tv_embed', 'mediaconnect'],
+                'player_skip': ['webpage', 'configs', 'js'],
+                'skip': ['hls', 'dash', 'translated_subs'],
+                'comment_sort': 'top',
+                'max_comments': 0,
+                'max_comment_depth': 0
             }
         },
-        'postprocessor_args': {
-            'ffmpeg': ['-loglevel', 'error', '-hide_banner']
-        }
+        'format_sort': [
+            'res:1080',
+            'fps:30',
+            'codec:h264',
+            'size',
+            'br',
+            'asr',
+            'proto'
+        ]
     }
-    
-    # Only use cookies file if it exists
-    if os.path.exists('cookies.txt'):
-        opts['cookiefile'] = 'cookies.txt'
-    
-    return opts
 
 def extract_video_id(url):
     """Extract video ID from YouTube URL"""
@@ -134,17 +132,53 @@ def extract_video_id(url):
     
     return None
 
+def try_alternative_extraction(url):
+    """Try alternative methods to get basic video info"""
+    try:
+        video_id = extract_video_id(url)
+        if not video_id:
+            return None
+            
+        # Try to get basic info from YouTube's oembed API
+        oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
+        
+        headers = {
+            'User-Agent': random.choice(USER_AGENTS),
+            'Referer': 'https://www.youtube.com/'
+        }
+        
+        response = requests.get(oembed_url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                'title': data.get('title', 'Unknown'),
+                'uploader': data.get('author_name', 'Unknown'),
+                'thumbnail': data.get('thumbnail_url', ''),
+                'duration': 0,  # Not available from oembed
+                'view_count': 0,
+                'video_id': video_id,
+                'webpage_url': url,
+                'formats_available': False,
+                'fallback_method': 'oembed'
+            }
+    except:
+        pass
+    
+    return None
+
 @app.route('/', methods=['GET'])
 def root():
     return jsonify({
         'service': 'YouTube Downloader API',
-        'version': '1.0.0',
+        'version': '2.0.0',
         'status': 'running',
+        'note': 'Enhanced with aggressive bypass techniques',
         'endpoints': {
             'health': '/api/health',
             'info': '/api/info',
             'download': '/api/download',
-            'formats': '/api/formats'
+            'formats': '/api/formats',
+            'test': '/api/test'
         }
     })
 
@@ -153,7 +187,7 @@ def health_check():
     return jsonify({
         'status': 'ok',
         'timestamp': datetime.now().isoformat(),
-        'service': 'YouTube Downloader API'
+        'service': 'YouTube Downloader API Enhanced'
     })
 
 @app.route('/api/info', methods=['POST'])
@@ -165,56 +199,72 @@ def get_video_info():
         if not url:
             return jsonify({'error': 'URL is required'}), 400
         
-        # Add random delay to avoid detection
-        time.sleep(random.uniform(2, 4))
+        # Random delay to avoid detection
+        time.sleep(random.uniform(3, 6))
         
-        # Multiple extraction strategies with different configurations
+        # Try alternative extraction first
+        alt_info = try_alternative_extraction(url)
+        
+        # Enhanced extraction strategies
         strategies = [
-            # Strategy 1: iOS client (often works best)
+            # Strategy 1: Latest iOS client configuration
             {
                 'extractor_args': {
                     'youtube': {
                         'player_client': ['ios'],
-                        'skip': ['webpage', 'configs'],
-                        'player_skip': ['js', 'configs', 'webpage']
+                        'player_skip': ['webpage', 'configs', 'js'],
+                        'skip': ['hls', 'dash', 'translated_subs'],
+                        'innertube_host': 'youtubei.googleapis.com',
+                        'innertube_key': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8'
                     }
+                },
+                'http_headers': {
+                    'User-Agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)',
+                    'X-YouTube-Client-Name': '5',
+                    'X-YouTube-Client-Version': '19.29.1'
                 }
             },
-            # Strategy 2: Android client
+            # Strategy 2: Android TV client
             {
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['android'],
-                        'skip': ['webpage'],
-                        'player_skip': ['js', 'configs']
+                        'player_client': ['android_tv'],
+                        'player_skip': ['configs', 'webpage'],
+                        'skip': ['translated_subs']
                     }
+                },
+                'http_headers': {
+                    'User-Agent': 'YouTubeAndroidTV/2.12.08',
                 }
             },
-            # Strategy 3: TV Embed client
+            # Strategy 3: Web embed client
             {
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['tv_embed'],
-                        'skip': ['webpage', 'configs']
-                    }
-                }
-            },
-            # Strategy 4: MediaConnect client
-            {
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['mediaconnect'],
+                        'player_client': ['web_embedded_player'],
+                        'player_skip': ['js', 'configs'],
                         'skip': ['webpage']
                     }
                 }
             },
-            # Strategy 5: Web client with bypass
+            # Strategy 4: Media connect client
             {
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['web'],
+                        'player_client': ['mediaconnect'],
+                        'player_skip': ['webpage'],
+                        'bypass_age_gate': True
+                    }
+                }
+            },
+            # Strategy 5: TV embed with bypass
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['tv_embed'],
+                        'player_skip': ['configs', 'webpage'],
                         'bypass_age_gate': True,
-                        'skip': ['configs']
+                        'skip': ['hls', 'translated_subs']
                     }
                 }
             }
@@ -223,9 +273,9 @@ def get_video_info():
         last_error = None
         for i, strategy in enumerate(strategies):
             try:
-                print(f"Trying strategy {i+1}/{len(strategies)}")
+                print(f"Trying enhanced strategy {i+1}/{len(strategies)}")
                 
-                ydl_opts = get_base_ydl_opts()
+                ydl_opts = get_aggressive_ydl_opts()
                 ydl_opts.update({
                     'extract_flat': False,
                     'skip_download': True,
@@ -233,11 +283,16 @@ def get_video_info():
                     'writesubtitles': False,
                     'writeautomaticsub': False,
                     'subtitleslangs': [],
+                    'ignoreerrors': True,
+                    'extract_flat': False
                 })
                 ydl_opts.update(strategy)
                 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=False)
+                    
+                    if not info:
+                        continue
                     
                     # Extract available formats
                     formats = []
@@ -248,9 +303,8 @@ def get_video_info():
                             continue
                             
                         if f.get('vcodec') != 'none' and f.get('acodec') == 'none':
-                            # Video only format
                             height = f.get('height', 0)
-                            if height >= 360:  # Show 360p and above
+                            if height >= 240:
                                 formats.append({
                                     'format_id': f['format_id'],
                                     'resolution': f"{height}p",
@@ -263,7 +317,6 @@ def get_video_info():
                                     'format_note': f.get('format_note', '')
                                 })
                         elif f.get('acodec') != 'none' and f.get('vcodec') == 'none':
-                            # Audio only format
                             audio_formats.append({
                                 'format_id': f['format_id'],
                                 'abr': f.get('abr', 0),
@@ -275,11 +328,9 @@ def get_video_info():
                                 'format_note': f.get('format_note', '')
                             })
                     
-                    # Sort formats by quality
                     formats.sort(key=lambda x: x['height'], reverse=True)
                     audio_formats.sort(key=lambda x: x['abr'], reverse=True)
                     
-                    # Get best formats
                     best_video = formats[0] if formats else None
                     best_audio = audio_formats[0] if audio_formats else None
                     
@@ -291,55 +342,45 @@ def get_video_info():
                         'view_count': info.get('view_count', 0),
                         'upload_date': info.get('upload_date', ''),
                         'description': info.get('description', '')[:500],
-                        'video_formats': formats[:10],
-                        'audio_formats': audio_formats[:5],
+                        'video_formats': formats[:15],
+                        'audio_formats': audio_formats[:8],
                         'best_video': best_video,
                         'best_audio': best_audio,
                         'video_id': extract_video_id(url),
                         'webpage_url': info.get('webpage_url', url),
-                        'strategy_used': i + 1
+                        'strategy_used': i + 1,
+                        'formats_available': len(formats) > 0
                     })
                     
             except Exception as e:
                 last_error = str(e)
-                print(f"Strategy {i+1} failed: {last_error}")
+                print(f"Enhanced strategy {i+1} failed: {last_error}")
                 if i < len(strategies) - 1:
-                    time.sleep(random.uniform(1, 3))  # Wait before trying next strategy
+                    time.sleep(random.uniform(2, 4))
                 continue
                 
-        # If all strategies failed
-        if 'Sign in to confirm' in str(last_error) or 'bot' in str(last_error).lower():
-            return jsonify({
-                'error': 'YouTube has detected automated access. This video may be restricted.',
-                'details': 'Try again later, use cookies.txt file, or try a different video.',
-                'suggestions': [
-                    'Create a cookies.txt file from your browser',
-                    'Wait a few minutes before trying again',
-                    'Try a different video URL',
-                    'Check if the video is age-restricted or private'
-                ]
-            }), 403
-        elif 'Failed to extract' in str(last_error):
-            return jsonify({
-                'error': 'Unable to extract video information from YouTube.',
-                'details': 'YouTube may have updated their systems. Try updating yt-dlp or try again later.',
-                'suggestions': [
-                    'Update yt-dlp: pip install --upgrade yt-dlp',
-                    'Try again in a few minutes',
-                    'Check if the video URL is correct',
-                    'Verify the video is publicly accessible'
-                ]
-            }), 503
+        # If all yt-dlp strategies failed, return alternative info if available
+        if alt_info:
+            alt_info['warning'] = 'Full extraction failed, showing limited info from alternative source'
+            return jsonify(alt_info)
         
+        # All methods failed
         return jsonify({
-            'error': 'Video extraction failed',
-            'details': str(last_error),
-            'suggestions': ['Try a different video URL', 'Check if video is publicly accessible']
-        }), 400
+            'error': 'Complete extraction failure',
+            'details': 'YouTube has blocked all extraction methods for this video',
+            'last_error': str(last_error),
+            'suggestions': [
+                'This video may be region-locked or have enhanced protection',
+                'Try updating yt-dlp: pip install --upgrade yt-dlp',
+                'Create cookies.txt from your browser session',
+                'Try again later as YouTube may have temporary restrictions',
+                'Use a VPN if the video is region-locked'
+            ]
+        }), 503
             
     except Exception as e:
         return jsonify({
-            'error': 'Server error during video extraction',
+            'error': 'Server error during extraction',
             'details': str(e)
         }), 500
 
@@ -358,9 +399,8 @@ def download_video():
         progress_tracker = DownloadProgress(download_id)
         download_progress[download_id] = progress_tracker
         
-        # Start download in background
         thread = threading.Thread(
-            target=perform_download,
+            target=perform_aggressive_download,
             args=(url, quality, audio_quality, progress_tracker)
         )
         thread.daemon = True
@@ -374,51 +414,68 @@ def download_video():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-def perform_download(url, quality, audio_quality, progress_tracker):
+def perform_aggressive_download(url, quality, audio_quality, progress_tracker):
     temp_dir = tempfile.mkdtemp()
     
     try:
-        # Add random delay
-        time.sleep(random.uniform(2, 5))
+        time.sleep(random.uniform(3, 6))
         
         def progress_hook(d):
             progress_tracker.update(d)
         
-        # Build format string based on quality selection
-        if quality == 'best':
-            format_string = 'best[ext=mp4]/best'
-        elif quality == '8k':
-            format_string = 'bestvideo[height<=4320]+bestaudio/best'
-        elif quality == '4k':
-            format_string = 'bestvideo[height<=2160]+bestaudio/best'
-        elif quality == '2k':
-            format_string = 'bestvideo[height<=1440]+bestaudio/best'
-        elif quality == '1080p':
-            format_string = 'bestvideo[height<=1080]+bestaudio/best'
-        elif quality == '720p':
-            format_string = 'bestvideo[height<=720]+bestaudio/best'
-        elif quality == '480p':
-            format_string = 'bestvideo[height<=480]+bestaudio/best'
-        elif quality == '360p':
-            format_string = 'bestvideo[height<=360]+bestaudio/best'
-        else:
-            format_string = f'{quality}+{audio_quality}'
+        # Format selection
+        format_map = {
+            'best': 'best[ext=mp4]/best',
+            '8k': 'best[height<=4320][ext=mp4]/best[height<=4320]',
+            '4k': 'best[height<=2160][ext=mp4]/best[height<=2160]',
+            '2k': 'best[height<=1440][ext=mp4]/best[height<=1440]',
+            '1080p': 'best[height<=1080][ext=mp4]/best[height<=1080]',
+            '720p': 'best[height<=720][ext=mp4]/best[height<=720]',
+            '480p': 'best[height<=480][ext=mp4]/best[height<=480]',
+            '360p': 'best[height<=360][ext=mp4]/best[height<=360]',
+            '240p': 'best[height<=240][ext=mp4]/best[height<=240]'
+        }
         
+        format_string = format_map.get(quality, 'best[ext=mp4]/best')
         output_template = os.path.join(temp_dir, '%(title).200B.%(ext)s')
         
-        # Try the same strategies as info extraction
+        # Enhanced download strategies
         strategies = [
-            {'extractor_args': {'youtube': {'player_client': ['ios']}}},
-            {'extractor_args': {'youtube': {'player_client': ['android']}}},
-            {'extractor_args': {'youtube': {'player_client': ['tv_embed']}}},
-            {'extractor_args': {'youtube': {'player_client': ['web']}}},
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['ios'],
+                        'player_skip': ['webpage', 'configs'],
+                        'skip': ['hls', 'dash']
+                    }
+                },
+                'http_headers': {
+                    'User-Agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)'
+                }
+            },
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android_tv'],
+                        'player_skip': ['configs']
+                    }
+                }
+            },
+            {
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['tv_embed'],
+                        'bypass_age_gate': True
+                    }
+                }
+            }
         ]
         
         for i, strategy in enumerate(strategies):
             try:
                 print(f"Download strategy {i+1}/{len(strategies)}")
                 
-                ydl_opts = get_base_ydl_opts()
+                ydl_opts = get_aggressive_ydl_opts()
                 ydl_opts.update({
                     'format': format_string,
                     'outtmpl': output_template,
@@ -430,8 +487,8 @@ def perform_download(url, quality, audio_quality, progress_tracker):
                     'writethumbnail': False,
                     'writesubtitles': False,
                     'writeautomaticsub': False,
-                    'subtitleslangs': [],
                     'getcomments': False,
+                    'ignoreerrors': True
                 })
                 ydl_opts.update(strategy)
                 
@@ -440,33 +497,30 @@ def perform_download(url, quality, audio_quality, progress_tracker):
                     progress_tracker.title = info.get('title', 'Unknown')
                     progress_tracker.thumbnail = info.get('thumbnail', '')
                     
-                    # Find the downloaded file
+                    # Find downloaded file
                     for file in os.listdir(temp_dir):
-                        if file.endswith(('.mp4', '.webm', '.mkv', '.mov', '.avi')):
+                        if file.endswith(('.mp4', '.webm', '.mkv', '.mov', '.avi', '.m4a', '.mp3')):
                             progress_tracker.file_path = os.path.join(temp_dir, file)
                             progress_tracker.filename = file
                             break
                     
-                    if not progress_tracker.file_path:
-                        raise Exception("Downloaded file not found")
+                    if progress_tracker.file_path:
+                        progress_tracker.status = 'completed'
+                        return
                         
-                    progress_tracker.status = 'completed'
-                    return  # Success
-                    
             except Exception as e:
                 print(f"Download strategy {i+1} failed: {str(e)}")
                 if i < len(strategies) - 1:
-                    time.sleep(random.uniform(1, 3))
+                    time.sleep(random.uniform(2, 4))
                     continue
-                else:
-                    progress_tracker.error = f'All download strategies failed. Last error: {str(e)}'
-                    progress_tracker.status = 'error'
+                    
+        progress_tracker.error = 'All download strategies failed'
+        progress_tracker.status = 'error'
                     
     except Exception as e:
         progress_tracker.status = 'error'
         progress_tracker.error = str(e)
     finally:
-        # Clean up on error
         if progress_tracker.status == 'error' and os.path.exists(temp_dir):
             try:
                 shutil.rmtree(temp_dir)
@@ -511,7 +565,6 @@ def download_file(download_id):
                         break
                     yield data
             
-            # Cleanup after sending
             temp_dir = os.path.dirname(progress.file_path)
             if os.path.exists(temp_dir) and temp_dir.startswith(tempfile.gettempdir()):
                 try:
@@ -519,13 +572,11 @@ def download_file(download_id):
                 except:
                     pass
             
-            # Remove from progress tracking
             if download_id in download_progress:
                 del download_progress[download_id]
         
         response = Response(generate(), mimetype='video/mp4')
         response.headers['Content-Disposition'] = f'attachment; filename="{progress.filename}"'
-        response.headers['Content-Type'] = 'video/mp4'
         return response
         
     except Exception as e:
@@ -535,7 +586,7 @@ def download_file(download_id):
 def get_supported_formats():
     return jsonify({
         'video_qualities': [
-            {'id': 'best', 'label': 'Best Quality', 'description': 'Highest available quality'},
+            {'id': 'best', 'label': 'Best Available', 'description': 'Highest quality available'},
             {'id': '8k', 'label': '8K (4320p)', 'description': 'Ultra HD 8K'},
             {'id': '4k', 'label': '4K (2160p)', 'description': 'Ultra HD 4K'},
             {'id': '2k', 'label': '2K (1440p)', 'description': 'Quad HD'},
@@ -543,43 +594,24 @@ def get_supported_formats():
             {'id': '720p', 'label': '720p', 'description': 'HD'},
             {'id': '480p', 'label': '480p', 'description': 'SD'},
             {'id': '360p', 'label': '360p', 'description': 'Low'},
+            {'id': '240p', 'label': '240p', 'description': 'Very Low'},
         ],
-        'audio_qualities': [
-            {'id': 'best', 'label': 'Best Audio', 'description': 'Highest quality audio'},
-            {'id': '320k', 'label': '320 kbps', 'description': 'High quality MP3'},
-            {'id': '256k', 'label': '256 kbps', 'description': 'Standard quality'},
-            {'id': '128k', 'label': '128 kbps', 'description': 'Lower quality'},
-        ]
+        'note': 'Enhanced with aggressive bypass techniques'
     })
 
 @app.route('/api/test', methods=['GET'])
 def test_endpoint():
-    """Test endpoint to verify yt-dlp is working"""
     try:
-        # Test with a simple video
-        test_url = "https://www.youtube.com/watch?v=jNQXAC9IVRw"  # "Me at the zoo" - first YouTube video
-        
-        ydl_opts = get_base_ydl_opts()
-        ydl_opts.update({
-            'skip_download': True,
-            'quiet': True,
-            'extractor_args': {'youtube': {'player_client': ['ios']}}
-        })
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(test_url, download=False)
-            
+        # Test basic functionality
         return jsonify({
             'status': 'success',
-            'message': 'yt-dlp is working correctly',
-            'test_video': info.get('title', 'Unknown'),
-            'formats_available': len(info.get('formats', []))
+            'message': 'API is running with enhanced bypass techniques',
+            'yt_dlp_version': yt_dlp.version.__version__,
+            'timestamp': datetime.now().isoformat()
         })
-        
     except Exception as e:
         return jsonify({
             'status': 'error',
-            'message': 'yt-dlp test failed',
             'error': str(e)
         }), 500
 
@@ -590,38 +622,6 @@ def not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return jsonify({'error': 'Internal server error'}), 500
-
-# Cleanup thread
-def periodic_cleanup():
-    while True:
-        time.sleep(3600)  # Run every hour
-        try:
-            current_time = time.time()
-            to_remove = []
-            
-            for download_id, progress in list(download_progress.items()):
-                if progress.status in ['completed', 'error'] and hasattr(progress, 'file_path'):
-                    if progress.file_path and os.path.exists(progress.file_path):
-                        file_age = current_time - os.path.getmtime(progress.file_path)
-                        if file_age > 3600:  # 1 hour
-                            to_remove.append(download_id)
-                            temp_dir = os.path.dirname(progress.file_path)
-                            if os.path.exists(temp_dir):
-                                try:
-                                    shutil.rmtree(temp_dir)
-                                except:
-                                    pass
-            
-            for download_id in to_remove:
-                if download_id in download_progress:
-                    del download_progress[download_id]
-        except:
-            pass
-
-# Start cleanup thread
-cleanup_thread = threading.Thread(target=periodic_cleanup)
-cleanup_thread.daemon = True
-cleanup_thread.start()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
