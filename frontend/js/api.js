@@ -3,7 +3,7 @@ class APIClient {
     constructor(baseURL) {
         this.baseURL = baseURL || (window.location.hostname === 'localhost'
             ? 'http://localhost:5000'
-            : 'https://your-backend-api.com');
+            : 'https://ytultrahd.onrender.com');
         this.cache = new Map();
         this.pendingRequests = new Map();
         this.retryAttempts = 3;

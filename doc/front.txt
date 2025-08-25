@@ -37,6 +37,8 @@ o	Strictly no unused CSS/JS (purge Tailwind, tree-shake Bootstrap).
 Brand Name:
 YT Ultra HD
 
+backend url: https://ytultrahd.onrender.com
+
 URLs must be clean and extensionless (e.g., /about not /about.html). Configure Vercel routing (vercel.json rewrites) to remove .html from all routes."*
 ⚙️ Vercel Config for Clean URLs
 Add a vercel.json in your root:

@@ -1,7 +1,7 @@
 // API Configuration
 const API_BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:5000'
-    : 'https://your-backend-api.com';
+    : 'https://ytultrahd.onrender.com';
 
 // Global state
 const state = {
