@@ -508,7 +508,6 @@ def health():
 @ultra_gzip_response
 def get_info():
     start_time = time.time()
-    update_performance_metrics()
     
     try:
         data = request.get_json(force=True, silent=True)
@@ -555,8 +554,7 @@ def get_info():
 @ultra_gzip_response
 def start_download():
     start_time = time.time()
-    update_performance_metrics()
-    
+        
     try:
         data = request.get_json(force=True, silent=True)
         if not data or 'url' not in data:
@@ -690,11 +688,18 @@ def after_request(response):
         duration_ms = (time.time() - g.start_time) * 1000
         response.headers['X-Response-Time'] = f'{duration_ms:.1f}ms'
         
-        # Update average response time
+        # Update average response time - fix division by zero
         current_avg = performance_metrics.get('avg_response_time', 0)
-        total_requests = performance_metrics.get('total_requests', 1)
-        new_avg = ((current_avg * (total_requests - 1)) + duration_ms) / total_requests
-        performance_metrics['avg_response_time'] = round(new_avg, 2)
+        total_requests = performance_metrics.get('total_requests', 0)
+        
+        # Increment total requests here to ensure it's always updated
+        performance_metrics['total_requests'] = total_requests + 1
+        total_requests += 1
+        
+        # Calculate new average only if we have requests
+        if total_requests > 0:
+            new_avg = ((current_avg * (total_requests - 1)) + duration_ms) / total_requests
+            performance_metrics['avg_response_time'] = round(new_avg, 2)
     
     # Ultra-performance headers
     response.headers.update({
