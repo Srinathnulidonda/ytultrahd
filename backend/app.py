@@ -40,10 +40,13 @@ REDIS_LIKE_CACHE = {}  # In-memory ultra-fast cache
 FILE_RETENTION_TIME = 3600  # 1 hour retention
 CACHE_DURATION = 1800  # 30 minutes cache
 
-# Cookie Configuration - Change these based on your preference
-USE_COOKIES = True  # Enable/disable cookie usage
-COOKIES_BROWSER = 'firefox'  # Options: 'firefox', 'chrome', 'edge', 'safari', 'chromium', 'brave', 'opera', 'vivaldi'
-COOKIES_FILE_PATH = None  # Set to '/path/to/cookies.txt' if you have a cookies file
+# Cookie Configuration for Chrome Browser
+USE_COOKIES = True  # Enable cookie usage for YouTube authentication
+COOKIES_BROWSER = 'chrome'  # Using Chrome browser for cookie extraction
+COOKIES_FILE_PATH = None  # Not using file-based cookies (using browser instead)
+
+# Alternative browser fallback order if Chrome fails
+FALLBACK_BROWSERS = ['chrome', 'edge', 'firefox', 'chromium', 'brave']
 
 # Create optimized directories
 os.makedirs(TEMP_DIR, exist_ok=True)
@@ -89,7 +92,7 @@ performance_metrics = {
 }
 
 def get_cookie_options():
-    """Get cookie options for yt-dlp to bypass bot detection"""
+    """Get cookie options for yt-dlp to bypass YouTube bot detection"""
     cookie_opts = {}
     
     if not USE_COOKIES:
@@ -99,25 +102,49 @@ def get_cookie_options():
     if COOKIES_FILE_PATH and os.path.exists(COOKIES_FILE_PATH):
         cookie_opts['cookiefile'] = COOKIES_FILE_PATH
         logger.info(f"Using cookies from file: {COOKIES_FILE_PATH}")
+        return cookie_opts
     
-    # Option 2: Extract from browser
-    elif COOKIES_BROWSER:
+    # Option 2: Extract from Chrome browser (primary method)
+    if COOKIES_BROWSER:
         try:
-            # Try to extract cookies from the specified browser
-            cookie_opts['cookiesfrombrowser'] = (COOKIES_BROWSER,)
-            logger.info(f"Extracting cookies from browser: {COOKIES_BROWSER}")
-        except Exception as e:
-            logger.warning(f"Failed to extract cookies from {COOKIES_BROWSER}: {e}")
-            # Try alternative browsers as fallback
-            fallback_browsers = ['firefox', 'chrome', 'edge', 'safari']
-            for browser in fallback_browsers:
-                if browser != COOKIES_BROWSER:
+            # Try Chrome with different possible profile locations
+            browser_options = []
+            
+            # Standard Chrome
+            if COOKIES_BROWSER == 'chrome':
+                # Try default profile first
+                browser_options = [
+                    ('chrome',),  # Default Chrome profile
+                    ('chrome', '~/.config/google-chrome'),  # Linux
+                    ('chrome', '~/Library/Application Support/Google/Chrome'),  # macOS
+                    ('chrome', '%LOCALAPPDATA%/Google/Chrome/User Data'),  # Windows
+                ]
+            else:
+                browser_options = [(COOKIES_BROWSER,)]
+            
+            # Try each option
+            for browser_opt in browser_options:
+                try:
+                    cookie_opts['cookiesfrombrowser'] = browser_opt
+                    logger.info(f"Successfully configured cookies from: {browser_opt[0]}")
+                    return cookie_opts
+                except Exception:
+                    continue
+            
+            # If primary browser fails, try fallback browsers
+            for fallback_browser in FALLBACK_BROWSERS:
+                if fallback_browser != COOKIES_BROWSER:
                     try:
-                        cookie_opts['cookiesfrombrowser'] = (browser,)
-                        logger.info(f"Using fallback browser for cookies: {browser}")
-                        break
-                    except:
+                        cookie_opts['cookiesfrombrowser'] = (fallback_browser,)
+                        logger.warning(f"Primary browser {COOKIES_BROWSER} failed, using fallback: {fallback_browser}")
+                        return cookie_opts
+                    except Exception:
                         continue
+            
+            logger.warning(f"Could not extract cookies from any browser, proceeding without cookies")
+            
+        except Exception as e:
+            logger.warning(f"Failed to configure browser cookies: {e}")
     
     return cookie_opts
 
@@ -239,7 +266,7 @@ def set_redis_like_cache(key: str, data):
             del REDIS_LIKE_CACHE[old_key]
 
 def get_ultra_optimized_ydl_opts(quality: str, download_id: str) -> dict:
-    """Ultra-optimized yt-dlp configuration for maximum speed with cookie support"""
+    """Ultra-optimized yt-dlp configuration for maximum speed with Chrome cookie support"""
     timestamp = int(time.time())
     output_path = os.path.join(TEMP_DIR, f'ultra_{download_id}_{timestamp}.%(ext)s')
     
@@ -266,7 +293,7 @@ def get_ultra_optimized_ydl_opts(quality: str, download_id: str) -> dict:
         'progress_hooks': [UltraFastProgressHook(download_id)],
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'Accept-Language': 'en-US,en;q=0.9',
             'Accept-Encoding': 'gzip, deflate, br',
             'DNT': '1',
@@ -277,6 +304,9 @@ def get_ultra_optimized_ydl_opts(quality: str, download_id: str) -> dict:
             'Sec-Fetch-Site': 'none',
             'Sec-Fetch-User': '?1',
             'Cache-Control': 'max-age=0',
+            'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
         },
         'extractor_args': {
             'youtube': {
@@ -287,7 +317,7 @@ def get_ultra_optimized_ydl_opts(quality: str, download_id: str) -> dict:
         }
     }
     
-    # Add cookie options for authentication
+    # Add Chrome cookie options for authentication
     cookie_opts = get_cookie_options()
     opts.update(cookie_opts)
     
@@ -313,7 +343,7 @@ def get_ultra_optimized_ydl_opts(quality: str, download_id: str) -> dict:
     return opts
 
 def ultra_extract_info(url: str) -> dict:
-    """Ultra-fast info extraction with cookie support"""
+    """Ultra-fast info extraction with Chrome cookie support"""
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
@@ -328,16 +358,19 @@ def ultra_extract_info(url: str) -> dict:
         },
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'Accept-Language': 'en-US,en;q=0.9',
             'Accept-Encoding': 'gzip, deflate, br',
             'DNT': '1',
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
+            'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
         }
     }
     
-    # Add cookie options for authentication
+    # Add Chrome cookie options for authentication
     cookie_opts = get_cookie_options()
     ydl_opts.update(cookie_opts)
     
@@ -452,11 +485,13 @@ async def ultra_download_async(url: str, quality: str, download_id: str):
             error_msg = str(e)
             # Provide helpful error messages for common issues
             if 'Sign in to confirm' in error_msg:
-                error_msg = "YouTube requires authentication. Please check cookie configuration."
+                error_msg = "YouTube requires authentication. Please ensure Chrome is logged in to YouTube."
             elif '429' in error_msg:
                 error_msg = "Too many requests. Please try again later."
             elif 'Video unavailable' in error_msg:
                 error_msg = "This video is unavailable or private."
+            elif 'Cookies' in error_msg or 'cookie' in error_msg.lower():
+                error_msg = "Cookie authentication failed. Please check Chrome is logged in to YouTube."
             
             download_status[download_id] = {
                 'status': 'error',
@@ -530,8 +565,7 @@ def update_performance_metrics():
 @app.route('/')
 @ultra_gzip_response
 def index():
-    cookie_status = "Enabled" if USE_COOKIES else "Disabled"
-    cookie_method = f"Browser: {COOKIES_BROWSER}" if COOKIES_BROWSER and not COOKIES_FILE_PATH else "File"
+    cookie_status = "Enabled (Chrome)" if USE_COOKIES else "Disabled"
     
     return {
         'name': 'YT Downloader Ultra Pro',
@@ -539,7 +573,8 @@ def index():
         'status': 'ultra-operational',
         'cookie_auth': {
             'status': cookie_status,
-            'method': cookie_method
+            'browser': COOKIES_BROWSER,
+            'method': 'Browser-based authentication'
         },
         'performance': {
             'max_concurrent_downloads': MAX_CONCURRENT_DOWNLOADS,
@@ -558,7 +593,8 @@ def index():
             'Advanced download acceleration',
             'In-memory ultra-cache',
             'Multi-threaded processing',
-            'YouTube authentication bypass'
+            'Chrome browser cookie authentication',
+            'YouTube bot detection bypass'
         ]
     }
 
@@ -571,7 +607,10 @@ def health():
     return {
         'status': 'ultra-healthy',
         'timestamp': int(time.time()),
-        'cookie_auth': USE_COOKIES,
+        'cookie_auth': {
+            'enabled': USE_COOKIES,
+            'browser': COOKIES_BROWSER
+        },
         'system': {
             'cpu_usage': f"{cpu_percent:.1f}%",
             'memory_usage': f"{memory_percent:.1f}%",
@@ -625,7 +664,9 @@ def get_info():
     except Exception as e:
         error_msg = str(e)
         if 'Sign in to confirm' in error_msg:
-            error_msg = "YouTube requires authentication. Cookie configuration may be needed."
+            error_msg = "YouTube requires authentication. Please ensure Chrome is logged in to YouTube."
+        elif 'NoneType' in error_msg:
+            error_msg = "Could not extract video information. Please check the URL."
         
         return {
             'success': False,
@@ -820,14 +861,19 @@ if __name__ == '__main__':
 🎯 Chunk Size: {CHUNK_SIZE // (1024**2)}MB
 💾 Buffer Size: {BUFFER_SIZE // (1024**2)}MB
 🔥 Ultra-Performance Mode: ENABLED
-🍪 Cookie Authentication: {USE_COOKIES}
-🌐 Cookie Browser: {COOKIES_BROWSER if USE_COOKIES else 'N/A'}
-📁 Cookie File: {'Configured' if COOKIES_FILE_PATH else 'Not Set'}
 
-⚠️  Cookie Configuration:
-   - To use cookies from browser: Set COOKIES_BROWSER = 'firefox' (or chrome/edge)
-   - To use cookies file: Set COOKIES_FILE_PATH = '/path/to/cookies.txt'
-   - To disable cookies: Set USE_COOKIES = False
+🍪 Cookie Authentication Configuration:
+   ✅ Status: {USE_COOKIES and 'ENABLED' or 'DISABLED'}
+   🌐 Browser: Chrome
+   📁 Cookie File: {'Not Used (Using Browser)' if not COOKIES_FILE_PATH else COOKIES_FILE_PATH}
+   
+⚠️  IMPORTANT: Make sure Chrome is logged into YouTube!
+   The app will automatically extract cookies from Chrome.
+   
+   If downloads fail, please:
+   1. Open Chrome and go to youtube.com
+   2. Make sure you're logged in
+   3. Try downloading again
     """)
     
     app.run(
