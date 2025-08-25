@@ -1,164 +1,280 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VidLux - Premium Video Downloader</title>
-    <meta name="description" content="Luxury video downloading experience with cinematic interface">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>YT Downloader Pro - 4K Video Downloads</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        'luxury-black': '#0A0A0A',
-                        'luxury-gray': '#1A1A1A',
-                        'platinum': '#E5E7EB',
-                        'accent-gold': '#F59E0B',
-                        'accent-purple': '#8B5CF6',
-                    },
-                    fontFamily: {
-                        'display': ['SF Pro Display', 'system-ui', 'sans-serif'],
-                        'body': ['SF Pro Text', 'system-ui', 'sans-serif'],
-                    },
-                    backdropBlur: {
-                        'xs': '2px',
-                    }
-                }
-            }
-        }
-    </script>
 
-    <!-- Custom Styles -->
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
-            --luxury-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary-color: #dc2626;
+            --primary-dark: #b91c1c;
+            --secondary-color: #1f2937;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            --gradient-secondary: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
         * {
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-sizing: border-box;
         }
 
         body {
-            background: #0A0A0A;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
             overflow-x: hidden;
         }
 
-        .hero-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 50%, #2A2A2A 100%);
-            z-index: -1;
+        .hero-section {
+            background: var(--gradient-primary);
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
         }
 
-        .hero-background::before {
+        .hero-section::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="0.5" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="0.3" fill="%23ffffff" opacity="0.05"/><circle cx="50" cy="10" r="0.2" fill="%23ffffff" opacity="0.08"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="50" cy="50" r="50" fill="url(%23g)"/></svg>');
+            opacity: 0.1;
+            animation: pulse 4s ease-in-out infinite alternate;
         }
 
-        .glass-morphism {
-            background: rgba(255, 255, 255, 0.05);
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.1;
+            }
+
+            100% {
+                transform: scale(1.05);
+                opacity: 0.2;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .luxury-input {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .luxury-input:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: #8B5CF6;
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-            outline: none;
-        }
-
-        .download-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 800px;
             position: relative;
             overflow: hidden;
         }
 
-        .download-card::before {
+        .main-card::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .input-group-modern {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-modern {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 1rem 1.25rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
         }
 
-        .download-card:hover::before {
-            left: 100%;
+        .input-modern:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+            transform: translateY(-2px);
         }
 
-        .download-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .quality-badge {
-            background: linear-gradient(135deg, #8B5CF6, #F59E0B);
-            color: white;
+        .btn-modern {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 16px;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            animation: pulse-glow 2s infinite;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px;
         }
 
-        @keyframes pulse-glow {
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
 
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-            }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(220, 38, 38, 0.4);
+        }
 
-            50% {
-                box-shadow: 0 0 30px rgba(139, 92, 246, 0.8), 0 0 40px rgba(245, 158, 11, 0.3);
-            }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--gradient-secondary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quality-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .quality-option {
+            position: relative;
+        }
+
+        .quality-radio {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .quality-label {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .quality-label:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .quality-radio:checked+.quality-label {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .video-info {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
         }
 
         .progress-container {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar-container {
+            background: #e5e7eb;
             border-radius: 12px;
+            height: 12px;
             overflow: hidden;
+            margin: 1rem 0;
             position: relative;
         }
 
         .progress-bar {
-            background: linear-gradient(90deg, #8B5CF6, #F59E0B);
-            height: 8px;
+            height: 100%;
+            background: var(--gradient-primary);
             border-radius: 12px;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -180,7 +296,51 @@
             }
 
             100% {
-                transform: translateX(100%);
+                transform: translateX(200%);
+            }
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-downloading {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color);
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
             }
         }
 
@@ -189,841 +349,817 @@
             bottom: 2rem;
             right: 2rem;
             z-index: 1000;
-            background: linear-gradient(135deg, #8B5CF6, #F59E0B);
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--gradient-primary);
+            color: white;
             border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.4);
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 10000;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(400px);
+            opacity: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .floating-action:hover {
-            transform: scale(1.1) translateY(-2px);
-            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.6);
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
         }
 
-        .trending-indicator {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: linear-gradient(135deg, #EF4444, #F59E0B);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            animation: trending-pulse 3s infinite;
+        .toast-success {
+            border-left: 4px solid var(--success-color);
         }
 
-        @keyframes trending-pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
+        .toast-error {
+            border-left: 4px solid var(--error-color);
         }
 
-        .nav-glass {
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .toast-info {
+            border-left: 4px solid var(--accent-color);
         }
 
+        /* Mobile optimizations */
         @media (max-width: 768px) {
-            .hero-content {
-                padding: 2rem 1rem;
+            .hero-section {
+                padding: 1.5rem 0;
             }
 
-            .download-card {
-                margin-bottom: 1rem;
+            .main-card {
+                margin: 1rem;
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+
+            .quality-selector {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .quality-label {
+                padding: 0.625rem 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .btn-modern {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.925rem;
+            }
+
+            .floating-action {
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            .toast-container {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
+            }
+
+            .video-info {
+                padding: 1rem;
             }
         }
 
-        .fade-in {
-            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        @media (max-width: 480px) {
+            .quality-selector {
+                grid-template-columns: 1fr;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .main-card {
+                margin: 0.5rem;
+                padding: 1rem;
             }
         }
 
-        .slide-up {
-            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Performance optimizations */
+        .will-change-transform {
+            will-change: transform;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
+        .gpu-accelerated {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .main-card {
+                background: rgba(31, 41, 55, 0.95);
+                color: #f9fafb;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .input-modern {
+                background: rgba(55, 65, 81, 0.9);
+                color: #f9fafb;
+                border-color: #4b5563;
             }
+
+            .video-info,
+            .progress-container {
+                background: rgba(55, 65, 81, 0.9);
+                color: #f9fafb;
+            }
+        }
+
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus indicators for keyboard navigation */
+        .btn-modern:focus-visible,
+        .quality-label:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
     </style>
 </head>
 
-<body class="dark:bg-luxury-black text-white">
-    <div class="hero-background"></div>
-
-    <!-- Navigation -->
-    <nav class="nav-glass fixed w-full top-0 z-50">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-2">
-                    <div
-                        class="w-8 h-8 bg-gradient-to-r from-accent-purple to-accent-gold rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">V</span>
+<body>
+    <div class="app-container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content text-center text-white">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="fab fa-youtube text-red-500"></i>
+                        YT Downloader Pro
+                    </h1>
+                    <p class="lead mb-4">Download YouTube videos in 4K quality with premium audio</p>
+                    <div class="d-flex justify-content-center gap-4 flex-wrap">
+                        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                            <i class="fas fa-video me-1"></i> Up to 4K Quality
+                        </span>
+                        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                            <i class="fas fa-music me-1"></i> Premium Audio
+                        </span>
+                        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                            <i class="fas fa-mobile-alt me-1"></i> Mobile Optimized
+                        </span>
                     </div>
-                    <span
-                        class="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-gold bg-clip-text text-transparent">VidLux</span>
                 </div>
-                <div class="hidden md:flex space-x-6">
-                    <a href="#" class="text-platinum hover:text-accent-purple transition-colors">Discover</a>
-                    <a href="#" class="text-platinum hover:text-accent-purple transition-colors">Downloads</a>
-                    <a href="#" class="text-platinum hover:text-accent-purple transition-colors">Premium</a>
-                </div>
-                <button class="md:hidden text-platinum">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
             </div>
-        </div>
-    </nav>
+        </section>
 
-    <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-center relative pt-20">
-        <div class="container mx-auto px-4 text-center hero-content">
-            <h1
-                class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-platinum to-accent-purple bg-clip-text text-transparent fade-in">
-                Cinematic Downloads
-            </h1>
-            <p class="text-xl md:text-2xl text-platinum mb-12 max-w-3xl mx-auto fade-in" style="animation-delay: 0.2s">
-                Transform video downloading into a premium experience. Netflix-quality interface meets Google-speed
-                performance.
-            </p>
-
-            <!-- Smart URL Input -->
-            <div class="max-w-4xl mx-auto mb-16 slide-up" style="animation-delay: 0.4s">
-                <div class="glass-morphism rounded-2xl p-8">
-                    <div class="relative">
-                        <input type="url" id="videoUrl" placeholder="Paste any video URL to experience the magic..."
-                            class="luxury-input w-full py-4 px-6 rounded-xl text-white placeholder-gray-400 text-lg">
-                        <button id="analyzeBtn"
-                            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-accent-purple to-accent-gold text-white px-6 py-2 rounded-lg font-semibold transition-all hover:scale-105">
-                            Analyze
+        <!-- Main Content -->
+        <main class="flex-grow-1">
+            <div class="container">
+                <div class="main-card gpu-accelerated">
+                    <!-- URL Input Section -->
+                    <div class="mb-4">
+                        <label for="videoUrl" class="form-label fw-semibold text-lg mb-3">
+                            <i class="fas fa-link me-2 text-primary"></i>
+                            Video URL
+                        </label>
+                        <div class="input-group-modern">
+                            <input type="url" id="videoUrl" class="input-modern"
+                                placeholder="Paste YouTube video URL here..." aria-label="YouTube video URL"
+                                autocomplete="off" spellcheck="false">
+                        </div>
+                        <button id="getInfoBtn" class="btn-modern btn-secondary will-change-transform" type="button">
+                            <i class="fas fa-info-circle"></i>
+                            Get Video Info
                         </button>
                     </div>
 
-                    <!-- Instant Preview -->
-                    <div id="instantPreview" class="mt-6 hidden">
-                        <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
-                            <div
-                                class="w-24 h-16 bg-gradient-to-br from-accent-purple to-accent-gold rounded-lg flex-shrink-0 flex items-center justify-center">
-                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
+                    <!-- Video Information -->
+                    <div id="videoInfo" class="video-info d-none">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center mb-3 mb-md-0">
+                                <img id="videoThumbnail" src="" alt="Video thumbnail" class="video-thumbnail">
                             </div>
-                            <div class="flex-grow">
-                                <h3 class="text-white font-semibold">Video Preview</h3>
-                                <p class="text-gray-400 text-sm">Analyzing content...</p>
-                            </div>
-                            <div class="flex space-x-2">
-                                <span class="quality-badge px-3 py-1 rounded-full">4K</span>
-                                <span class="quality-badge px-3 py-1 rounded-full">HD</span>
-                                <span class="quality-badge px-3 py-1 rounded-full">Audio</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Content Discovery Hub -->
-    <section class="py-20 relative">
-        <div class="container mx-auto px-4">
-            <h2
-                class="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-white to-accent-purple bg-clip-text text-transparent">
-                Discover Premium Content
-            </h2>
-
-            <!-- Trending Downloads -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-semibold mb-8 text-platinum">Trending Now</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="download-card rounded-2xl p-6 relative">
-                        <div class="trending-indicator">🔥 Trending</div>
-                        <div
-                            class="w-full h-48 bg-gradient-to-br from-accent-purple to-accent-gold rounded-xl mb-4 flex items-center justify-center">
-                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h4 class="text-xl font-semibold mb-2 text-white">Premium Tutorial Series</h4>
-                        <p class="text-gray-400 mb-4">High-quality educational content</p>
-                        <div class="flex justify-between items-center">
-                            <span class="quality-badge px-3 py-1 rounded-full">4K Ultra</span>
-                            <button
-                                class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Download</button>
-                        </div>
-                    </div>
-
-                    <div class="download-card rounded-2xl p-6 relative">
-                        <div
-                            class="w-full h-48 bg-gradient-to-br from-accent-gold to-red-500 rounded-xl mb-4 flex items-center justify-center">
-                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h4 class="text-xl font-semibold mb-2 text-white">Music Collection</h4>
-                        <p class="text-gray-400 mb-4">Curated audio experiences</p>
-                        <div class="flex justify-between items-center">
-                            <span class="quality-badge px-3 py-1 rounded-full">Hi-Fi</span>
-                            <button
-                                class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Download</button>
-                        </div>
-                    </div>
-
-                    <div class="download-card rounded-2xl p-6 relative">
-                        <div
-                            class="w-full h-48 bg-gradient-to-br from-green-500 to-blue-500 rounded-xl mb-4 flex items-center justify-center">
-                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h4 class="text-xl font-semibold mb-2 text-white">Documentary Films</h4>
-                        <p class="text-gray-400 mb-4">Award-winning documentaries</p>
-                        <div class="flex justify-between items-center">
-                            <span class="quality-badge px-3 py-1 rounded-full">HDR</span>
-                            <button
-                                class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Download</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Smart Collections -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-semibold mb-8 text-platinum">Your Collections</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-morphism rounded-2xl p-6 text-center">
-                        <div
-                            class="w-16 h-16 bg-gradient-to-r from-accent-purple to-accent-gold rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <span class="text-2xl">🎵</span>
-                        </div>
-                        <h4 class="text-lg font-semibold mb-2">Your Music Videos</h4>
-                        <p class="text-gray-400 text-sm mb-4">47 videos • 12.3 GB</p>
-                        <button
-                            class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Explore</button>
-                    </div>
-
-                    <div class="glass-morphism rounded-2xl p-6 text-center">
-                        <div
-                            class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <span class="text-2xl">📚</span>
-                        </div>
-                        <h4 class="text-lg font-semibold mb-2">Educational Content</h4>
-                        <p class="text-gray-400 text-sm mb-4">23 videos • 8.7 GB</p>
-                        <button
-                            class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Explore</button>
-                    </div>
-
-                    <div class="glass-morphism rounded-2xl p-6 text-center">
-                        <div
-                            class="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <span class="text-2xl">🔥</span>
-                        </div>
-                        <h4 class="text-lg font-semibold mb-2">Recently Popular</h4>
-                        <p class="text-gray-400 text-sm mb-4">15 videos • 5.2 GB</p>
-                        <button
-                            class="text-accent-purple hover:text-accent-gold transition-colors font-semibold">Explore</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Download Management Theater -->
-    <section class="py-20 relative">
-        <div class="container mx-auto px-4">
-            <h2
-                class="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-white to-accent-purple bg-clip-text text-transparent">
-                Download Orchestra
-            </h2>
-
-            <div class="glass-morphism rounded-2xl p-8">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-2xl font-semibold text-white">Active Downloads</h3>
-                    <button
-                        class="bg-gradient-to-r from-accent-purple to-accent-gold text-white px-6 py-2 rounded-lg font-semibold hover:scale-105 transition-transform">
-                        Add to Queue
-                    </button>
-                </div>
-
-                <!-- Download Items -->
-                <div class="space-y-6">
-                    <div class="download-item flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
-                        <div
-                            class="w-16 h-12 bg-gradient-to-br from-accent-purple to-accent-gold rounded-lg flex-shrink-0 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <div class="flex-grow">
-                            <h4 class="text-white font-semibold">Amazing Tutorial - Part 1</h4>
-                            <p class="text-gray-400 text-sm">4K • 1.2 GB • 45% complete</p>
-                            <div class="progress-container mt-2">
-                                <div class="progress-bar" style="width: 45%"></div>
+                            <div class="col-md-8">
+                                <h4 id="videoTitle" class="fw-bold mb-2"></h4>
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-user me-1"></i>
+                                    <span id="videoUploader"></span>
+                                </p>
+                                <div class="d-flex flex-wrap gap-3 mb-3">
+                                    <span class="text-sm">
+                                        <i class="fas fa-clock me-1"></i>
+                                        <span id="videoDuration"></span>
+                                    </span>
+                                    <span class="text-sm">
+                                        <i class="fas fa-eye me-1"></i>
+                                        <span id="videoViews"></span>
+                                    </span>
+                                    <span class="text-sm">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <span id="videoDate"></span>
+                                    </span>
+                                </div>
+                                <p id="videoDescription" class="text-sm text-muted"></p>
                             </div>
                         </div>
-                        <div class="text-accent-purple font-semibold">2.3 MB/s</div>
-                        <button class="text-gray-400 hover:text-white transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
+                    </div>
+
+                    <!-- Quality Selection -->
+                    <div id="qualitySection" class="d-none">
+                        <label class="form-label fw-semibold text-lg mb-3">
+                            <i class="fas fa-sliders-h me-2 text-primary"></i>
+                            Quality Selection
+                        </label>
+                        <div class="quality-selector">
+                            <div class="quality-option">
+                                <input type="radio" id="quality_4k" name="quality" value="4k" class="quality-radio">
+                                <label for="quality_4k" class="quality-label gpu-accelerated">
+                                    <i class="fas fa-crown mb-1 d-block text-warning"></i>
+                                    4K Ultra
+                                </label>
+                            </div>
+                            <div class="quality-option">
+                                <input type="radio" id="quality_best" name="quality" value="best" class="quality-radio"
+                                    checked>
+                                <label for="quality_best" class="quality-label gpu-accelerated">
+                                    <i class="fas fa-star mb-1 d-block text-success"></i>
+                                    Best Quality
+                                </label>
+                            </div>
+                            <div class="quality-option">
+                                <input type="radio" id="quality_1080p" name="quality" value="1080p"
+                                    class="quality-radio">
+                                <label for="quality_1080p" class="quality-label gpu-accelerated">
+                                    <i class="fas fa-hd-video mb-1 d-block"></i>
+                                    1080p HD
+                                </label>
+                            </div>
+                            <div class="quality-option">
+                                <input type="radio" id="quality_720p" name="quality" value="720p" class="quality-radio">
+                                <label for="quality_720p" class="quality-label gpu-accelerated">
+                                    <i class="fas fa-film mb-1 d-block"></i>
+                                    720p HD
+                                </label>
+                            </div>
+                            <div class="quality-option">
+                                <input type="radio" id="quality_480p" name="quality" value="480p" class="quality-radio">
+                                <label for="quality_480p" class="quality-label gpu-accelerated">
+                                    <i class="fas fa-video mb-1 d-block"></i>
+                                    480p SD
+                                </label>
+                            </div>
+                            <div class="quality-option">
+                                <input type="radio" id="quality_audio" name="quality" value="audio"
+                                    class="quality-radio">
+                                <label for="quality_audio" class="quality-label gpu-accelerated">
+                                    <i class="fas fa-music mb-1 d-block text-purple-500"></i>
+                                    Audio Only
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download Button -->
+                    <div id="downloadSection" class="text-center d-none">
+                        <button id="downloadBtn" class="btn-modern btn-primary will-change-transform" type="button">
+                            <i class="fas fa-download"></i>
+                            Start Download
                         </button>
                     </div>
 
-                    <div class="download-item flex items-center space-x-4 p-4 bg-white/5 rounded-xl">
-                        <div
-                            class="w-16 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex-shrink-0 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="flex-grow">
-                            <h4 class="text-white font-semibold">Epic Music Compilation</h4>
-                            <p class="text-gray-400 text-sm">Hi-Fi Audio • 450 MB • 78% complete</p>
-                            <div class="progress-container mt-2">
-                                <div class="progress-bar" style="width: 78%"></div>
+                    <!-- Progress Section -->
+                    <div id="progressSection" class="progress-container d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Download Progress</h5>
+                            <div id="downloadStatus" class="status-indicator">
+                                <div class="spinner"></div>
+                                Initializing...
                             </div>
                         </div>
-                        <div class="text-accent-purple font-semibold">1.8 MB/s</div>
-                        <button class="text-gray-400 hover:text-white transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Statistics -->
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-accent-purple mb-2">156</div>
-                        <div class="text-gray-400">Total Downloads</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-accent-gold mb-2">89.4 GB</div>
-                        <div class="text-gray-400">Total Size</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-green-400 mb-2">4.2 MB/s</div>
-                        <div class="text-gray-400">Average Speed</div>
+                        <div class="progress-bar-container">
+                            <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+                        </div>
+
+                        <div class="row text-sm text-muted mt-3">
+                            <div class="col-6">
+                                <i class="fas fa-percentage me-1"></i>
+                                Progress: <span id="progressPercent">0%</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <i class="fas fa-clock me-1"></i>
+                                ETA: <span id="progressETA">--</span>
+                            </div>
+                        </div>
+
+                        <div class="row text-sm text-muted mt-2">
+                            <div class="col-6">
+                                <i class="fas fa-tachometer-alt me-1"></i>
+                                Speed: <span id="progressSpeed">--</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <i class="fas fa-hdd me-1"></i>
+                                Size: <span id="progressSize">--</span>
+                            </div>
+                        </div>
+
+                        <div id="downloadCompleted" class="text-center mt-4 d-none">
+                            <button id="downloadFileBtn" class="btn-modern btn-primary will-change-transform">
+                                <i class="fas fa-file-download"></i>
+                                Download File
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </main>
+
+        <!-- Floating Action Button -->
+        <div class="floating-action">
+            <button id="scrollTopBtn" class="fab d-none" title="Scroll to top">
+                <i class="fas fa-arrow-up"></i>
+            </button>
         </div>
-    </section>
 
-    <!-- Premium Features Showcase -->
-    <section class="py-20 relative">
-        <div class="container mx-auto px-4">
-            <h2
-                class="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-white to-accent-purple bg-clip-text text-transparent">
-                Premium Features
-            </h2>
+        <!-- Toast Container -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="glass-morphism rounded-2xl p-8">
-                    <div class="flex items-center mb-6">
-                        <div
-                            class="w-12 h-12 bg-gradient-to-r from-accent-purple to-accent-gold rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-semibold text-white">AI Enhancement</h3>
-                    </div>
-                    <p class="text-gray-400 mb-6">Intelligent upscaling and quality enhancement powered by machine
-                        learning algorithms.</p>
-                    <button
-                        class="bg-gradient-to-r from-accent-purple to-accent-gold text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
-                        Try Enhancement
-                    </button>
-                </div>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
-                <div class="glass-morphism rounded-2xl p-8">
-                    <div class="flex items-center mb-6">
-                        <div
-                            class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-semibold text-white">Format Alchemy</h3>
-                    </div>
-                    <p class="text-gray-400 mb-6">Convert between any format with lossless quality and intelligent
-                        optimization.</p>
-                    <button
-                        class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
-                        Convert Now
-                    </button>
-                </div>
-
-                <div class="glass-morphism rounded-2xl p-8">
-                    <div class="flex items-center mb-6">
-                        <div
-                            class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-semibold text-white">Subtitle Magic</h3>
-                    </div>
-                    <p class="text-gray-400 mb-6">Auto-generate, translate, and customize subtitles with advanced
-                        styling options.</p>
-                    <button
-                        class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
-                        Generate Subtitles
-                    </button>
-                </div>
-
-                <div class="glass-morphism rounded-2xl p-8">
-                    <div class="flex items-center mb-6">
-                        <div
-                            class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM15.657 6.343a1 1 0 011.414 0A9.972 9.972 0 0119 12a9.972 9.972 0 01-1.929 5.657 1 1 0 11-1.414-1.414A7.971 7.971 0 0017 12a7.971 7.971 0 00-1.343-4.243 1 1 0 010-1.414z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-semibold text-white">Audio Extraction Studio</h3>
-                    </div>
-                    <p class="text-gray-400 mb-6">Extract pristine audio with professional-grade waveform visualization
-                        and editing.</p>
-                    <button
-                        class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
-                        Extract Audio
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Floating Action Button -->
-    <button class="floating-action" id="quickDownload" title="Quick Download">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
-        </svg>
-    </button>
-
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom JavaScript -->
     <script>
-        class VidLuxDownloader {
+        class YouTubeDownloader {
             constructor() {
-                this.init();
-                this.setupEventListeners();
-                this.setupAnimations();
+                this.apiUrl = 'http://127.0.0.1:5000'; // Replace with your Render URL
+                this.currentDownloadId = null;
+                this.progressInterval = null;
+
+                this.initializeElements();
+                this.bindEvents();
+                this.setupPerformanceOptimizations();
             }
 
-            init() {
-                // Initialize app state
-                this.downloads = [];
-                this.currentDownloads = 0;
-                this.totalDownloaded = 156;
-                this.totalSize = 89.4;
-                this.averageSpeed = 4.2;
+            initializeElements() {
+                this.elements = {
+                    urlInput: document.getElementById('videoUrl'),
+                    getInfoBtn: document.getElementById('getInfoBtn'),
+                    downloadBtn: document.getElementById('downloadBtn'),
+                    downloadFileBtn: document.getElementById('downloadFileBtn'),
+                    scrollTopBtn: document.getElementById('scrollTopBtn'),
+
+                    videoInfo: document.getElementById('videoInfo'),
+                    qualitySection: document.getElementById('qualitySection'),
+                    downloadSection: document.getElementById('downloadSection'),
+                    progressSection: document.getElementById('progressSection'),
+                    downloadCompleted: document.getElementById('downloadCompleted'),
+
+                    videoThumbnail: document.getElementById('videoThumbnail'),
+                    videoTitle: document.getElementById('videoTitle'),
+                    videoUploader: document.getElementById('videoUploader'),
+                    videoDuration: document.getElementById('videoDuration'),
+                    videoViews: document.getElementById('videoViews'),
+                    videoDate: document.getElementById('videoDate'),
+                    videoDescription: document.getElementById('videoDescription'),
+
+                    progressBar: document.getElementById('progressBar'),
+                    downloadStatus: document.getElementById('downloadStatus'),
+                    progressPercent: document.getElementById('progressPercent'),
+                    progressETA: document.getElementById('progressETA'),
+                    progressSpeed: document.getElementById('progressSpeed'),
+                    progressSize: document.getElementById('progressSize'),
+
+                    toastContainer: document.getElementById('toastContainer')
+                };
             }
 
-            setupEventListeners() {
-                // URL input analysis
-                const urlInput = document.getElementById('videoUrl');
-                const analyzeBtn = document.getElementById('analyzeBtn');
+            bindEvents() {
+                this.elements.getInfoBtn.addEventListener('click', () => this.getVideoInfo());
+                this.elements.downloadBtn.addEventListener('click', () => this.startDownload());
+                this.elements.downloadFileBtn.addEventListener('click', () => this.downloadFile());
+                this.elements.scrollTopBtn.addEventListener('click', () => this.scrollToTop());
 
-                urlInput.addEventListener('input', this.handleUrlInput.bind(this));
-                urlInput.addEventListener('paste', this.handleUrlPaste.bind(this));
-                analyzeBtn.addEventListener('click', this.analyzeVideo.bind(this));
-
-                // Enter key support
-                urlInput.addEventListener('keypress', (e) => {
+                this.elements.urlInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
-                        this.analyzeVideo();
+                        this.getVideoInfo();
                     }
                 });
 
-                // Floating action button
-                document.getElementById('quickDownload').addEventListener('click', this.showQuickDownload.bind(this));
+                this.elements.urlInput.addEventListener('paste', () => {
+                    setTimeout(() => this.getVideoInfo(), 100);
+                });
 
-                // Download cards hover effects
-                this.setupCardInteractions();
-
-                // Progress bar animations
-                this.animateProgressBars();
+                window.addEventListener('scroll', this.throttle(() => {
+                    this.handleScroll();
+                }, 100));
             }
 
-            handleUrlInput(e) {
-                const url = e.target.value;
-                const preview = document.getElementById('instantPreview');
-
-                if (this.isValidUrl(url)) {
-                    this.showInstantPreview(url);
-                } else {
-                    preview.classList.add('hidden');
+            setupPerformanceOptimizations() {
+                // Preload critical resources
+                if ('serviceWorker' in navigator) {
+                    this.registerServiceWorker();
                 }
+
+                // Enable hardware acceleration for animations
+                document.querySelectorAll('.will-change-transform').forEach(el => {
+                    el.style.willChange = 'transform';
+                });
             }
 
-            handleUrlPaste(e) {
-                setTimeout(() => {
-                    const url = e.target.value;
-                    if (this.isValidUrl(url)) {
-                        this.triggerHapticFeedback();
-                        this.showInstantPreview(url);
-                        this.analyzeVideo();
-                    }
-                }, 100);
-            }
-
-            isValidUrl(string) {
+            async registerServiceWorker() {
                 try {
-                    new URL(string);
-                    return true;
-                } catch (_) {
-                    return false;
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('ServiceWorker registered:', registration);
+                } catch (error) {
+                    console.log('ServiceWorker registration failed:', error);
                 }
             }
 
-            showInstantPreview(url) {
-                const preview = document.getElementById('instantPreview');
-                preview.classList.remove('hidden');
+            throttle(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
 
-                // Simulate smart detection
+            handleScroll() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > 300) {
+                    this.elements.scrollTopBtn.classList.remove('d-none');
+                } else {
+                    this.elements.scrollTopBtn.classList.add('d-none');
+                }
+            }
+
+            scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            showToast(message, type = 'info', duration = 5000) {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-${this.getToastIcon(type)} me-2"></i>
+                        <span class="flex-grow-1">${message}</span>
+                        <button type="button" class="btn-close btn-close-sm ms-2" onclick="this.parentElement.parentElement.remove()"></button>
+                    </div>
+                `;
+
+                this.elements.toastContainer.appendChild(toast);
+
+                requestAnimationFrame(() => {
+                    toast.classList.add('show');
+                });
+
                 setTimeout(() => {
-                    const videoTitle = this.extractVideoTitle(url);
-                    const qualityBadges = preview.querySelectorAll('.quality-badge');
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            }
 
-                    preview.querySelector('h3').textContent = videoTitle;
-                    preview.querySelector('p').textContent = 'Ready to download • Multiple formats available';
+            getToastIcon(type) {
+                const icons = {
+                    success: 'check-circle',
+                    error: 'exclamation-triangle',
+                    info: 'info-circle',
+                    warning: 'exclamation-circle'
+                };
+                return icons[type] || 'info-circle';
+            }
 
-                    // Animate quality badges
-                    qualityBadges.forEach((badge, index) => {
-                        setTimeout(() => {
-                            badge.style.animation = 'pulse-glow 2s infinite';
-                        }, index * 200);
+            async makeRequest(endpoint, options = {}) {
+                try {
+                    const response = await fetch(`${this.apiUrl}${endpoint}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        ...options
                     });
-                }, 500);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('Request failed:', error);
+                    throw error;
+                }
             }
 
-            extractVideoTitle(url) {
-                // Simulate smart title extraction
-                const titles = [
-                    'Amazing Tutorial Series - Episode 1',
-                    'Epic Music Video Compilation',
-                    'Documentary: The Future of Technology',
-                    'Coding Masterclass - Advanced Techniques',
-                    'Nature Documentary - 4K Ultra HD'
-                ];
-                return titles[Math.floor(Math.random() * titles.length)];
-            }
+            async getVideoInfo() {
+                const url = this.elements.urlInput.value.trim();
 
-            analyzeVideo() {
-                const urlInput = document.getElementById('videoUrl');
-                const url = urlInput.value;
-
-                if (!this.isValidUrl(url)) {
-                    this.showNotification('Please enter a valid URL', 'error');
+                if (!url) {
+                    this.showToast('Please enter a YouTube URL', 'warning');
                     return;
                 }
 
-                this.triggerHapticFeedback();
-                this.showAnalysisAnimation();
+                if (!this.isValidYouTubeUrl(url)) {
+                    this.showToast('Please enter a valid YouTube URL', 'error');
+                    return;
+                }
 
-                // Simulate analysis
-                setTimeout(() => {
-                    this.showDownloadOptions();
-                    this.showNotification('Video analyzed successfully!', 'success');
-                }, 2000);
-            }
+                this.setLoadingState(this.elements.getInfoBtn, true);
+                this.hideAllSections();
 
-            showAnalysisAnimation() {
-                const analyzeBtn = document.getElementById('analyzeBtn');
-                const originalText = analyzeBtn.textContent;
-
-                analyzeBtn.innerHTML = `
-                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Analyzing...
-                `;
-
-                setTimeout(() => {
-                    analyzeBtn.textContent = originalText;
-                }, 2000);
-            }
-
-            showDownloadOptions() {
-                // Create download options modal or expand interface
-                console.log('Showing download options...');
-            }
-
-            setupCardInteractions() {
-                const cards = document.querySelectorAll('.download-card');
-
-                cards.forEach(card => {
-                    card.addEventListener('mouseenter', () => {
-                        this.triggerHapticFeedback('light');
+                try {
+                    const response = await this.makeRequest('/api/info', {
+                        method: 'POST',
+                        body: JSON.stringify({ url })
                     });
 
-                    card.addEventListener('click', () => {
-                        this.triggerHapticFeedback();
-                        this.selectCard(card);
-                    });
-                });
-            }
-
-            selectCard(card) {
-                // Remove previous selections
-                document.querySelectorAll('.download-card').forEach(c => {
-                    c.classList.remove('selected');
-                });
-
-                // Add selection to clicked card
-                card.classList.add('selected');
-                card.style.borderColor = 'rgba(139, 92, 246, 0.5)';
-                card.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.3)';
-            }
-
-            animateProgressBars() {
-                const progressBars = document.querySelectorAll('.progress-bar');
-
-                progressBars.forEach(bar => {
-                    const width = parseInt(bar.style.width);
-                    bar.style.width = '0%';
-
-                    setTimeout(() => {
-                        bar.style.width = width + '%';
-                    }, 500);
-                });
-            }
-
-            showQuickDownload() {
-                this.triggerHapticFeedback();
-
-                // Create quick download modal
-                const modal = this.createQuickDownloadModal();
-                document.body.appendChild(modal);
-
-                setTimeout(() => {
-                    modal.classList.add('show');
-                }, 100);
-            }
-
-            createQuickDownloadModal() {
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 transition-opacity duration-300';
-
-                modal.innerHTML = `
-                    <div class="glass-morphism rounded-2xl p-8 max-w-md w-full mx-4 transform scale-95 transition-transform duration-300">
-                        <h3 class="text-2xl font-bold mb-6 text-center text-white">Quick Download</h3>
-                        <input type="url" placeholder="Paste URL here..." class="luxury-input w-full py-3 px-4 rounded-lg mb-4 text-white">
-                        <div class="flex space-x-4">
-                            <button class="flex-1 bg-gradient-to-r from-accent-purple to-accent-gold text-white py-3 rounded-lg font-semibold hover:scale-105 transition-transform">
-                                Download
-                            </button>
-                            <button class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-500 transition-colors" onclick="this.closest('.fixed').remove()">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.remove();
+                    if (response.success) {
+                        this.displayVideoInfo(response.data);
+                        this.showQualitySelection();
+                        this.showToast('Video information loaded successfully!', 'success');
+                    } else {
+                        throw new Error(response.error || 'Failed to get video info');
                     }
-                });
-
-                return modal;
-            }
-
-            setupAnimations() {
-                // Intersection Observer for scroll animations
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('fade-in');
-                        }
-                    });
-                }, { threshold: 0.1 });
-
-                // Observe elements for animation
-                document.querySelectorAll('.download-card, .glass-morphism').forEach(el => {
-                    observer.observe(el);
-                });
-
-                // Parallax effect for hero background
-                window.addEventListener('scroll', this.handleParallaxScroll.bind(this));
-            }
-
-            handleParallaxScroll() {
-                const scrolled = window.pageYOffset;
-                const parallax = document.querySelector('.hero-background');
-                const speed = scrolled * 0.5;
-
-                parallax.style.transform = `translateY(${speed}px)`;
-            }
-
-            triggerHapticFeedback(intensity = 'medium') {
-                // Trigger haptic feedback if available
-                if (navigator.vibrate) {
-                    const patterns = {
-                        light: 10,
-                        medium: 50,
-                        strong: 100
-                    };
-                    navigator.vibrate(patterns[intensity] || 50);
+                } catch (error) {
+                    this.showToast(`Error: ${error.message}`, 'error');
+                } finally {
+                    this.setLoadingState(this.elements.getInfoBtn, false);
                 }
             }
 
-            showNotification(message, type = 'info') {
-                const notification = document.createElement('div');
-                notification.className = `fixed top-4 right-4 z-50 glass-morphism rounded-lg p-4 text-white transform translate-x-full transition-transform duration-300`;
+            isValidYouTubeUrl(url) {
+                const patterns = [
+                    /^https?:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+/,
+                    /^https?:\/\/(www\.)?youtu\.be\/[\w-]+/,
+                    /^https?:\/\/(www\.)?youtube\.com\/embed\/[\w-]+/,
+                    /^https?:\/\/(www\.)?m\.youtube\.com\/watch\?v=[\w-]+/
+                ];
+                return patterns.some(pattern => pattern.test(url));
+            }
 
-                const colors = {
-                    success: 'border-green-500',
-                    error: 'border-red-500',
-                    info: 'border-blue-500'
+            displayVideoInfo(info) {
+                this.elements.videoThumbnail.src = info.thumbnail;
+                this.elements.videoThumbnail.alt = info.title;
+                this.elements.videoTitle.textContent = info.title;
+                this.elements.videoUploader.textContent = info.uploader;
+                this.elements.videoDuration.textContent = this.formatDuration(info.duration);
+                this.elements.videoViews.textContent = this.formatNumber(info.view_count);
+                this.elements.videoDate.textContent = this.formatDate(info.upload_date);
+                this.elements.videoDescription.textContent = info.description;
+
+                this.elements.videoInfo.classList.remove('d-none');
+            }
+
+            showQualitySelection() {
+                this.elements.qualitySection.classList.remove('d-none');
+                this.elements.downloadSection.classList.remove('d-none');
+            }
+
+            hideAllSections() {
+                this.elements.videoInfo.classList.add('d-none');
+                this.elements.qualitySection.classList.add('d-none');
+                this.elements.downloadSection.classList.add('d-none');
+                this.elements.progressSection.classList.add('d-none');
+                this.elements.downloadCompleted.classList.add('d-none');
+            }
+
+            async startDownload() {
+                const url = this.elements.urlInput.value.trim();
+                const quality = document.querySelector('input[name="quality"]:checked').value;
+
+                this.setLoadingState(this.elements.downloadBtn, true);
+
+                try {
+                    const response = await this.makeRequest('/api/download', {
+                        method: 'POST',
+                        body: JSON.stringify({ url, quality })
+                    });
+
+                    if (response.success) {
+                        this.currentDownloadId = response.download_id;
+                        this.showProgressSection();
+                        this.startProgressTracking();
+                        this.showToast('Download started successfully!', 'success');
+                    } else {
+                        throw new Error(response.error || 'Failed to start download');
+                    }
+                } catch (error) {
+                    this.showToast(`Error: ${error.message}`, 'error');
+                } finally {
+                    this.setLoadingState(this.elements.downloadBtn, false);
+                }
+            }
+
+            showProgressSection() {
+                this.elements.progressSection.classList.remove('d-none');
+                this.elements.progressSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            startProgressTracking() {
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                }
+
+                this.progressInterval = setInterval(() => {
+                    this.updateProgress();
+                }, 1000);
+            }
+
+            async updateProgress() {
+                if (!this.currentDownloadId) return;
+
+                try {
+                    const response = await this.makeRequest(`/api/status/${this.currentDownloadId}`);
+
+                    if (response.success) {
+                        this.updateProgressDisplay(response.status);
+
+                        if (response.status.status === 'completed') {
+                            this.handleDownloadComplete();
+                        } else if (response.status.status === 'error') {
+                            this.handleDownloadError(response.status.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Progress update failed:', error);
+                }
+            }
+
+            updateProgressDisplay(status) {
+                const progress = status.progress || 0;
+                this.elements.progressBar.style.width = `${progress}%`;
+                this.elements.progressPercent.textContent = `${progress.toFixed(1)}%`;
+
+                this.elements.progressETA.textContent = status.eta ?
+                    this.formatTime(status.eta) : '--';
+                this.elements.progressSpeed.textContent = status.speed ?
+                    this.formatBytes(status.speed) + '/s' : '--';
+                this.elements.progressSize.textContent = status.total_bytes ?
+                    this.formatBytes(status.total_bytes) : '--';
+
+                this.updateStatusIndicator(status.status, status.message);
+            }
+
+            updateStatusIndicator(status, message) {
+                const statusElement = this.elements.downloadStatus;
+                statusElement.className = `status-indicator status-${status}`;
+
+                const icons = {
+                    downloading: '<div class="spinner"></div>',
+                    processing: '<div class="spinner"></div>',
+                    completed: '<i class="fas fa-check-circle"></i>',
+                    error: '<i class="fas fa-exclamation-triangle"></i>'
                 };
 
-                notification.classList.add(colors[type] || colors.info);
-                notification.textContent = message;
+                const messages = {
+                    downloading: 'Downloading...',
+                    processing: 'Processing...',
+                    completed: 'Completed!',
+                    error: 'Error occurred'
+                };
 
-                document.body.appendChild(notification);
-
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(0)';
-                }, 100);
-
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(100%)';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            }
-
-            // Advanced features
-            enableVoiceCommands() {
-                if ('speechRecognition' in window || 'webkitSpeechRecognition' in window) {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    const recognition = new SpeechRecognition();
-
-                    recognition.continuous = false;
-                    recognition.interimResults = false;
-                    recognition.lang = 'en-US';
-
-                    recognition.onresult = (event) => {
-                        const command = event.results[0][0].transcript.toLowerCase();
-                        this.processVoiceCommand(command);
-                    };
-
-                    // Add voice command button
-                    this.addVoiceCommandButton(recognition);
-                }
-            }
-
-            processVoiceCommand(command) {
-                if (command.includes('download') && command.includes('4k')) {
-                    this.showNotification('Voice command recognized: Download in 4K', 'success');
-                } else if (command.includes('pause')) {
-                    this.showNotification('Voice command recognized: Pause downloads', 'info');
-                } else {
-                    this.showNotification('Voice command not recognized', 'error');
-                }
-            }
-
-            addVoiceCommandButton(recognition) {
-                const voiceBtn = document.createElement('button');
-                voiceBtn.className = 'fixed bottom-32 right-4 w-12 h-12 bg-gradient-to-r from-accent-purple to-accent-gold rounded-full flex items-center justify-center z-50';
-                voiceBtn.innerHTML = `
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path>
-                    </svg>
+                statusElement.innerHTML = `
+                    ${icons[status] || '<div class="spinner"></div>'}
+                    ${message || messages[status] || 'Unknown status'}
                 `;
+            }
 
-                voiceBtn.addEventListener('click', () => {
-                    recognition.start();
-                    this.triggerHapticFeedback();
-                });
+            handleDownloadComplete() {
+                clearInterval(this.progressInterval);
+                this.elements.downloadCompleted.classList.remove('d-none');
+                this.showToast('Download completed successfully!', 'success');
+            }
 
-                document.body.appendChild(voiceBtn);
+            handleDownloadError(message) {
+                clearInterval(this.progressInterval);
+                this.showToast(`Download failed: ${message}`, 'error');
+            }
+
+            async downloadFile() {
+                if (!this.currentDownloadId) return;
+
+                try {
+                    const response = await fetch(`${this.apiUrl}/api/file/${this.currentDownloadId}`);
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `video_${this.currentDownloadId}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+
+                        this.showToast('File download started!', 'success');
+                    } else {
+                        throw new Error('Failed to download file');
+                    }
+                } catch (error) {
+                    this.showToast(`Download error: ${error.message}`, 'error');
+                }
+            }
+
+            setLoadingState(button, loading) {
+                if (loading) {
+                    button.disabled = true;
+                    button.innerHTML = '<div class="spinner"></div> Loading...';
+                } else {
+                    button.disabled = false;
+                    button.innerHTML = button.id === 'getInfoBtn' ?
+                        '<i class="fas fa-info-circle"></i> Get Video Info' :
+                        '<i class="fas fa-download"></i> Start Download';
+                }
+            }
+
+            formatDuration(seconds) {
+                if (!seconds) return '0:00';
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+
+                if (hours > 0) {
+                    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+                return `${minutes}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            formatNumber(num) {
+                if (!num) return '0';
+                return num.toLocaleString();
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return 'Unknown';
+                const year = dateString.substr(0, 4);
+                const month = dateString.substr(4, 2);
+                const day = dateString.substr(6, 2);
+                return `${month}/${day}/${year}`;
+            }
+
+            formatBytes(bytes) {
+                if (!bytes) return '0 B';
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+            }
+
+            formatTime(seconds) {
+                if (!seconds) return '0s';
+                if (seconds < 60) return `${Math.round(seconds)}s`;
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.round(seconds % 60);
+                return `${minutes}m ${secs}s`;
             }
         }
 
-        // Initialize the app when DOM is loaded
+        // Initialize the application
         document.addEventListener('DOMContentLoaded', () => {
-            const app = new VidLuxDownloader();
-
-            // Enable advanced features
-            app.enableVoiceCommands();
-
-            // Add some demo interactions
-            setTimeout(() => {
-                app.showNotification('Welcome to VidLux Premium Experience!', 'success');
-            }, 1000);
+            new YouTubeDownloader();
         });
 
-        // Service Worker registration for offline functionality
+        // PWA Support
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
+                    .then(registration => console.log('SW registered'))
+                    .catch(registrationError => console.log('SW registration failed'));
             });
         }
     </script>
