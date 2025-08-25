@@ -1,0 +1,524 @@
+/* Advanced animations with Tailwind utilities */
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-30px);
+    }
+
+    60% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-10px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(10px);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes ping {
+
+    75%,
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Animation Classes */
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.animate-fadeInDown {
+    animation: fadeInDown 0.5s ease-out;
+}
+
+.animate-fadeInLeft {
+    animation: fadeInLeft 0.5s ease-out;
+}
+
+.animate-fadeInRight {
+    animation: fadeInRight 0.5s ease-out;
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.3s ease-out;
+}
+
+.animate-slideInUp {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.animate-slideInDown {
+    animation: slideInDown 0.3s ease-out;
+}
+
+.animate-bounce {
+    animation: bounce 1s;
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-shake {
+    animation: shake 0.5s;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-ping {
+    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Transition Classes */
+.transition-all {
+    @apply transition-all duration-300 ease-in-out;
+}
+
+.transition-opacity {
+    @apply transition-opacity duration-300 ease-in-out;
+}
+
+.transition-transform {
+    @apply transition-transform duration-300 ease-in-out;
+}
+
+.transition-colors {
+    @apply transition-colors duration-300 ease-in-out;
+}
+
+/* Hover Effects */
+.hover-lift {
+    @apply transition-transform duration-200;
+}
+
+.hover-lift:hover {
+    @apply -translate-y-1 shadow-lg;
+}
+
+.hover-grow {
+    @apply transition-transform duration-200;
+}
+
+.hover-grow:hover {
+    @apply scale-105;
+}
+
+.hover-shrink {
+    @apply transition-transform duration-200;
+}
+
+.hover-shrink:hover {
+    @apply scale-95;
+}
+
+/* Loading Animations */
+.loading-dots {
+    display: inline-flex;
+    align-items: center;
+}
+
+.loading-dots::after {
+    content: '';
+    animation: loading-dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes loading-dots {
+    0% {
+        content: '';
+    }
+
+    25% {
+        content: '.';
+    }
+
+    50% {
+        content: '..';
+    }
+
+    75% {
+        content: '...';
+    }
+
+    100% {
+        content: '';
+    }
+}
+
+/* Progress Bar Animations */
+.progress-animated {
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-animated::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.4),
+            transparent);
+    animation: progress-shine 2s linear infinite;
+}
+
+@keyframes progress-shine {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Skeleton Loading Enhanced */
+.skeleton-pulse {
+    @apply relative overflow-hidden bg-gray-200;
+}
+
+.skeleton-pulse::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.5),
+            transparent);
+    animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+
+/* Download Button States */
+.download-btn-loading {
+    @apply relative;
+}
+
+.download-btn-loading::after {
+    content: '';
+    @apply absolute inset-0 flex items-center justify-center;
+    background: inherit;
+    border-radius: inherit;
+}
+
+.download-btn-loading::after {
+    content: '';
+    @apply w-5 h-5 border-2 border-white border-t-transparent rounded-full;
+    animation: spin 1s linear infinite;
+}
+
+/* Success Animation */
+.success-checkmark {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+}
+
+.success-checkmark circle {
+    stroke: #16a34a;
+    stroke-width: 2;
+    fill: none;
+    animation: checkmark-circle 0.6s ease-in-out;
+}
+
+.success-checkmark path {
+    stroke: #16a34a;
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: checkmark-check 0.3s ease-in-out 0.6s forwards;
+}
+
+@keyframes checkmark-circle {
+    0% {
+        stroke-dasharray: 0 150.7;
+        stroke-dashoffset: 0;
+    }
+
+    100% {
+        stroke-dasharray: 150.7 150.7;
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes checkmark-check {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Error Animation */
+.error-x {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+}
+
+.error-x circle {
+    stroke: #dc2626;
+    stroke-width: 2;
+    fill: none;
+    animation: error-circle 0.6s ease-in-out;
+}
+
+.error-x path {
+    stroke: #dc2626;
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: error-x-mark 0.3s ease-in-out 0.6s forwards;
+}
+
+@keyframes error-circle {
+    0% {
+        stroke-dasharray: 0 150.7;
+        stroke-dashoffset: 0;
+    }
+
+    100% {
+        stroke-dasharray: 150.7 150.7;
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes error-x-mark {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Notification Bell */
+.notification-bell {
+    @apply relative;
+}
+
+.notification-bell.has-notification::after {
+    content: '';
+    @apply absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full;
+    animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+    @apply w-6 h-10 border-2 border-gray-600 rounded-full relative;
+}
+
+.scroll-indicator::after {
+    content: '';
+    @apply absolute w-1 h-2 bg-gray-600 rounded-full left-1/2 top-2 -translate-x-1/2;
+    animation: scroll-bounce 2s infinite;
+}
+
+@keyframes scroll-bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0) translateX(-50%);
+    }
+
+    40% {
+        transform: translateY(8px) translateX(-50%);
+    }
+
+    60% {
+        transform: translateY(4px) translateX(-50%);
+    }
+}
+
+/* Smooth Scroll Behavior */
+html.smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+/* Page Transitions */
+.page-transition-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease-out;
+}
+
+.page-transition-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-transition-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in;
+}

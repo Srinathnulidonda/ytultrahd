@@ -1,0 +1,266 @@
+/* Print-specific styles for optimal printing */
+
+@media print {
+
+    /* Reset background colors and shadows */
+    * {
+        background: transparent !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    /* Page setup */
+    @page {
+        margin: 2cm;
+        size: A4;
+    }
+
+    @page :first {
+        margin-top: 3cm;
+    }
+
+    /* Basic elements */
+    body {
+        font-family: Georgia, serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: Arial, sans-serif;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+
+    h1 {
+        font-size: 24pt;
+    }
+
+    h2 {
+        font-size: 20pt;
+    }
+
+    h3 {
+        font-size: 16pt;
+    }
+
+    p,
+    ul,
+    ol,
+    dl {
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* Links */
+    a {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 10pt;
+        font-style: italic;
+    }
+
+    /* Abbreviations */
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /* Prevent page breaks */
+    img,
+    figure,
+    table,
+    pre,
+    blockquote {
+        page-break-inside: avoid;
+    }
+
+    /* Images */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Tables */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #000;
+    }
+
+    th,
+    td {
+        padding: 0.5em;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    /* Code blocks */
+    pre,
+    code {
+        font-family: 'Courier New', monospace;
+        font-size: 10pt;
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    pre {
+        padding: 1em;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* Hide non-essential elements */
+    nav,
+    .navbar,
+    .mobile-bottom-nav,
+    .btn,
+    button,
+    form,
+    .no-print,
+    .toast-container,
+    .modal,
+    .dropdown,
+    video,
+    audio,
+    iframe,
+    .advertisement,
+    .social-share,
+    .comments,
+    #toast,
+    [role="navigation"],
+    [role="complementary"] {
+        display: none !important;
+    }
+
+    /* Main content */
+    main {
+        display: block;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Containers */
+    .container,
+    .container-fluid,
+    .container-xl {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Cards */
+    .card {
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        margin-bottom: 1em !important;
+        page-break-inside: avoid;
+    }
+
+    .card-body {
+        padding: 1em !important;
+    }
+
+    /* Utility classes for print */
+    .print-only {
+        display: block !important;
+    }
+
+    .screen-only {
+        display: none !important;
+    }
+
+    /* Page breaks */
+    .page-break-before {
+        page-break-before: always;
+    }
+
+    .page-break-after {
+        page-break-after: always;
+    }
+
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    /* Footer for pages */
+    .print-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 10pt;
+        color: #666;
+    }
+
+    /* Page numbers */
+    @page {
+        @bottom-right {
+            content: "Page " counter(page) " of " counter(pages);
+        }
+    }
+
+    /* QR codes for links (optional) */
+    .qr-code {
+        display: inline-block;
+        width: 1in;
+        height: 1in;
+        margin: 0.5em;
+    }
+}
+
+/* Print-specific utility classes */
+.print\:hidden {
+    @media print {
+        display: none !important;
+    }
+}
+
+.print\:block {
+    @media print {
+        display: block !important;
+    }
+}
+
+.print\:inline {
+    @media print {
+        display: inline !important;
+    }
+}
+
+.print\:text-black {
+    @media print {
+        color: #000 !important;
+    }
+}
+
+.print\:bg-white {
+    @media print {
+        background-color: #fff !important;
+    }
+}
+
+.print\:border {
+    @media print {
+        border: 1px solid #000 !important;
+    }
+}

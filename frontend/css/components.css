@@ -1,0 +1,319 @@
+/* Component-specific styles with Tailwind integration */
+
+/* Skeleton Components */
+.skeleton {
+    @apply bg-gray-200 animate-pulse;
+    background: linear-gradient(90deg,
+            rgba(229, 231, 235, 1) 0%,
+            rgba(209, 213, 219, 1) 50%,
+            rgba(229, 231, 235, 1) 100%);
+    background-size: 200% 100%;
+    animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-wave {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-shimmer {
+    @apply relative overflow-hidden;
+}
+
+.skeleton-shimmer::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Video Info Component */
+.video-info-card {
+    @apply bg-white rounded-xl p-4 shadow-sm border border-gray-100;
+}
+
+.video-info-thumbnail {
+    @apply rounded-lg overflow-hidden shadow-sm;
+    aspect-ratio: 16/9;
+}
+
+.video-info-thumbnail img {
+    @apply w-full h-full object-cover;
+}
+
+/* Download Progress Component */
+.download-progress {
+    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-100;
+}
+
+.progress-stat {
+    @apply flex items-center justify-between py-2;
+}
+
+.progress-stat-label {
+    @apply text-sm text-gray-600;
+}
+
+.progress-stat-value {
+    @apply text-sm font-semibold text-gray-900;
+}
+
+/* Quality Selector Component */
+.quality-selector {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-3;
+}
+
+.quality-option {
+    @apply relative;
+}
+
+.quality-option input[type="radio"] {
+    @apply sr-only;
+}
+
+.quality-option label {
+    @apply block w-full py-3 px-4 text-center font-medium rounded-lg border-2 cursor-pointer transition-all duration-200;
+    @apply border-gray-300 text-gray-700 hover:border-red-300 hover:bg-red-50;
+}
+
+.quality-option input[type="radio"]:checked+label {
+    @apply border-red-600 bg-red-600 text-white;
+}
+
+.quality-option input[type="radio"]:focus+label {
+    @apply ring-2 ring-red-500 ring-offset-2;
+}
+
+/* URL Input Component */
+.url-input-group {
+    @apply relative flex items-stretch w-full;
+}
+
+.url-input {
+    @apply flex-1 min-w-0 block w-full px-4 py-3 text-base;
+    @apply border border-gray-300 rounded-l-lg;
+    @apply focus:border-red-500 focus:ring-2 focus:ring-red-100 focus:z-10;
+    @apply placeholder-gray-400;
+}
+
+.url-input-btn {
+    @apply inline-flex items-center px-4 py-3;
+    @apply text-sm font-medium text-gray-700 bg-gray-50;
+    @apply border border-l-0 border-gray-300 rounded-r-lg;
+    @apply hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-red-500;
+}
+
+/* History List Component */
+.history-list {
+    @apply divide-y divide-gray-200;
+}
+
+.history-item {
+    @apply py-4 px-4 hover:bg-gray-50 transition-colors duration-150;
+}
+
+.history-item-content {
+    @apply flex items-start space-x-3;
+}
+
+.history-item-thumbnail {
+    @apply w-24 h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0;
+}
+
+.history-item-details {
+    @apply flex-1 min-w-0;
+}
+
+.history-item-title {
+    @apply text-sm font-medium text-gray-900 truncate;
+}
+
+.history-item-meta {
+    @apply text-xs text-gray-500 mt-1;
+}
+
+/* Status Badge Component */
+.status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-badge-success {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge-error {
+    @apply bg-red-100 text-red-800;
+}
+
+.status-badge-info {
+    @apply bg-blue-100 text-blue-800;
+}
+
+/* Modal Component */
+.modal-backdrop {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-40;
+}
+
+.modal-content {
+    @apply bg-white rounded-xl shadow-xl max-w-lg w-full mx-auto;
+    @apply transform transition-all duration-300;
+}
+
+/* Toast Component Enhanced */
+.toast {
+    @apply bg-white rounded-lg shadow-lg border-0 overflow-hidden;
+    @apply transform transition-all duration-300;
+}
+
+.toast-success {
+    @apply border-l-4 border-green-500;
+}
+
+.toast-error {
+    @apply border-l-4 border-red-500;
+}
+
+.toast-warning {
+    @apply border-l-4 border-yellow-500;
+}
+
+.toast-info {
+    @apply border-l-4 border-blue-500;
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scale-in {
+    animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Loading Spinner Component */
+.spinner {
+    @apply inline-block w-8 h-8 border-4 border-gray-300 border-t-red-600 rounded-full;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-sm {
+    @apply w-4 h-4 border-2;
+}
+
+.spinner-lg {
+    @apply w-12 h-12 border-4;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Feature Card Component */
+.feature-card {
+    @apply bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.feature-icon {
+    @apply w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center mb-4;
+}
+
+.feature-title {
+    @apply text-lg font-semibold text-gray-900 mb-2;
+}
+
+.feature-description {
+    @apply text-sm text-gray-600 leading-relaxed;
+}
+
+/* Responsive Video Container */
+.video-container {
+    @apply relative w-full overflow-hidden rounded-lg bg-gray-900;
+    padding-bottom: 56.25%;
+    /* 16:9 Aspect Ratio */
+}
+
+.video-container iframe,
+.video-container video {
+    @apply absolute top-0 left-0 w-full h-full;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.400') theme('colors.gray.200');
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    @apply w-2 h-2;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-200 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}

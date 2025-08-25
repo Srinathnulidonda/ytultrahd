@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Generate Icons for YT Ultra</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto 10px;
+            border: 1px solid #ddd;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #dc2626;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>YT Ultra Icon Generator</h1>
+    <p>This page generates all required icons for the PWA. Right-click and save each icon.</p>
+
+    <div id="icons"></div>
+
+    <script>
+        // Icon sizes needed
+        const sizes = [16, 32, 48, 64, 96, 128, 192, 256, 512];
+        const container = document.getElementById('icons');
+
+        // Create icons
+        sizes.forEach(size => {
+            const div = document.createElement('div');
+            div.className = 'icon-preview';
+
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw play button
+            ctx.fillStyle = 'white';
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const triangleSize = size * 0.3;
+
+            ctx.beginPath();
+            ctx.moveTo(centerX - triangleSize / 2, centerY - triangleSize);
+            ctx.lineTo(centerX - triangleSize / 2, centerY + triangleSize);
+            ctx.lineTo(centerX + triangleSize, centerY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Add to DOM
+            div.appendChild(canvas);
+
+            // Add label
+            const label = document.createElement('div');
+            label.textContent = `${size}x${size}`;
+            div.appendChild(label);
+
+            // Add download link
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `icon-${size}x${size}.png`;
+            link.className = 'download-btn';
+            link.textContent = 'Download';
+            div.appendChild(link);
+
+            container.appendChild(div);
+        });
+
+        // Create maskable icon
+        const maskableDiv = document.createElement('div');
+        maskableDiv.className = 'icon-preview';
+
+        const maskableCanvas = document.createElement('canvas');
+        maskableCanvas.width = 512;
+        maskableCanvas.height = 512;
+
+        const mCtx = maskableCanvas.getContext('2d');
+
+        // Background with safe area
+        mCtx.fillStyle = '#dc2626';
+        mCtx.fillRect(0, 0, 512, 512);
+
+        // Draw play button (smaller for safe area)
+        mCtx.fillStyle = 'white';
+        const mCenterX = 256;
+        const mCenterY = 256;
+        const mTriangleSize = 120;
+
+        mCtx.beginPath();
+        mCtx.moveTo(mCenterX - mTriangleSize / 2, mCenterY - mTriangleSize);
+        mCtx.lineTo(mCenterX - mTriangleSize / 2, mCenterY + mTriangleSize);
+        mCtx.lineTo(mCenterX + mTriangleSize, mCenterY);
+        mCtx.closePath();
+        mCtx.fill();
+
+        maskableDiv.appendChild(maskableCanvas);
+
+        const mLabel = document.createElement('div');
+        mLabel.textContent = 'Maskable Icon (512x512)';
+        maskableDiv.appendChild(mLabel);
+
+        const mLink = document.createElement('a');
+        mLink.href = maskableCanvas.toDataURL('image/png');
+        mLink.download = 'maskable-icon.png';
+        mLink.className = 'download-btn';
+        mLink.textContent = 'Download';
+        maskableDiv.appendChild(mLink);
+
+        container.appendChild(maskableDiv);
+
+        // Create favicon
+        const faviconCanvas = document.createElement('canvas');
+        faviconCanvas.width = 32;
+        faviconCanvas.height = 32;
+        const fCtx = faviconCanvas.getContext('2d');
+
+        fCtx.fillStyle = '#dc2626';
+        fCtx.fillRect(0, 0, 32, 32);
+
+        fCtx.fillStyle = 'white';
+        fCtx.beginPath();
+        fCtx.moveTo(11, 8);
+        fCtx.lineTo(11, 24);
+        fCtx.lineTo(24, 16);
+        fCtx.closePath();
+        fCtx.fill();
+
+        // Convert to favicon
+        faviconCanvas.toBlob(blob => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const faviconDiv = document.createElement('div');
+                faviconDiv.className = 'icon-preview';
+                faviconDiv.innerHTML = `
+                    <p>Favicon.ico - Save the 32x32 PNG and convert to ICO format</p>
+                    <a href="${e.target.result}" download="favicon-32.png" class="download-btn">Download PNG</a>
+                `;
+                container.appendChild(faviconDiv);
+            };
+            reader.readAsDataURL(blob);
+        });
+    </script>
+</body>
+
+</html>

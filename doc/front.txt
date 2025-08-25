@@ -1,0 +1,124 @@
+You are a Principal Frontend Architect tasked with delivering a world-class mobile-first frontend for a Fortune 500–grade product. The stack is:
+•	HTML5 (semantic, accessible markup)
+•	Bootstrap 5 (for responsive grid & utilities, no redundancy)
+•	Tailwind CSS (for design precision, utility-first optimizations, mobile responsiveness)
+•	Vercel Deployment (edge-optimized hosting, production-ready build)
+•	Real Backend Integration (fetch real APIs, no placeholders/mock data) based on my backend/app.py file
+🏆 Non-Negotiable Requirements
+1.	Performance Excellence
+o	Lighthouse performance score ≥ 95 on mobile.
+o	Use critical CSS extraction + lazy loading + responsive images (srcset, picture, AVIF/WebP).
+o	Implement instant-loading UX with preloading & API prefetching.
+o	Enable HTTP/2 push hints or rel=preload for fonts, hero images, and above-the-fold content.
+o	JS must be minimal and non-blocking (defer/async).
+2.	SEO & Accessibility (WCAG 2.1 AA)
+o	Semantic HTML5 structure (header, nav, main, footer, article, section).
+o	<meta> tags: title, description, viewport, structured data (JSON-LD schema.org).
+o	Open Graph + Twitter Cards for social previews.
+o	ARIA roles + keyboard navigation support.
+o	Mobile viewport scaling: viewport-fit=cover.
+3.	Preloaders (Best-in-Class)
+o	Use skeleton screens (fade-in shimmer) instead of spinners.
+o	For heavy content, add progressive blurred previews (LQIP technique).
+o	Inline critical loader for the hero section (no blocking).
+4.	Scalability & Real Backend Integration
+o	Fetch real backend data from provided APIs.
+o	Implement API caching, retries, error states, and graceful fallback UIs.
+o	Ensure global i18n readiness (RTL, UTF-8, multilingual SEO).
+5.	Mobile UX Enhancements
+o	Topbar navigation (adaptive, collapsible, fixed).
+o	Bottom mobile nav bar (only visible on mobile, sticky, icons-based).
+o	Smooth gesture-friendly transitions.
+6.	Deployment & Production Standards
+o	Must deploy seamlessly to Vercel with zero config conflicts.
+o	Avoid framework bloat (no React/Vue unless explicitly required).
+o	Clean file structure: /index.html, /assets/, /css/, /js/, /api/.
+o	Strictly no unused CSS/JS (purge Tailwind, tree-shake Bootstrap).
+
+URLs must be clean and extensionless (e.g., /about not /about.html). Configure Vercel routing (vercel.json rewrites) to remove .html from all routes."*
+⚙️ Vercel Config for Clean URLs
+Add a vercel.json in your root:
+
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/$1.html" }
+  ],
+  "cleanUrls": true
+}
+
+
+✅ This ensures:
+/about → serves /about.html
+/contact → serves /contact.html
+No .html appears in the URL.
+
+Project Structure Mandatory:
+
+Youtube
+└── frontend/
+    ├── index.html                     # Landing page (mobile-first, SEO-optimized)
+    │
+    ├── pages/                         # All static/secondary pages
+    │   ├── about.html
+    │   ├── contact.html
+    │   ├── terms.html
+    │   └── privacy.html
+    │
+    ├── vercel.json                    # Vercel deployment config (clean URLs, rewrites)
+    ├── robots.txt                     # SEO directives
+    ├── sitemap.xml                    # Auto-generated sitemap
+    ├── manifest.json                  # PWA manifest
+    ├── sw.js                          # Service worker (caching, offline, push)
+    ├── README.md                      # Documentation
+    │
+    ├── assets/                        # Static assets (optimized for mobile)
+    │   ├── icons/                     # Favicons & app icons
+    │   │   ├── favicon.ico
+    │   │   ├── apple-touch-icon.png
+    │   │   ├── icon-192x192.png
+    │   │   ├── icon-512x512.png
+    │   │   └── maskable-icon.png
+    │   │
+    │   ├── images/                    # Optimized, responsive images
+    │   │   ├── hero.webp
+    │   │   ├── hero.avif
+    │   │   └── placeholders/          # LQIP blurred previews
+    │   │
+    │   └── videos/
+    │       └── hero-video.mp4
+    │
+    ├── components/                    # Reusable UI components
+    │   ├── navigation/
+    │   │   ├── top-navbar.html
+    │   │   ├── mobile-bottom-nav.html
+    │   │   └── breadcrumb.html
+    │   │
+    │   ├── ui/
+    │   │   ├── skeleton-loader.html
+    │   │   ├── toast.html
+    │   │   ├── modal.html
+    │   │   ├── progress-bar.html
+    │   │   └── status-indicator.html
+    │   │
+    │   └── downloader/
+    │       ├── url-input.html
+    │       ├── quality-selector.html
+    │       ├── download-btn.html
+    │       ├── progress-tracker.html
+    │       └── history.html
+    │
+    ├── css/                           # Stylesheets (modular & optimized)
+    │   ├── critical.css               # Inlined above-the-fold CSS
+    │   ├── main.css                   # Global styles
+    │   ├── components.css             # UI/Component styles
+    │   ├── animations.css             # Animations
+    │   ├── responsive.css             # Media queries
+    │   └── print.css                  # Print styles
+    │
+    └── js/                            # JavaScript modules
+        ├── main.js                    # App bootstrap, API integration, state mgmt
+        ├── api.js                     # API client (fetch, caching, retries, errors)
+        ├── preloader.js               # Skeletons, shimmer, LQIP loader logic
+        ├── ui.js                      # UI interactions, animations
+        ├── analytics.js               # Analytics + performance tracking
+        └── i18n.js                    # Internationalization & RTL handling

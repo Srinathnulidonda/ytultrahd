@@ -1,0 +1,22 @@
+
+make an website that for this downloading yt videos in all qualites espacissal high quality greater or equal to the 2160(4K) and with the best audio quality
+backend
+use flask for the backend
+provide only the app.py all the logics should there in single file
+backend will be deployed in render
+
+frontend
+HTML5+ BOOTSTRAP 5 + TAILWIND CSS + REAL BACKEND INTEGRATION + WORLD-CLASS PERFORMANCE = PRODUCTION-READY
+Create a comprehensive mobile web optimization strategy that matches the standards of Fortune 500 companies like Samsung, Google, Apple, and Microsoft. Focus on performance, scalability, accessibility, and user experience across all mobile devices and network conditions.
+NO PLACEHOLDERS. NO MOCK DATA. NO FAKE CONTENT. NO FRAMEWORK CONFLICTS. NO EXTRA FILES.
+frontend will be deployed in vercel
+provide the best preloaders 
+add the SEO
+if needed use the topbar and mobile buttom buttons- only for mobiles
+
+
+Instant API Responses
+ultra superfast downloading spead
+Download Acceleration
+it should handle multiple requests by multiple n number of users at a time
+

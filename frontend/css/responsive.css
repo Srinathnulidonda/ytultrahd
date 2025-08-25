@@ -1,0 +1,286 @@
+/* Mobile-first responsive design with Tailwind integration */
+
+/* Extra Small Devices (phones, less than 576px) */
+@media (max-width: 575.98px) {
+
+    /* Navigation adjustments */
+    .navbar-brand {
+        @apply text-xl;
+    }
+
+    .navbar-brand svg {
+        @apply w-6 h-6;
+    }
+
+    /* Hero section */
+    .hero {
+        @apply pt-20;
+        min-height: calc(100vh - 70px);
+    }
+
+    .display-4 {
+        @apply text-3xl;
+    }
+
+    .display-5 {
+        @apply text-2xl;
+    }
+
+    /* Forms */
+    .form-control-lg {
+        @apply text-base px-3 py-2;
+    }
+
+    .btn-lg {
+        @apply text-base px-4 py-2.5;
+    }
+
+    /* Cards */
+    .card-body {
+        @apply p-4;
+    }
+
+    /* Video info */
+    .video-info-card .row {
+        @apply gap-3;
+    }
+
+    .video-info-thumbnail {
+        @apply mb-3;
+    }
+
+    /* Quality selector */
+    .quality-selector {
+        @apply grid-cols-2 gap-2;
+    }
+
+    /* Progress section */
+    .progress-stat-label,
+    .progress-stat-value {
+        @apply text-xs;
+    }
+
+    /* Mobile bottom nav always visible */
+    body {
+        padding-bottom: 70px;
+    }
+}
+
+/* Small Devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .hero {
+        @apply pt-24;
+    }
+
+    .card-body {
+        @apply p-5;
+    }
+
+    .quality-selector {
+        @apply grid-cols-4;
+    }
+}
+
+/* Medium Devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+
+    /* Hide mobile bottom nav */
+    .mobile-bottom-nav {
+        @apply hidden;
+    }
+
+    body {
+        padding-bottom: 0;
+    }
+
+    /* Adjust hero */
+    .hero {
+        @apply pt-28;
+    }
+
+    /* Two column layout for features */
+    .features-grid {
+        @apply grid-cols-2;
+    }
+}
+
+/* Large Devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .container-xl {
+        max-width: 960px;
+    }
+
+    /* Three column layout for features */
+    .features-grid {
+        @apply grid-cols-3;
+    }
+}
+
+/* Extra Large Devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .container-xl {
+        max-width: 1140px;
+    }
+
+    .display-4 {
+        @apply text-5xl;
+    }
+
+    .display-5 {
+        @apply text-4xl;
+    }
+
+    .card-body {
+        @apply p-10;
+    }
+}
+
+/* XXL Devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {
+    .container-xl {
+        max-width: 1320px;
+    }
+}
+
+/* High DPI Screens */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
+    /* Use higher quality images */
+    .video-info-thumbnail img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    /* Hide interactive elements */
+    .navbar,
+    .mobile-bottom-nav,
+    .btn,
+    form,
+    .toast-container {
+        @apply hidden !important;
+    }
+
+    /* Adjust layout */
+    body {
+        @apply p-0;
+    }
+
+    .hero {
+        @apply min-h-0;
+    }
+
+    /* Ensure text is black */
+    * {
+        color: black !important;
+        background: white !important;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 600px) {
+    .hero {
+        min-height: calc(100vh - 56px);
+    }
+
+    .mobile-bottom-nav {
+        @apply py-1;
+    }
+
+    .mobile-bottom-nav svg {
+        @apply w-5 h-5;
+    }
+
+    .mobile-bottom-nav span {
+        @apply text-xs;
+    }
+}
+
+/* RTL Support */
+.rtl {
+
+    /* Flip margins and paddings */
+    .me-2 {
+        @apply ml-2 mr-0;
+    }
+
+    .me-3 {
+        @apply ml-3 mr-0;
+    }
+
+    .ms-auto {
+        @apply mr-auto ml-0;
+    }
+
+    .ms-3 {
+        @apply mr-3 ml-0;
+    }
+
+    /* Flip borders */
+    .border-start-0 {
+        @apply border-r-0 border-l;
+    }
+
+    .border-end-0 {
+        @apply border-l-0 border-r;
+    }
+
+    /* Flip rounded corners */
+    .rounded-start {
+        @apply rounded-r-lg rounded-l-none;
+    }
+
+    .rounded-end {
+        @apply rounded-l-lg rounded-r-none;
+    }
+
+    /* Flip text alignment */
+    .text-start {
+        @apply text-right;
+    }
+
+    .text-end {
+        @apply text-left;
+    }
+
+    /* Progress bar direction */
+    .progress-bar {
+        @apply origin-right;
+    }
+}
+
+/* Accessibility - High Contrast Mode */
+@media (prefers-contrast: high) {
+    .btn-danger {
+        @apply border-2 border-black;
+    }
+
+    .form-control {
+        @apply border-2 border-black;
+    }
+
+    .card {
+        @apply border-2 border-black;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .progress-bar {
+        transition: width 0.01ms !important;
+    }
+}
+
+/* Dark Mode Support (Future Enhancement) */
+@media (prefers-color-scheme: dark) {
+    /* Dark mode styles would go here */
+}
