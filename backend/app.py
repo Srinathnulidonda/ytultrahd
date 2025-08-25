@@ -681,50 +681,103 @@ def perform_enhanced_download(url, quality, audio_quality, progress_tracker):
         def progress_hook(d):
             progress_tracker.update(d)
         
-        # Format selection
+        # Enhanced format selection for better compatibility
         format_map = {
-            'best': 'best[ext=mp4]/best',
-            '8k': 'best[height<=4320][ext=mp4]/best[height<=4320]',
-            '4k': 'best[height<=2160][ext=mp4]/best[height<=2160]',
-            '2k': 'best[height<=1440][ext=mp4]/best[height<=1440]',
-            '1080p': 'best[height<=1080][ext=mp4]/best[height<=1080]',
-            '720p': 'best[height<=720][ext=mp4]/best[height<=720]',
-            '480p': 'best[height<=480][ext=mp4]/best[height<=480]',
-            '360p': 'best[height<=360][ext=mp4]/best[height<=360]',
-            '240p': 'best[height<=240][ext=mp4]/best[height<=240]'
+            'best': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            '8k': 'bestvideo[height<=4320]+bestaudio/best[height<=4320]/best',
+            '4k': 'bestvideo[height<=2160]+bestaudio/best[height<=2160]/best',
+            '2k': 'bestvideo[height<=1440]+bestaudio/best[height<=1440]/best',
+            '1080p': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+            '720p': 'bestvideo[height<=720]+bestaudio/best[height<=720]/best',
+            '480p': 'bestvideo[height<=480]+bestaudio/best[height<=480]/best',
+            '360p': 'bestvideo[height<=360]+bestaudio/best[height<=360]/best',
+            '240p': 'bestvideo[height<=240]+bestaudio/best[height<=240]/best'
         }
         
-        format_string = format_map.get(quality, 'best[ext=mp4]/best')
+        format_string = format_map.get(quality, 'best')
         output_template = os.path.join(temp_dir, '%(title).200B.%(ext)s')
         
-        # Download strategies
+        # Enhanced download strategies
         strategies = [
+            # Strategy 1: Mobile client with minimal options
             {
+                'format': 'best[height<=720]/best',  # Lower quality for mobile
                 'extractor_args': {
                     'youtube': {
                         'player_client': ['ios'],
+                        'player_skip': ['webpage', 'configs', 'js'],
+                        'skip': ['hls', 'dash', 'translated_subs']
+                    }
+                },
+                'http_headers': {
+                    'User-Agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)',
+                    'Accept': '*/*',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Accept-Encoding': 'gzip, deflate',
+                    'X-YouTube-Client-Name': '5',
+                    'X-YouTube-Client-Version': '19.29.1'
+                }
+            },
+            # Strategy 2: Android client
+            {
+                'format': format_string,
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android'],
                         'player_skip': ['webpage', 'configs'],
                         'skip': ['hls', 'dash']
                     }
+                },
+                'http_headers': {
+                    'User-Agent': 'com.google.android.youtube/19.29.37 (Linux; U; Android 13; en_US)',
+                    'X-YouTube-Client-Name': '3',
+                    'X-YouTube-Client-Version': '19.29.37'
                 }
             },
+            # Strategy 3: Web client with cookie refresh
             {
+                'format': format_string,
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['android_tv'],
-                        'player_skip': ['configs']
+                        'player_client': ['web'],
+                        'player_skip': ['js'],
+                        'skip': ['hls', 'translated_subs']
+                    }
+                },
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'DNT': '1',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1'
+                }
+            },
+            # Strategy 4: TV embedded player (often bypasses restrictions)
+            {
+                'format': 'best[height<=1080]/best',
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['tv_embedded'],
+                        'player_skip': ['webpage', 'configs'],
+                        'bypass_age_gate': True
                     }
                 }
             },
+            # Strategy 5: Direct format ID (fallback)
             {
+                'format': '22/18/best',  # Direct format IDs for 720p/360p
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['tv_embed'],
-                        'bypass_age_gate': True
+                        'player_client': ['android'],
+                        'skip': ['hls', 'dash', 'translated_subs']
                     }
                 }
             }
         ]
+        
+        last_error = None
         
         for i, strategy in enumerate(strategies):
             try:
@@ -732,7 +785,7 @@ def perform_enhanced_download(url, quality, audio_quality, progress_tracker):
                 
                 ydl_opts = get_enhanced_ydl_opts()
                 ydl_opts.update({
-                    'format': format_string,
+                    'format': strategy.get('format', format_string),
                     'outtmpl': output_template,
                     'progress_hooks': [progress_hook],
                     'merge_output_format': 'mp4',
@@ -743,9 +796,22 @@ def perform_enhanced_download(url, quality, audio_quality, progress_tracker):
                     'writesubtitles': False,
                     'writeautomaticsub': False,
                     'getcomments': False,
-                    'ignoreerrors': False
+                    'ignoreerrors': False,
+                    'no_check_certificate': True,  # Add this
+                    'geo_bypass': True,  # Add this
+                    'geo_bypass_country': 'US',  # Add this
+                    'prefer_insecure': True  # Add this
                 })
-                ydl_opts.update(strategy)
+                
+                # Merge strategy options
+                if 'extractor_args' in strategy:
+                    ydl_opts['extractor_args'] = strategy['extractor_args']
+                if 'http_headers' in strategy:
+                    ydl_opts['http_headers'].update(strategy['http_headers'])
+                
+                # Add random sleep between retries
+                if i > 0:
+                    time.sleep(random.uniform(3, 8))
                 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=True)
@@ -764,12 +830,25 @@ def perform_enhanced_download(url, quality, audio_quality, progress_tracker):
                         return
                         
             except Exception as e:
-                print(f"Download strategy {i+1} failed: {str(e)}")
+                last_error = str(e)
+                print(f"Download strategy {i+1} failed: {last_error}")
+                
+                # Log specific error types
+                if 'Sign in to confirm' in last_error:
+                    progress_tracker.error = 'YouTube requires sign-in confirmation. Please refresh cookies.'
+                elif '429' in last_error or 'Too Many Requests' in last_error:
+                    progress_tracker.error = 'Rate limited. Wait a few minutes before trying again.'
+                elif 'Private video' in last_error:
+                    progress_tracker.error = 'This video is private or requires special access.'
+                elif 'Video unavailable' in last_error:
+                    progress_tracker.error = 'Video is unavailable in your region or has been removed.'
+                else:
+                    progress_tracker.error = f'Strategy {i+1} failed: {last_error}'
+                
                 if i < len(strategies) - 1:
-                    time.sleep(random.uniform(2, 5))
                     continue
                     
-        progress_tracker.error = 'All download strategies failed'
+        progress_tracker.error = f'All download strategies failed. Last error: {last_error}'
         progress_tracker.status = 'error'
                     
     except Exception as e:
@@ -781,6 +860,22 @@ def perform_enhanced_download(url, quality, audio_quality, progress_tracker):
                 shutil.rmtree(temp_dir)
             except:
                 pass
+
+# Add request validation
+@app.before_request
+def validate_request():
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 400
+        
+
+# Add cleanup for old progress entries
+def cleanup_old_downloads():
+    current_time = time.time()
+    for download_id in list(download_progress.keys()):
+        # Remove downloads older than 1 hour
+        if current_time - download_progress[download_id].start_time > 3600:
+            del download_progress[download_id]
 
 @app.route('/api/progress/<download_id>', methods=['GET'])
 def get_progress(download_id):

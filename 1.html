@@ -1,677 +1,1117 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="description"
-        content="Professional YouTube Video Downloader - Download videos in 4K, 8K, and highest quality formats">
-    <meta name="theme-color" content="#dc2626">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <title>HD Video Downloader - 4K & 8K YouTube Downloads</title>
-
-    <!-- Preconnect to external resources -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-
-    <!-- CSS Dependencies -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'inter': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-                    },
-                    animation: {
-                        'gradient': 'gradient 3s ease infinite',
-                        'pulse-slow': 'pulse 3s ease-in-out infinite',
-                        'slide-up': 'slideUp 0.3s ease-out',
-                        'fade-in': 'fadeIn 0.5s ease-in',
-                    },
-                    keyframes: {
-                        gradient: {
-                            '0%, 100%': { backgroundPosition: '0% 50%' },
-                            '50%': { backgroundPosition: '100% 50%' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced YouTube Downloader</title>
     <style>
         * {
-            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: #0f0f0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0f0f0f;
             color: #ffffff;
-            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ff0000 0%, #ff4444 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
-        .hero-gradient {
-            background: radial-gradient(ellipse at top, rgba(220, 38, 38, 0.15) 0%, transparent 60%);
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1em;
         }
 
-        .card-gradient {
-            background: linear-gradient(135deg, rgba(31, 41, 55, 0.5) 0%, rgba(17, 24, 39, 0.5) 100%);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+        .cookie-status {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
         }
 
-        .input-glow:focus {
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2), 0 0 20px rgba(220, 38, 38, 0.15);
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-left: 10px;
         }
 
-        .btn-primary-custom {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            color: white;
-            font-weight: 600;
-            padding: 0.75rem 2rem;
-            border-radius: 0.75rem;
-            border: none;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+        .status-ok {
+            background: #22c55e;
+            color: #000;
         }
 
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        .status-warning {
+            background: #f59e0b;
+            color: #000;
         }
 
-        .btn-primary-custom:active {
-            transform: translateY(0);
+        .status-error {
+            background: #ef4444;
+            color: #fff;
         }
 
-        .quality-card {
-            background: rgba(31, 41, 55, 0.3);
-            border: 1px solid rgba(55, 65, 81, 0.5);
-            border-radius: 1rem;
-            padding: 1.25rem;
+        .input-section {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="url"] {
+            width: 100%;
+            padding: 14px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #ff4444;
+            background: #333;
+        }
+
+        .quality-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quality-option {
+            padding: 10px;
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 8px;
+            text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
 
-        .quality-card:hover {
-            background: rgba(31, 41, 55, 0.5);
-            border-color: rgba(220, 38, 38, 0.5);
+        .quality-option:hover {
+            border-color: #ff4444;
+            background: #333;
+        }
+
+        .quality-option.selected {
+            background: #ff4444;
+            border-color: #ff4444;
+            color: #fff;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #ff0000 0%, #ff4444 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+            margin: 5px;
+        }
+
+        .button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 68, 68, 0.4);
         }
 
-        .quality-card.selected {
-            background: rgba(220, 38, 38, 0.1);
-            border-color: #dc2626;
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .progress-bar-custom {
-            height: 6px;
-            background: rgba(55, 65, 81, 0.5);
-            border-radius: 3px;
+        .button.secondary {
+            background: #444;
+        }
+
+        .video-info {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
+            display: none;
+        }
+
+        .video-details {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .video-thumbnail {
+            width: 200px;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .video-meta h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .video-meta p {
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .format-list {
+            margin-top: 20px;
+        }
+
+        .format-item {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-section {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #2a2a2a;
+            border-radius: 15px;
             overflow: hidden;
+            margin: 20px 0;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
-            border-radius: 3px;
-            transition: width 0.3s ease;
+            background: linear-gradient(135deg, #ff0000 0%, #ff4444 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
         }
 
-        .loading-spinner {
-            animation: spin 1s linear infinite;
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #aaa;
+        }
+
+        .error-message {
+            background: #991b1b;
+            border: 1px solid #dc2626;
+            color: #fef2f2;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error-message h4 {
+            margin-bottom: 10px;
+        }
+
+        .error-message ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .warning-message {
+            background: #7c2d12;
+            border: 1px solid #ea580c;
+            color: #fff7ed;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success-message {
+            background: #14532d;
+            border: 1px solid #22c55e;
+            color: #f0fdf4;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .cookie-setup {
+            margin-top: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            background: #ff4444;
+            border-color: #ff4444;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 14px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 14px;
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #444;
+            border-radius: 50%;
+            border-top-color: #ff4444;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
         }
 
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
             to {
                 transform: rotate(360deg);
             }
         }
 
-        .skeleton {
-            background: linear-gradient(90deg, rgba(55, 65, 81, 0.3) 25%, rgba(75, 85, 99, 0.3) 50%, rgba(55, 65, 81, 0.3) 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
+        .instructions {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
         }
 
-        @keyframes skeleton-loading {
-            0% {
-                background-position: 200% 0;
-            }
+        .instructions h4 {
+            margin-bottom: 15px;
+            color: #ff4444;
+        }
 
-            100% {
-                background-position: -200% 0;
-            }
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .instructions code {
+            background: #444;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
         }
 
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem !important;
+            .video-details {
+                flex-direction: column;
             }
 
-            .quality-grid {
-                grid-template-columns: 1fr !important;
-            }
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(31, 41, 55, 0.5);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(107, 114, 128, 0.5);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(156, 163, 175, 0.5);
-        }
-
-        /* Performance optimizations */
-        .will-change-transform {
-            will-change: transform;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+            .quality-selector {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
 </head>
 
-<body class="min-h-screen">
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 backdrop-blur-lg bg-gray-900/70 border-b border-gray-800">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <i class="bi bi-play-circle-fill text-red-600 text-2xl"></i>
-                    <h1 class="text-xl font-bold">HD Downloader</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button class="text-gray-400 hover:text-white transition-colors">
-                        <i class="bi bi-moon-stars-fill"></i>
-                    </button>
-                    <button class="text-gray-400 hover:text-white transition-colors">
-                        <i class="bi bi-gear-fill"></i>
-                    </button>
+<body>
+    <div class="container">
+        <header>
+            <h1>Enhanced YouTube Downloader</h1>
+            <p class="subtitle">Download videos with cookie authentication and bot detection bypass</p>
+        </header>
+
+        <!-- Cookie Status Section -->
+        <div class="cookie-status" id="cookieStatus">
+            <h3>Authentication Status</h3>
+            <p>Checking cookie status... <span class="loading"></span></p>
+        </div>
+
+        <!-- Error Messages -->
+        <div class="error-message" id="errorMessage">
+            <h4>Error</h4>
+            <p id="errorText"></p>
+            <ul id="errorSolutions"></ul>
+        </div>
+
+        <div class="warning-message" id="warningMessage" style="display: none;">
+            <h4>Warning</h4>
+            <p id="warningText"></p>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <h4>Success</h4>
+            <p id="successText"></p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-group">
+                <label for="urlInput">YouTube URL</label>
+                <input type="url" id="urlInput" placeholder="https://www.youtube.com/watch?v=..." />
+            </div>
+
+            <div class="input-group">
+                <label>Video Quality</label>
+                <div class="quality-selector" id="qualitySelector">
+                    <div class="quality-option selected" data-quality="best">Best</div>
+                    <div class="quality-option" data-quality="1080p">1080p</div>
+                    <div class="quality-option" data-quality="720p">720p</div>
+                    <div class="quality-option" data-quality="480p">480p</div>
+                    <div class="quality-option" data-quality="360p">360p</div>
+                    <div class="quality-option" data-quality="240p">240p</div>
                 </div>
             </div>
+
+            <button class="button" id="getInfoBtn" onclick="getVideoInfo()">Get Video Info</button>
+            <button class="button secondary" id="downloadDirectBtn" onclick="downloadDirect()"
+                style="display: none;">Quick Download</button>
         </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="pt-24 pb-12 hero-gradient">
-        <div class="container mx-auto px-4">
-            <div class="text-center max-w-4xl mx-auto animate-fade-in">
-                <h2 class="hero-title text-5xl md:text-6xl font-bold mb-6">
-                    Download YouTube Videos in <span class="gradient-text">Ultra HD</span>
-                </h2>
-                <p class="text-xl text-gray-400 mb-8">
-                    Experience the highest quality downloads with support for 4K, 8K, and premium audio formats
-                </p>
-
-                <!-- URL Input -->
-                <div class="max-w-2xl mx-auto">
-                    <div class="relative">
-                        <input type="url" id="urlInput" placeholder="Paste YouTube URL here..."
-                            class="w-full px-6 py-4 pr-32 bg-gray-800/50 border border-gray-700 rounded-2xl text-white placeholder-gray-500 focus:outline-none input-glow transition-all"
-                            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                        <button id="analyzeBtn" onclick="analyzeVideo()"
-                            class="absolute right-2 top-2 bottom-2 px-6 btn-primary-custom rounded-xl">
-                            <span class="analyze-text">Analyze</span>
-                            <i class="bi bi-search ms-2"></i>
-                        </button>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-2 justify-center">
-                        <span class="px-3 py-1 bg-gray-800/50 rounded-full text-sm text-gray-400">
-                            <i class="bi bi-check-circle-fill text-green-500 me-1"></i> 4K Support
-                        </span>
-                        <span class="px-3 py-1 bg-gray-800/50 rounded-full text-sm text-gray-400">
-                            <i class="bi bi-check-circle-fill text-green-500 me-1"></i> 8K Support
-                        </span>
-                        <span class="px-3 py-1 bg-gray-800/50 rounded-full text-sm text-gray-400">
-                            <i class="bi bi-check-circle-fill text-green-500 me-1"></i> Best Audio
-                        </span>
-                        <span class="px-3 py-1 bg-gray-800/50 rounded-full text-sm text-gray-400">
-                            <i class="bi bi-check-circle-fill text-green-500 me-1"></i> Fast Downloads
-                        </span>
-                    </div>
+        <!-- Video Info Section -->
+        <div class="video-info" id="videoInfo">
+            <div class="video-details">
+                <img class="video-thumbnail" id="videoThumbnail" src="" alt="Video thumbnail">
+                <div class="video-meta">
+                    <h3 id="videoTitle"></h3>
+                    <p id="videoUploader"></p>
+                    <p id="videoDuration"></p>
+                    <p id="videoViews"></p>
                 </div>
             </div>
+            <button class="button" onclick="startDownload()">Download Video</button>
+            <button class="button secondary" onclick="showFormats()">Show All Formats</button>
         </div>
-    </section>
 
-    <!-- Video Info Section -->
-    <section id="videoInfo" class="py-8 hidden animate-slide-up">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-6">
-                <div class="flex flex-col md:flex-row gap-6">
-                    <div class="md:w-1/3">
-                        <img id="videoThumbnail" src="" alt="Video thumbnail" class="w-full rounded-xl">
-                    </div>
-                    <div class="md:w-2/3">
-                        <h3 id="videoTitle" class="text-2xl font-bold mb-2"></h3>
-                        <div class="flex flex-wrap gap-4 text-gray-400 mb-4">
-                            <span><i class="bi bi-person-fill me-1"></i> <span id="videoUploader"></span></span>
-                            <span><i class="bi bi-clock-fill me-1"></i> <span id="videoDuration"></span></span>
-                            <span><i class="bi bi-eye-fill me-1"></i> <span id="videoViews"></span></span>
-                        </div>
+        <!-- Progress Section -->
+        <div class="progress-section" id="progressSection">
+            <h3>Download Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <div class="progress-stats">
+                <span id="downloadSpeed">Speed: --</span>
+                <span id="downloadEta">ETA: --</span>
+                <span id="downloadSize">Size: --</span>
+            </div>
+            <button class="button" id="downloadFileBtn" style="display: none;" onclick="downloadFile()">Download
+                File</button>
+        </div>
+    </div>
 
-                        <!-- Quality Selection -->
-                        <div class="mb-4">
-                            <h4 class="text-lg font-semibold mb-3">Select Video Quality</h4>
-                            <div class="quality-grid grid grid-cols-2 md:grid-cols-4 gap-3" id="qualityOptions">
-                                <!-- Quality options will be inserted here -->
-                            </div>
-                        </div>
+    <!-- Cookie Setup Modal -->
+    <div class="modal" id="cookieModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cookie Setup Required</h2>
+                <button class="close-modal" onclick="closeCookieModal()">&times;</button>
+            </div>
 
-                        <!-- Download Button -->
-                        <button id="downloadBtn" onclick="startDownload()" class="w-full md:w-auto btn-primary-custom"
-                            disabled>
-                            <i class="bi bi-download me-2"></i> Start Download
-                        </button>
-                    </div>
+            <p>YouTube requires authentication to prevent bot detection. Choose a setup method:</p>
+
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('automatic')">Automatic</button>
+                <button class="tab-button" onclick="switchTab('manual')">Manual</button>
+                <button class="tab-button" onclick="switchTab('instructions')">Help</button>
+            </div>
+
+            <div class="tab-content active" id="automaticTab">
+                <h3>Automatic Cookie Extraction</h3>
+                <p>Extract cookies automatically from your browser.</p>
+                <div class="instructions">
+                    <h4>Requirements:</h4>
+                    <ol>
+                        <li>Visit YouTube in your browser and sign in</li>
+                        <li>Solve any CAPTCHA if prompted</li>
+                        <li>Click the button below to extract cookies</li>
+                    </ol>
                 </div>
+                <button class="button" onclick="setupCookiesAutomatic()">Extract Cookies from Browser</button>
+            </div>
+
+            <div class="tab-content" id="manualTab">
+                <h3>Manual Cookie Import</h3>
+                <p>Export cookies using a browser extension and paste them here.</p>
+                <div class="instructions">
+                    <h4>Steps:</h4>
+                    <ol>
+                        <li>Install extension: <code>Get cookies.txt LOCALLY</code> (Chrome) or <code>cookies.txt</code>
+                            (Firefox)</li>
+                        <li>Visit youtube.com and sign in</li>
+                        <li>Export cookies for youtube.com domain</li>
+                        <li>Paste the cookie content below</li>
+                    </ol>
+                </div>
+                <textarea id="cookieTextarea" placeholder="Paste your cookies.txt content here..."></textarea>
+                <button class="button" onclick="setupCookiesManual()">Import Cookies</button>
+            </div>
+
+            <div class="tab-content" id="instructionsTab">
+                <h3>Detailed Instructions</h3>
+                <div class="instructions">
+                    <h4>Why are cookies needed?</h4>
+                    <p>YouTube uses bot detection that requires authentication to bypass. Cookies from your browser
+                        session allow the downloader to act as your logged-in browser.</p>
+
+                    <h4>Security Note:</h4>
+                    <p>Cookies contain sensitive authentication data. They are stored locally and only used for
+                        downloading. Refresh them every 24 hours for best results.</p>
+
+                    <h4>Troubleshooting:</h4>
+                    <ul>
+                        <li>Make sure you're signed into YouTube</li>
+                        <li>Use the same network/IP for browser and API</li>
+                        <li>Refresh cookies if they're older than 24 hours</li>
+                        <li>Try manual method if automatic fails</li>
+                    </ul>
+                </div>
+                <button class="button secondary" onclick="getCookieInstructions()">Get Full Instructions</button>
             </div>
         </div>
-    </section>
-
-    <!-- Download Progress Section -->
-    <section id="downloadProgress" class="py-8 hidden animate-slide-up">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-6">
-                <h3 class="text-xl font-bold mb-4">Download Progress</h3>
-
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm text-gray-400 mb-2">
-                        <span id="progressStatus">Preparing download...</span>
-                        <span id="progressPercent">0%</span>
-                    </div>
-                    <div class="progress-bar-custom">
-                        <div id="progressBar" class="progress-fill" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div>
-                        <div class="text-2xl font-bold text-red-600" id="downloadSpeed">0 B/s</div>
-                        <div class="text-sm text-gray-400">Speed</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-blue-600" id="downloadSize">0 MB</div>
-                        <div class="text-sm text-gray-400">Size</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-green-600" id="downloadETA">--:--</div>
-                        <div class="text-sm text-gray-400">Time Left</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-bold text-purple-600" id="downloadStatus">
-                            <i class="bi bi-hourglass-split loading-spinner"></i>
-                        </div>
-                        <div class="text-sm text-gray-400">Status</div>
-                    </div>
-                </div>
-
-                <div id="downloadComplete" class="hidden mt-6 text-center">
-                    <i class="bi bi-check-circle-fill text-green-500 text-5xl mb-3"></i>
-                    <h4 class="text-xl font-bold mb-2">Download Complete!</h4>
-                    <p class="text-gray-400 mb-4">Your video is ready</p>
-                    <button onclick="location.reload()" class="btn-primary-custom">
-                        <i class="bi bi-arrow-clockwise me-2"></i> Download Another
-                    </button>
-                </div>
-
-                <div id="downloadError" class="hidden mt-6 text-center">
-                    <i class="bi bi-x-circle-fill text-red-500 text-5xl mb-3"></i>
-                    <h4 class="text-xl font-bold mb-2">Download Failed</h4>
-                    <p class="text-gray-400 mb-4" id="errorMessage">An error occurred</p>
-                    <button onclick="location.reload()" class="btn-primary-custom">
-                        <i class="bi bi-arrow-clockwise me-2"></i> Try Again
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="py-16">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Why Choose Our Downloader?</h2>
-            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-red-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="bi bi-badge-4k-fill text-red-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-2">Ultra HD Quality</h3>
-                    <p class="text-gray-400">Download in 4K, 8K, and the highest available quality</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="bi bi-lightning-charge-fill text-blue-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-2">Lightning Fast</h3>
-                    <p class="text-gray-400">Optimized servers for maximum download speeds</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-green-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="bi bi-shield-check text-green-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-2">Safe & Secure</h3>
-                    <p class="text-gray-400">No data storage, direct downloads to your device</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-8 border-t border-gray-800">
-        <div class="container mx-auto px-4 text-center text-gray-400">
-            <p>&copy; 2025 HD Video Downloader. Made with <i class="bi bi-heart-fill text-red-600"></i> for quality
-                enthusiasts</p>
-        </div>
-    </footer>
-
+    </div>
     <script>
-        // API Configuration
-        const API_URL = 'https://ytultrahd.onrender.com'; // Replace with your Render URL
+        // Configure your API URL here
+        const API_URL = 'https://ytultrahd.onrender.com'; // Change this to your API URL
+        // Examples:
+        // const API_URL = 'https://your-api-domain.com';
+        // const API_URL = 'http://192.168.1.100:5000';
+        // const API_URL = ''; // Use empty string if serving from same domain
 
-        let currentVideoInfo = null;
+        let currentDownloadId = null;
         let selectedQuality = 'best';
-        let downloadId = null;
-        let progressInterval = null;
+        let currentVideoUrl = '';
 
-        // Utility Functions
-        function showElement(id) {
-            document.getElementById(id).classList.remove('hidden');
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkCookieStatus();
+            setupQualitySelector();
+
+            // Check API health
+            checkApiHealth();
+        });
+
+        // Quality selector
+        function setupQualitySelector() {
+            const options = document.querySelectorAll('.quality-option');
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    options.forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedQuality = option.dataset.quality;
+                });
+            });
         }
 
-        function hideElement(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
+        // Add this debug function to your index.html
+        async function debugCookies() {
+            try {
+                const response = await fetch(`${API_URL}/api/cookie-status`);
+                const data = await response.json();
+                console.log('Cookie Status:', data);
 
-        function formatDuration(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-
-            if (hours > 0) {
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                if (data.age_hours > 24) {
+                    showError('Cookies are stale', ['Refresh your cookies immediately']);
+                }
+            } catch (error) {
+                console.error('Cookie check failed:', error);
             }
-            return `${minutes}:${secs.toString().padStart(2, '0')}`;
         }
 
-        function formatViews(views) {
-            if (views >= 1000000) {
-                return (views / 1000000).toFixed(1) + 'M';
-            } else if (views >= 1000) {
-                return (views / 1000).toFixed(1) + 'K';
+        // Call it before downloading
+        debugCookies();
+
+        // Add this function to force cookie refresh
+        async function refreshCookies() {
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = 'Refreshing cookies... <span class="loading"></span>';
+
+            try {
+                // First, try automatic extraction
+                const response = await fetch(`${API_URL}/api/setup-cookies`, { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Cookies refreshed successfully!');
+                    checkCookieStatus();
+
+                    // Wait a bit before allowing downloads
+                    setTimeout(() => {
+                        showSuccess('You can now try downloading again');
+                    }, 2000);
+                } else {
+                    showError('Automatic refresh failed', ['Try manual cookie import']);
+                    openCookieModal();
+                }
+            } catch (error) {
+                showError('Cookie refresh failed', ['Try manual method']);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Refresh Cookies';
             }
-            return views.toString();
         }
 
-        // Analyze Video
-        async function analyzeVideo() {
-            const urlInput = document.getElementById('urlInput');
-            const url = urlInput.value.trim();
+        // API Health Check
+        async function checkApiHealth() {
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                if (!response.ok) {
+                    showError('API is not responding properly', ['Check if the server is running', 'Refresh the page']);
+                }
+            } catch (error) {
+                showError('Cannot connect to API', ['Make sure the Flask server is running', 'Check the console for errors', `API URL: ${API_URL}`]);
+            }
+        }
 
-            if (!url) {
-                alert('Please enter a YouTube URL');
+        // Cookie Status Check
+        async function checkCookieStatus() {
+            const statusDiv = document.getElementById('cookieStatus');
+
+            try {
+                const response = await fetch(`${API_URL}/api/cookie-status`);
+                const data = await response.json();
+
+                if (data.status === 'missing') {
+                    statusDiv.innerHTML = `
+                    <h3>Authentication Status <span class="status-badge status-error">Not Set Up</span></h3>
+                    <p>${data.message}</p>
+                    <button class="button" onclick="openCookieModal()">Set Up Cookies</button>
+                `;
+                    showWarning('Cookie authentication is required for downloading. Please set up cookies first.');
+                } else if (data.status === 'available') {
+                    const freshness = data.freshness === 'fresh' ? 'status-ok' :
+                        data.freshness === 'old' ? 'status-warning' : 'status-error';
+
+                    statusDiv.innerHTML = `
+                    <h3>Authentication Status <span class="status-badge ${freshness}">Active</span></h3>
+                    <p>Cookies loaded: ${data.cookie_count} entries (${data.age_hours} hours old)</p>
+                    <p>${data.recommendation}</p>
+                    <button class="button secondary" onclick="openCookieModal()">Update Cookies</button>
+                `;
+
+                    if (data.age_hours > 24) {
+                        showWarning('Cookies are older than 24 hours. Consider refreshing them for best results.');
+                    }
+
+                    // Enable download button
+                    document.getElementById('downloadDirectBtn').style.display = 'inline-block';
+                } else {
+                    statusDiv.innerHTML = `
+                    <h3>Authentication Status <span class="status-badge status-error">Error</span></h3>
+                    <p>Error checking cookie status</p>
+                    <button class="button" onclick="checkCookieStatus()">Retry</button>
+                `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                <h3>Authentication Status <span class="status-badge status-error">Error</span></h3>
+                <p>Failed to check cookie status: ${error.message}</p>
+                <button class="button" onclick="checkCookieStatus()">Retry</button>
+            `;
+                showError('Failed to check cookie status', ['Check if the API is running', `API URL: ${API_URL}`]);
+            }
+        }
+
+        // Cookie Modal Functions
+        function openCookieModal() {
+            document.getElementById('cookieModal').style.display = 'flex';
+        }
+
+        function closeCookieModal() {
+            document.getElementById('cookieModal').style.display = 'none';
+        }
+
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Automatic Cookie Setup
+        async function setupCookiesAutomatic() {
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = 'Extracting cookies... <span class="loading"></span>';
+
+            try {
+                const response = await fetch(`${API_URL}/api/setup-cookies`, { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(`${data.message}. You can now download videos!`);
+                    closeCookieModal();
+                    checkCookieStatus();
+                } else {
+                    showError(data.error || 'Cookie extraction failed', data.solutions || []);
+                }
+            } catch (error) {
+                showError('Failed to extract cookies', ['Check console for errors', 'Try manual method', `API URL: ${API_URL}`]);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Extract Cookies from Browser';
+            }
+        }
+
+        // Manual Cookie Setup
+        async function setupCookiesManual() {
+            const textarea = document.getElementById('cookieTextarea');
+            const cookies = textarea.value.trim();
+
+            if (!cookies) {
+                showError('Please paste cookie content', ['Export cookies from your browser first']);
                 return;
             }
 
-            const analyzeBtn = document.getElementById('analyzeBtn');
-            const originalText = analyzeBtn.innerHTML;
-            analyzeBtn.innerHTML = '<i class="bi bi-hourglass-split loading-spinner"></i> Analyzing...';
-            analyzeBtn.disabled = true;
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = 'Importing cookies... <span class="loading"></span>';
+
+            try {
+                const response = await fetch(`${API_URL}/api/manual-cookies`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookies })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(data.message);
+                    closeCookieModal();
+                    checkCookieStatus();
+                    textarea.value = '';
+                } else {
+                    showError(data.error || 'Failed to import cookies', ['Check cookie format']);
+                }
+            } catch (error) {
+                showError('Failed to import cookies', ['Check console for errors', `API URL: ${API_URL}`]);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Import Cookies';
+            }
+        }
+
+        // Get Cookie Instructions
+        async function getCookieInstructions() {
+            try {
+                const response = await fetch(`${API_URL}/api/cookie-instructions`);
+                const data = await response.json();
+
+                console.log('Cookie Setup Instructions:', data);
+                showSuccess('Instructions logged to console. Check browser console for details.');
+            } catch (error) {
+                showError('Failed to get instructions', ['Check API connection', `API URL: ${API_URL}`]);
+            }
+        }
+
+        // Get Video Info
+        async function getVideoInfo() {
+            const url = document.getElementById('urlInput').value.trim();
+
+            if (!url) {
+                showError('Please enter a YouTube URL', []);
+                return;
+            }
+
+            // Basic URL validation
+            if (!url.includes('youtube.com/') && !url.includes('youtu.be/')) {
+                showError('Invalid YouTube URL', ['Enter a valid YouTube video URL']);
+                return;
+            }
+
+            currentVideoUrl = url;
+            const button = document.getElementById('getInfoBtn');
+            button.disabled = true;
+            button.innerHTML = 'Loading video info... <span class="loading"></span>';
+
+            hideMessages();
+            document.getElementById('videoInfo').style.display = 'none';
 
             try {
                 const response = await fetch(`${API_URL}/api/info`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to analyze video');
-                }
-
                 const data = await response.json();
-                currentVideoInfo = data;
 
-                // Display video info
-                document.getElementById('videoThumbnail').src = data.thumbnail;
-                document.getElementById('videoTitle').textContent = data.title;
-                document.getElementById('videoUploader').textContent = data.uploader;
-                document.getElementById('videoDuration').textContent = formatDuration(data.duration);
-                document.getElementById('videoViews').textContent = formatViews(data.view_count);
-
-                // Display quality options
-                displayQualityOptions(data);
-
-                showElement('videoInfo');
-
+                if (response.status === 401) {
+                    showError('Authentication required', data.solutions || ['Set up cookies first']);
+                    openCookieModal();
+                } else if (response.status === 403) {
+                    showError(data.error || 'Access forbidden', data.solutions || ['Refresh cookies', 'Try again later']);
+                } else if (response.ok) {
+                    displayVideoInfo(data);
+                    if (data.warning) {
+                        showWarning(data.warning);
+                    }
+                } else {
+                    showError(data.error || 'Failed to get video info', data.suggestions || data.solutions || ['Try again']);
+                }
             } catch (error) {
-                alert('Error analyzing video: ' + error.message);
+                showError('Network error', ['Check your internet connection', 'Make sure the API is running', `API URL: ${API_URL}`]);
             } finally {
-                analyzeBtn.innerHTML = originalText;
-                analyzeBtn.disabled = false;
+                button.disabled = false;
+                button.innerHTML = 'Get Video Info';
             }
         }
 
-        // Display Quality Options
-        function displayQualityOptions(videoInfo) {
-            const container = document.getElementById('qualityOptions');
-            container.innerHTML = '';
+        // Display Video Info
+        function displayVideoInfo(info) {
+            document.getElementById('videoThumbnail').src = info.thumbnail || '';
+            document.getElementById('videoTitle').textContent = info.title || 'Unknown Title';
+            document.getElementById('videoUploader').textContent = `By: ${info.uploader || 'Unknown'}`;
+            document.getElementById('videoDuration').textContent = `Duration: ${formatDuration(info.duration)}`;
+            document.getElementById('videoViews').textContent = `Views: ${formatNumber(info.view_count)}`;
 
-            // Add preset qualities
-            const presetQualities = [
-                { id: 'best', label: 'Best', desc: 'Auto' },
-                { id: '8k', label: '8K', desc: '4320p' },
-                { id: '4k', label: '4K', desc: '2160p' },
-                { id: '1080p', label: 'HD', desc: '1080p' }
-            ];
+            document.getElementById('videoInfo').style.display = 'block';
 
-            presetQualities.forEach(quality => {
-                const div = document.createElement('div');
-                div.className = 'quality-card';
-                div.innerHTML = `
-                    <div class="text-lg font-semibold">${quality.label}</div>
-                    <div class="text-sm text-gray-400">${quality.desc}</div>
-                `;
-                div.onclick = () => selectQuality(quality.id);
-                container.appendChild(div);
-            });
-
-            // Select best quality by default
-            selectQuality('best');
-        }
-
-        // Select Quality
-        function selectQuality(quality) {
-            selectedQuality = quality;
-
-            // Update UI
-            document.querySelectorAll('.quality-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-
-            event.target.closest('.quality-card').classList.add('selected');
-
-            // Enable download button
-            document.getElementById('downloadBtn').disabled = false;
+            // Store format info globally if needed
+            window.videoFormats = info.video_formats || [];
+            window.audioFormats = info.audio_formats || [];
         }
 
         // Start Download
         async function startDownload() {
-            const url = document.getElementById('urlInput').value.trim();
+            if (!currentVideoUrl) {
+                showError('No video URL', ['Enter a URL and get video info first']);
+                return;
+            }
 
-            hideElement('videoInfo');
-            showElement('downloadProgress');
+            hideMessages();
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = 'Starting download... <span class="loading"></span>';
 
             try {
                 const response = await fetch(`${API_URL}/api/download`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        url,
+                        url: currentVideoUrl,
                         quality: selectedQuality,
                         audio_quality: 'best'
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to start download');
-                }
-
                 const data = await response.json();
-                downloadId = data.download_id;
 
-                // Start progress monitoring
-                monitorProgress();
-
+                if (response.status === 401) {
+                    showError('Authentication required', ['Set up cookies first']);
+                    openCookieModal();
+                } else if (response.ok) {
+                    currentDownloadId = data.download_id;
+                    document.getElementById('progressSection').style.display = 'block';
+                    monitorProgress();
+                } else {
+                    showError(data.error || 'Failed to start download', ['Try again']);
+                }
             } catch (error) {
-                showDownloadError(error.message);
+                showError('Failed to start download', ['Check API connection', `API URL: ${API_URL}`]);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Download Video';
             }
         }
 
+        // Quick Download
+        async function downloadDirect() {
+            const url = document.getElementById('urlInput').value.trim();
+
+            if (!url) {
+                showError('Please enter a YouTube URL', []);
+                return;
+            }
+
+            currentVideoUrl = url;
+            await startDownload();
+        }
+
         // Monitor Download Progress
-        function monitorProgress() {
-            progressInterval = setInterval(async () => {
-                try {
-                    const response = await fetch(`${API_URL}/api/progress/${downloadId}`);
+        async function monitorProgress() {
+            if (!currentDownloadId) return;
 
-                    if (!response.ok) {
-                        throw new Error('Failed to get progress');
-                    }
+            try {
+                const response = await fetch(`${API_URL}/api/progress/${currentDownloadId}`);
+                const data = await response.json();
 
-                    const data = await response.json();
+                if (response.ok) {
                     updateProgressUI(data);
 
                     if (data.status === 'completed') {
-                        clearInterval(progressInterval);
-                        downloadFile();
+                        showSuccess('Download completed successfully!');
+                        document.getElementById('downloadFileBtn').style.display = 'inline-block';
                     } else if (data.status === 'error') {
-                        clearInterval(progressInterval);
-                        showDownloadError(data.error);
+                        showError(`Download failed: ${data.error}`, ['Try again with different settings']);
+                    } else {
+                        // Continue monitoring
+                        setTimeout(() => monitorProgress(), 1000);
                     }
-
-                } catch (error) {
-                    clearInterval(progressInterval);
-                    showDownloadError(error.message);
+                } else {
+                    showError('Failed to get progress', ['Download may have failed']);
                 }
-            }, 1000);
+            } catch (error) {
+                showError('Failed to check progress', ['Check API connection', `API URL: ${API_URL}`]);
+            }
         }
 
         // Update Progress UI
         function updateProgressUI(data) {
-            document.getElementById('progressPercent').textContent = data.progress + '%';
-            document.getElementById('progressBar').style.width = data.progress + '%';
-            document.getElementById('downloadSpeed').textContent = data.speed;
-            document.getElementById('downloadSize').textContent = data.size;
-            document.getElementById('downloadETA').textContent = data.eta;
+            const fill = document.getElementById('progressFill');
+            const progress = parseFloat(data.progress) || 0;
 
-            const statusText = {
-                'preparing': 'Preparing...',
-                'downloading': 'Downloading...',
-                'processing': 'Processing...',
-                'completed': 'Complete!'
-            };
+            fill.style.width = `${progress}%`;
+            fill.textContent = `${Math.round(progress)}%`;
 
-            document.getElementById('progressStatus').textContent = statusText[data.status] || data.status;
+            document.getElementById('downloadSpeed').textContent = `Speed: ${data.speed || '--'}`;
+            document.getElementById('downloadEta').textContent = `ETA: ${data.eta || '--'}`;
+            document.getElementById('downloadSize').textContent = `Size: ${data.size || '--'}`;
+
+            if (data.title) {
+                document.querySelector('#progressSection h3').textContent = `Downloading: ${data.title}`;
+            }
         }
 
         // Download File
-        async function downloadFile() {
-            const downloadUrl = `${API_URL}/api/download/${downloadId}/file`;
+        function downloadFile() {
+            if (!currentDownloadId) return;
 
-            // Create invisible link and trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = currentVideoInfo.title + '.mp4';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            window.location.href = `${API_URL}/api/download/${currentDownloadId}/file`;
 
-            // Show completion
-            hideElement('downloadProgress');
-            showElement('downloadComplete');
+            // Reset after download
+            setTimeout(() => {
+                document.getElementById('progressSection').style.display = 'none';
+                document.getElementById('downloadFileBtn').style.display = 'none';
+                currentDownloadId = null;
+            }, 2000);
         }
 
-        // Show Download Error
-        function showDownloadError(message) {
-            document.getElementById('errorMessage').textContent = message;
-            hideElement('downloadProgress');
-            showElement('downloadError');
+        // Show All Formats
+        function showFormats() {
+            // This would show a modal with all available formats
+            console.log('Video formats:', window.videoFormats);
+            console.log('Audio formats:', window.audioFormats);
+            showSuccess('Format information logged to console');
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            // Handle Enter key in URL input
-            document.getElementById('urlInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    analyzeVideo();
-                }
-            });
+        // Error Handling Functions
+        function showError(message, solutions = []) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const errorSolutions = document.getElementById('errorSolutions');
 
-            // Auto-focus URL input
-            document.getElementById('urlInput').focus();
+            errorText.textContent = message;
+            errorSolutions.innerHTML = '';
+
+            if (solutions.length > 0) {
+                solutions.forEach(solution => {
+                    const li = document.createElement('li');
+                    li.textContent = solution;
+                    errorSolutions.appendChild(li);
+                });
+            }
+
+            errorDiv.style.display = 'block';
+
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 10000);
+        }
+
+        function showWarning(message) {
+            const warningDiv = document.getElementById('warningMessage');
+            const warningText = document.getElementById('warningText');
+
+            warningText.textContent = message;
+            warningDiv.style.display = 'block';
+
+            // Auto-hide after 8 seconds
+            setTimeout(() => {
+                warningDiv.style.display = 'none';
+            }, 8000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+
+            successText.textContent = message;
+            successDiv.style.display = 'block';
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('warningMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Utility Functions
+        function formatDuration(seconds) {
+            if (!seconds) return 'Unknown';
+
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+
+            if (hours > 0) {
+                return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${String(secs).padStart(2, '0')}`;
+            }
+        }
+
+        function formatNumber(num) {
+            if (!num) return '0';
+            return num.toLocaleString();
+        }
+
+        // Handle Enter key in URL input
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                getVideoInfo();
+            }
         });
 
-        // Performance monitoring
-        if ('PerformanceObserver' in window) {
-            const perfObserver = new PerformanceObserver((list) => {
-                for (const entry of list.getEntries()) {
-                    console.log('Performance:', entry.name, entry.duration);
-                }
-            });
-            perfObserver.observe({ entryTypes: ['measure', 'navigation'] });
-        }
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('cookieModal');
+            if (e.target === modal) {
+                closeCookieModal();
+            }
+        });
     </script>
 </body>
 
