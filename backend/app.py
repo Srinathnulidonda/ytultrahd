@@ -8,13 +8,14 @@ import hashlib
 import multiprocessing
 import random
 from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor
-from functools import lru_cache
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
+from functools import lru_cache, wraps
 from collections import defaultdict, deque
 from queue import Queue, Empty
 import gc
 import weakref
 from base64 import b64decode
+import signal
 
 from flask import Flask, request, jsonify, send_file, Response, g
 from flask_cors import CORS
@@ -31,7 +32,7 @@ MAX_PROCESSES = 2
 DOWNLOAD_WORKERS = min(4, CPU_COUNT)
 CHUNK_SIZE = 512 * 1024
 BUFFER_SIZE = 2 * 1024 * 1024
-MAX_CONCURRENT_DOWNLOADS = 3  # Consider 1-2 if hitting 429
+MAX_CONCURRENT_DOWNLOADS = 2  # Reduced for free tier
 MAX_FILE_SIZE = 1024 * 1024 * 1024
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'yt_render')
 CACHE_DURATION = 600
@@ -97,6 +98,28 @@ USER_AGENTS = [
 
 def get_random_user_agent():
     return random.choice(USER_AGENTS)
+
+# =========================
+# Timeout handler
+# =========================
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(func, timeout_duration=60):
+    """Decorator to add timeout to functions"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        def target():
+            return func(*args, **kwargs)
+        
+        future = executor.submit(target)
+        try:
+            return future.result(timeout=timeout_duration)
+        except TimeoutError:
+            future.cancel()
+            raise TimeoutException(f"Operation timed out after {timeout_duration} seconds")
+    
+    return wrapper
 
 # =========================
 # Cache
@@ -293,24 +316,24 @@ def get_anti_bot_ydl_opts(cookiefile=None, proxy=None, cookie_header=None, hl='e
         'no_warnings': False,  # Keep warnings for debugging
         'extract_flat': False,
         'skip_download': True,
-        'socket_timeout': 30,
+        'socket_timeout': 20,  # Reduced from 30
         'http_headers': headers,
         'noplaylist': True,
         'geo_bypass': True,
-        'extractor_retries': 2,
-        # Additional anti-detection measures
-        'sleep_interval_requests': random.uniform(1.5, 3.5),  # Random delay between requests
-        'max_sleep_interval': 6,
-        'http_chunk_size': random.randint(16384, 65536),  # Random chunk size
-        'retries': 3,
-        'fragment_retries': 3,
+        'extractor_retries': 1,  # Reduced from 2
+        # Reduced sleep intervals to avoid timeouts
+        'sleep_interval_requests': random.uniform(0.5, 1.5),  # Reduced from 1.5-3.5
+        'max_sleep_interval': 2,  # Reduced from 6
+        'http_chunk_size': random.randint(16384, 65536),
+        'retries': 2,  # Reduced from 3
+        'fragment_retries': 2,  # Reduced from 3
         'ignoreerrors': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['web', 'android', 'ios'],
-                'player_skip': ['webpage'],
-                'skip': ['dash'],
-                'max_comments': [0],  # Don't extract comments
+                'player_client': ['web', 'android'],  # Removed ios to speed up
+                'player_skip': ['webpage', 'configs'],  # Skip more to speed up
+                'skip': ['dash', 'hls'],  # Skip more formats
+                'max_comments': [0],
                 'comment_sort': ['top'],
                 'max_comment_depth': 1,
                 'lang': [hl],
@@ -350,24 +373,25 @@ def extract_info_with_fallbacks(url: str, extras: dict | None = None) -> dict:
         gl=extras.get('gl', 'US')
     )
     
+    # Reduced strategies to avoid timeout
     strategies = [
         # Strategy 1: Standard extraction with anti-bot measures
         lambda: extract_with_strategy(url, {**base}),
         
-        # Strategy 2: Mobile client preference
+        # Strategy 2: Mobile client preference (faster)
         lambda: extract_with_strategy(url, {
             **base,
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['android', 'ios'],
-                    'player_skip': ['webpage', 'configs'],
+                    'player_client': ['android'],  # Android only for speed
+                    'player_skip': ['webpage', 'configs', 'js'],
                     'lang': [extras.get('hl', 'en')],
                     'geo_bypass_country': [extras.get('gl', 'US')],
                 }
             }
         }),
         
-        # Strategy 3: Embedded extraction
+        # Strategy 3: Web embedded (if cookies provided)
         lambda: extract_with_strategy(url, {
             **base,
             'extractor_args': {
@@ -377,25 +401,20 @@ def extract_info_with_fallbacks(url: str, extras: dict | None = None) -> dict:
                     'geo_bypass_country': [extras.get('gl', 'US')],
                 }
             }
-        }),
-        
-        # Strategy 4: Age gate bypass
-        lambda: extract_with_strategy(url, {
-            **base,
-            'age_limit': 99,
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['web_age_gate_bypass'],
-                    'lang': [extras.get('hl', 'en')],
-                    'geo_bypass_country': [extras.get('gl', 'US')],
-                }
-            }
-        })
+        }) if extras.get('cookiefile') else None,
     ]
     
+    # Filter out None strategies
+    strategies = [s for s in strategies if s is not None]
+    
     last_error = None
+    start_time = time.time()
     
     for i, strategy in enumerate(strategies, 1):
+        # Check if we're approaching timeout
+        if time.time() - start_time > 50:  # Leave 10s buffer
+            raise TimeoutException("Extraction taking too long, please try again")
+            
         try:
             logger.info(f"Trying extraction strategy {i}/{len(strategies)}")
             result = strategy()
@@ -411,11 +430,11 @@ def extract_info_with_fallbacks(url: str, extras: dict | None = None) -> dict:
             if any(phrase in error_msg for phrase in ['bot', 'sign in', 'captcha', '429', 'too many requests']):
                 performance_metrics['bot_detections'] += 1
                 logger.warning(f"Bot detection in strategy {i}: {str(e)[:120]}")
-                # Add longer delay before next attempt
-                time.sleep(random.uniform(4, 7))
+                # Shorter delay to avoid timeout
+                time.sleep(random.uniform(2, 3))
             else:
                 logger.warning(f"Strategy {i} failed: {str(e)[:120]}")
-                time.sleep(1.2)  # Short delay between strategies
+                time.sleep(0.5)  # Very short delay
     
     performance_metrics['failed_extractions'] += 1
     raise Exception(f"All extraction strategies failed. Last error: {str(last_error)[:150]}")
@@ -745,20 +764,29 @@ def get_info():
                 'response_time_ms': round((time.time() - start_time) * 1000, 1)
             })
         
-        # Extract with anti-bot strategies
-        logger.info(f"Extracting info for: {url[:50]}...")
-        info = extract_info_with_fallbacks(url, extras=extras)
-        processed = process_info_safely(info)
-        
-        # Cache successful extraction
-        memory_cache.set(cache_key, processed)
-        
-        return jsonify({
-            'success': True,
-            'data': processed,
-            'cached': False,
-            'response_time_ms': round((time.time() - start_time) * 1000, 1)
-        })
+        # Extract with timeout protection
+        try:
+            logger.info(f"Extracting info for: {url[:50]}...")
+            info = timeout_handler(extract_info_with_fallbacks, timeout_duration=60)(url, extras=extras)
+            processed = process_info_safely(info)
+            
+            # Cache successful extraction
+            memory_cache.set(cache_key, processed)
+            
+            return jsonify({
+                'success': True,
+                'data': processed,
+                'cached': False,
+                'response_time_ms': round((time.time() - start_time) * 1000, 1)
+            })
+        except TimeoutException as e:
+            logger.warning(f"Extraction timeout: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Request timed out. Please try again.',
+                'suggestion': 'The server is busy or YouTube is rate limiting. Try providing cookies or wait a moment.',
+                'response_time_ms': round((time.time() - start_time) * 1000, 1)
+            }), 504
         
     except Exception as e:
         logger.error(f"Info extraction failed: {str(e)[:200]}")

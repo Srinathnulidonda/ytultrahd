@@ -1,12 +1,6 @@
-flask
-flask-cors
-werkzeug
+Flask
+Flask-Cors
 yt-dlp
-psutil
-orjson
-xxhash
-uvloop
-aiofiles
-cachetools
-zstandard
 gunicorn
+gevent
+werkzeug
