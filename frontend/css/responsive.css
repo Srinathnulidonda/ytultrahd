@@ -1,286 +1,700 @@
-/* Mobile-first responsive design with Tailwind integration */
+/**
+ * YT Ultra HD - Responsive Design
+ * Mobile-first responsive layout with real-time adaptation
+ */
 
-/* Extra Small Devices (phones, less than 576px) */
-@media (max-width: 575.98px) {
+/* Base mobile styles (0px and up) */
+.container {
+    width: 100%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-    /* Navigation adjustments */
+/* Typography responsive scaling */
+html {
+    font-size: 14px;
+}
+
+h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+}
+
+h4 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+}
+
+h5 {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+h6 {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Mobile navigation */
+.navbar {
+    padding: 0.5rem 0;
+}
+
+.navbar-brand {
+    font-size: 1.125rem;
+}
+
+.navbar-toggler {
+    padding: 0.25rem 0.5rem;
+    font-size: 1rem;
+    border: none;
+}
+
+.navbar-collapse {
+    margin-top: 0.5rem;
+}
+
+.navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+
+/* Mobile hero section */
+.hero {
+    min-height: 80vh;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.hero .lead {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Mobile form elements */
+.form-control {
+    font-size: 1rem;
+    padding: 0.75rem 0.875rem;
+}
+
+.btn {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+/* Mobile video info card */
+.video-info-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.video-thumbnail {
+    height: 180px;
+    margin-bottom: 1rem;
+}
+
+.video-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.video-title {
+    font-size: 1.125rem;
+    line-height: 1.3;
+}
+
+/* Mobile quality selector */
+.quality-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.quality-option {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Mobile download progress */
+.download-progress {
+    padding: 1rem;
+}
+
+.download-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.stat-value {
+    font-size: 1rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+}
+
+/* Mobile feature cards */
+.feature-card {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.feature-title {
+    font-size: 1.125rem;
+}
+
+/* Mobile alerts */
+.alert-container {
+    left: 0.5rem;
+    right: 0.5rem;
+    top: 70px;
+}
+
+.custom-alert {
+    font-size: 0.875rem;
+    padding: 0.875rem 1rem;
+}
+
+/* Mobile footer */
+.footer {
+    padding: 2rem 0 1rem;
+    text-align: center;
+}
+
+.footer-brand {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Small phones (320px - 480px) */
+@media (max-width: 480px) {
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    html {
+        font-size: 13px;
+    }
+
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .quality-options {
+        grid-template-columns: 1fr;
+    }
+
+    .download-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .video-meta {
+        font-size: 0.8rem;
+    }
+}
+
+/* Large phones (481px - 768px) */
+@media (min-width: 481px) {
+    html {
+        font-size: 15px;
+    }
+
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .btn {
+        width: auto;
+        margin-bottom: 0;
+    }
+
+    .quality-options {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Tablets (768px - 992px) */
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+
+    .container {
+        max-width: 750px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Tablet navigation */
+    .navbar {
+        padding: 0.75rem 0;
+    }
+
     .navbar-brand {
-        @apply text-xl;
+        font-size: 1.25rem;
     }
 
-    .navbar-brand svg {
-        @apply w-6 h-6;
+    .navbar-nav .nav-link {
+        padding: 0.5rem 1rem;
     }
 
-    /* Hero section */
+    /* Tablet hero */
     .hero {
-        @apply pt-20;
-        min-height: calc(100vh - 70px);
+        min-height: 90vh;
+        padding: 3rem 0;
+        text-align: left;
     }
 
-    .display-4 {
-        @apply text-3xl;
+    .hero h1 {
+        font-size: 2.5rem;
     }
 
-    .display-5 {
-        @apply text-2xl;
+    .hero .lead {
+        font-size: 1.125rem;
     }
 
-    /* Forms */
-    .form-control-lg {
-        @apply text-base px-3 py-2;
+    /* Tablet forms */
+    .btn {
+        display: inline-flex;
+        width: auto;
     }
 
-    .btn-lg {
-        @apply text-base px-4 py-2.5;
+    .input-group .btn {
+        width: auto;
     }
 
-    /* Cards */
-    .card-body {
-        @apply p-4;
+    /* Tablet video info */
+    .video-info-card {
+        padding: 1.5rem;
     }
 
-    /* Video info */
-    .video-info-card .row {
-        @apply gap-3;
+    .video-thumbnail {
+        height: 200px;
     }
 
-    .video-info-thumbnail {
-        @apply mb-3;
+    .video-meta {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
-    /* Quality selector */
-    .quality-selector {
-        @apply grid-cols-2 gap-2;
+    .quality-options {
+        grid-template-columns: repeat(4, 1fr);
     }
 
-    /* Progress section */
-    .progress-stat-label,
-    .progress-stat-value {
-        @apply text-xs;
+    /* Tablet download progress */
+    .download-stats {
+        grid-template-columns: repeat(4, 1fr);
     }
 
-    /* Mobile bottom nav always visible */
-    body {
-        padding-bottom: 70px;
+    /* Tablet feature cards */
+    .feature-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    /* Tablet alerts */
+    .alert-container {
+        right: 1rem;
+        left: auto;
+        max-width: 400px;
+    }
+
+    .custom-alert {
+        transform: translateX(400px);
+    }
+
+    .custom-alert.show {
+        transform: translateX(0);
+    }
+
+    /* Tablet footer */
+    .footer {
+        text-align: left;
+        padding: 3rem 0 2rem;
     }
 }
 
-/* Small Devices (landscape phones, 576px and up) */
-@media (min-width: 576px) and (max-width: 767.98px) {
+/* Small desktops (992px - 1200px) */
+@media (min-width: 992px) {
+    .container {
+        max-width: 970px;
+    }
+
+    /* Desktop navigation */
+    .navbar {
+        padding: 1rem 0;
+    }
+
+    .navbar-brand {
+        font-size: 1.375rem;
+    }
+
+    /* Desktop hero */
     .hero {
-        @apply pt-24;
+        min-height: 100vh;
+        padding: 4rem 0;
     }
 
-    .card-body {
-        @apply p-5;
+    .hero h1 {
+        font-size: 3rem;
     }
 
-    .quality-selector {
-        @apply grid-cols-4;
-    }
-}
-
-/* Medium Devices (tablets, 768px and up) */
-@media (min-width: 768px) and (max-width: 991.98px) {
-
-    /* Hide mobile bottom nav */
-    .mobile-bottom-nav {
-        @apply hidden;
+    .hero .lead {
+        font-size: 1.25rem;
     }
 
-    body {
-        padding-bottom: 0;
+    /* Desktop video info */
+    .video-thumbnail {
+        height: 240px;
     }
 
-    /* Adjust hero */
-    .hero {
-        @apply pt-28;
+    .quality-options {
+        grid-template-columns: repeat(5, 1fr);
     }
 
-    /* Two column layout for features */
-    .features-grid {
-        @apply grid-cols-2;
+    /* Desktop feature cards */
+    .feature-card {
+        padding: 2.5rem 2rem;
+    }
+
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 1.75rem;
     }
 }
 
-/* Large Devices (desktops, 992px and up) */
-@media (min-width: 992px) and (max-width: 1199.98px) {
-    .container-xl {
-        max-width: 960px;
-    }
-
-    /* Three column layout for features */
-    .features-grid {
-        @apply grid-cols-3;
-    }
-}
-
-/* Extra Large Devices (large desktops, 1200px and up) */
+/* Large desktops (1200px and up) */
 @media (min-width: 1200px) {
-    .container-xl {
-        max-width: 1140px;
+    .container {
+        max-width: 1170px;
     }
 
-    .display-4 {
-        @apply text-5xl;
+    .hero h1 {
+        font-size: 3.5rem;
     }
 
-    .display-5 {
-        @apply text-4xl;
+    .hero .lead {
+        font-size: 1.375rem;
     }
 
-    .card-body {
-        @apply p-10;
+    .video-thumbnail {
+        height: 280px;
+    }
+
+    .feature-card {
+        padding: 3rem 2rem;
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
     }
 }
 
-/* XXL Devices (larger desktops, 1400px and up) */
+/* Extra large desktops (1400px and up) */
 @media (min-width: 1400px) {
-    .container-xl {
+    .container {
         max-width: 1320px;
     }
+
+    .hero h1 {
+        font-size: 4rem;
+    }
 }
 
-/* High DPI Screens */
+/* High DPI displays */
 @media (-webkit-min-device-pixel-ratio: 2),
 (min-resolution: 192dpi) {
 
-    /* Use higher quality images */
-    .video-info-thumbnail img {
+    .video-thumbnail,
+    .feature-icon {
         image-rendering: -webkit-optimize-contrast;
         image-rendering: crisp-edges;
     }
 }
 
-/* Print Styles */
-@media print {
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: 80vh;
+        padding: 2rem 0;
+    }
 
-    /* Hide interactive elements */
-    .navbar,
-    .mobile-bottom-nav,
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .navbar {
+        padding: 0.5rem 0;
+    }
+}
+
+/* Portrait orientation adjustments */
+@media (orientation: portrait) {
+    .video-info-card .row {
+        flex-direction: column;
+    }
+
+    .video-thumbnail {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto 1rem;
+    }
+}
+
+/* Touch device optimizations */
+@media (pointer: coarse) {
+
     .btn,
-    form,
-    .toast-container {
-        @apply hidden !important;
-    }
-
-    /* Adjust layout */
-    body {
-        @apply p-0;
-    }
-
-    .hero {
-        @apply min-h-0;
-    }
-
-    /* Ensure text is black */
-    * {
-        color: black !important;
-        background: white !important;
-    }
-}
-
-/* Landscape orientation adjustments */
-@media (orientation: landscape) and (max-height: 600px) {
-    .hero {
-        min-height: calc(100vh - 56px);
-    }
-
-    .mobile-bottom-nav {
-        @apply py-1;
-    }
-
-    .mobile-bottom-nav svg {
-        @apply w-5 h-5;
-    }
-
-    .mobile-bottom-nav span {
-        @apply text-xs;
-    }
-}
-
-/* RTL Support */
-.rtl {
-
-    /* Flip margins and paddings */
-    .me-2 {
-        @apply ml-2 mr-0;
-    }
-
-    .me-3 {
-        @apply ml-3 mr-0;
-    }
-
-    .ms-auto {
-        @apply mr-auto ml-0;
-    }
-
-    .ms-3 {
-        @apply mr-3 ml-0;
-    }
-
-    /* Flip borders */
-    .border-start-0 {
-        @apply border-r-0 border-l;
-    }
-
-    .border-end-0 {
-        @apply border-l-0 border-r;
-    }
-
-    /* Flip rounded corners */
-    .rounded-start {
-        @apply rounded-r-lg rounded-l-none;
-    }
-
-    .rounded-end {
-        @apply rounded-l-lg rounded-r-none;
-    }
-
-    /* Flip text alignment */
-    .text-start {
-        @apply text-right;
-    }
-
-    .text-end {
-        @apply text-left;
-    }
-
-    /* Progress bar direction */
-    .progress-bar {
-        @apply origin-right;
-    }
-}
-
-/* Accessibility - High Contrast Mode */
-@media (prefers-contrast: high) {
-    .btn-danger {
-        @apply border-2 border-black;
+    .quality-option,
+    .nav-link {
+        min-height: 44px;
+        min-width: 44px;
     }
 
     .form-control {
-        @apply border-2 border-black;
+        min-height: 44px;
     }
 
-    .card {
-        @apply border-2 border-black;
+    .theme-toggle {
+        min-width: 44px;
+        min-height: 44px;
     }
 }
 
-/* Reduced Motion */
+/* Hover-capable devices */
+@media (hover: hover) {
+
+    .btn:hover,
+    .card:hover,
+    .feature-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .quality-option:hover {
+        transform: translateY(-1px);
+    }
+}
+
+/* Print media adjustments */
+@media print {
+    .hero {
+        min-height: auto;
+        background: none !important;
+        color: black !important;
+    }
+
+    .navbar,
+    .footer,
+    .btn,
+    .alert-container {
+        display: none !important;
+    }
+
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+
+    .video-info-card,
+    .feature-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-contrast: high) {
+
+    .btn,
+    .card,
+    .form-control {
+        border-width: 2px;
+    }
+
+    .video-info-card,
+    .feature-card {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
+    .hero::before {
+        animation: none;
     }
 
-    .progress-bar {
-        transition: width 0.01ms !important;
+    .btn:hover,
+    .card:hover {
+        transform: none;
     }
 }
 
-/* Dark Mode Support (Future Enhancement) */
+/* Dark mode responsive adjustments */
 @media (prefers-color-scheme: dark) {
-    /* Dark mode styles would go here */
+    [data-theme="auto"] {
+        --text: #f9fafb;
+        --text-muted: #9ca3af;
+        --bg: #111827;
+        --bg-secondary: #1f2937;
+        --border: #374151;
+    }
+}
+
+/* Responsive utilities */
+.d-mobile-none {
+    display: none;
+}
+
+.d-tablet-none {
+    display: block;
+}
+
+.d-desktop-none {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .d-mobile-none {
+        display: block;
+    }
+
+    .d-tablet-none {
+        display: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .d-tablet-none {
+        display: block;
+    }
+
+    .d-desktop-none {
+        display: none;
+    }
+}
+
+/* Container responsive margins */
+.container-responsive {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 576px) {
+    .container-responsive {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container-responsive {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container-responsive {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container-responsive {
+        max-width: 1140px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .container-responsive {
+        max-width: 1320px;
+    }
+}
+
+/* Responsive text utilities */
+.text-responsive-sm {
+    font-size: 0.875rem;
+}
+
+.text-responsive-md {
+    font-size: 1rem;
+}
+
+.text-responsive-lg {
+    font-size: 1.125rem;
+}
+
+@media (min-width: 768px) {
+    .text-responsive-sm {
+        font-size: 1rem;
+    }
+
+    .text-responsive-md {
+        font-size: 1.125rem;
+    }
+
+    .text-responsive-lg {
+        font-size: 1.25rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .text-responsive-sm {
+        font-size: 1.125rem;
+    }
+
+    .text-responsive-md {
+        font-size: 1.25rem;
+    }
+
+    .text-responsive-lg {
+        font-size: 1.5rem;
+    }
 }

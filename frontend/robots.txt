@@ -1,6 +1,17 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /assets/videos/
+Crawl-delay: 1
 
-Sitemap: https://ytultra.com/sitemap.xml
+Sitemap: https://ytultrahd.vercel.app/sitemap.xml
+
+# Priority crawling for key pages
+Allow: /download
+Allow: /4k-videos  
+Allow: /free-youtube-downloader
+Allow: /about
+Allow: /contact
+
+# Block non-essential paths
+Disallow: /api/
+Disallow: /js/
+Disallow: /css/

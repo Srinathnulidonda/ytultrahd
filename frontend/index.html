@@ -1,42 +1,138 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large">
+    <meta name="googlebot" content="index, follow">
+
+    <!-- Primary Meta Tags -->
+    <title>YT Ultra HD - Download YouTube Videos in 4K, HD & Audio | Free Online Video Downloader</title>
+    <meta name="title" content="YT Ultra HD - Download YouTube Videos in 4K, HD & Audio | Free Online Video Downloader">
     <meta name="description"
-        content="Ultra-fast YouTube video downloader. Download videos in 4K, 1080p, or audio-only formats with lightning speed.">
-    <title>YT Ultra - Fastest YouTube Downloader</title>
+        content="Download YouTube videos in 4K Ultra HD, 1080p HD, and MP3 audio for free. Fast, secure, and unlimited downloads. No software installation required.">
+    <meta name="keywords"
+        content="Download YouTube videos online, Free YouTube video downloader, 4K video downloader, Direct YouTube video download, YouTube to MP4, YouTube to MP3, HD video downloader">
+    <meta name="author" content="YT Ultra HD">
+    <meta name="language" content="English">
 
-    <!-- Preconnect to optimize performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ytultrahd.vercel.app/">
+    <meta property="og:title" content="YT Ultra HD - Download YouTube Videos in 4K, HD & Audio">
+    <meta property="og:description"
+        content="Download YouTube videos in 4K Ultra HD, 1080p HD, and MP3 audio for free. Fast, secure, and unlimited downloads.">
+    <meta property="og:image" content="https://ytultrahd.vercel.app/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="YT Ultra HD">
 
-    <!-- Critical CSS inline -->
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://ytultrahd.vercel.app/">
+    <meta property="twitter:title" content="YT Ultra HD - Download YouTube Videos in 4K, HD & Audio">
+    <meta property="twitter:description"
+        content="Download YouTube videos in 4K Ultra HD, 1080p HD, and MP3 audio for free. Fast, secure, and unlimited downloads.">
+    <meta property="twitter:image" content="https://ytultrahd.vercel.app/assets/twitter-image.jpg">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ytultrahd.vercel.app/">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "YT Ultra HD",
+        "url": "https://ytultrahd.vercel.app/",
+        "description": "Download YouTube videos in 4K Ultra HD, 1080p HD, and MP3 audio for free. Fast, secure, and unlimited downloads.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "permissions": "browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "4K Video Downloads",
+            "HD Video Downloads", 
+            "Audio MP3 Downloads",
+            "No Registration Required",
+            "Unlimited Downloads",
+            "Fast Processing"
+        ],
+        "screenshot": "https://ytultrahd.vercel.app/assets/screenshot.jpg"
+    }
+    </script>
+
+    <!-- Breadcrumb Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://ytultrahd.vercel.app/"
+            },
+            {
+                "@type": "ListItem", 
+                "position": 2,
+                "name": "Download",
+                "item": "https://ytultrahd.vercel.app/download"
+            }
+        ]
+    }
+    </script>
+
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/css/critical.css" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        as="style">
+    <link rel="preload" href="/js/theme.js" as="script">
+    <link rel="preload" href="/js/main.js" as="script">
+
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//ytultrahd.onrender.com">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+
+    <!-- Critical CSS (Inlined) -->
     <style>
+        /* Critical CSS will be inlined here from critical.css */
         :root {
             --primary: #dc2626;
-            --primary-dark: #991b1b;
-            --secondary: #1e293b;
-            --success: #16a34a;
-            --warning: #eab308;
-            --danger: #dc2626;
-            --light: #f8fafc;
-            --dark: #0f172a;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-300: #cbd5e1;
-            --gray-400: #94a3b8;
-            --gray-500: #64748b;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-800: #1e293b;
-            --gray-900: #0f172a
+            --primary-dark: #b91c1c;
+            --secondary: #1f2937;
+            --success: #059669;
+            --warning: #d97706;
+            --error: #dc2626;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --bg: #ffffff;
+            --bg-secondary: #f9fafb;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1)
         }
 
-        *,
-        ::after,
-        ::before {
+        [data-theme="dark"] {
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+            --bg: #111827;
+            --bg-secondary: #1f2937;
+            --border: #374151;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3)
+        }
+
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0
@@ -44,31 +140,140 @@
 
         html {
             font-size: 16px;
+            line-height: 1.6;
             -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent
+            scroll-behavior: smooth
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 1rem;
-            line-height: 1.5;
-            color: var(--gray-900);
-            background: var(--light);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden
         }
 
-        [hidden] {
-            display: none !important
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1050;
+            transition: all 0.3s ease
+        }
+
+        [data-theme="dark"] .navbar {
+            background: rgba(17, 24, 39, 0.95)
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary) !important;
+            text-decoration: none
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: float 20s ease-in-out infinite
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px)
+            }
+
+            50% {
+                transform: translateY(-20px)
+            }
+        }
+
+        .url-input {
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.3s ease
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1)
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: 2px solid var(--primary);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg)
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem
+        }
+
+        @media (max-width:768px) {
+            .container {
+                padding: 0 0.5rem
+            }
+
+            .hero {
+                min-height: 80vh
+            }
+
+            .btn-primary {
+                width: 100%;
+                margin-top: 0.5rem
+            }
         }
 
         .skeleton {
-            animation: skeleton-loading 1s linear infinite alternate;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255, 255, 255, 0.5) 50%, var(--bg-secondary) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite
         }
 
-        @keyframes skeleton-loading {
+        @keyframes loading {
             0% {
                 background-position: 200% 0
             }
@@ -78,292 +283,452 @@
             }
         }
 
-        .hero {
-            min-height: 100vh;
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: flex;
-            flex-direction: column
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text)
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary);
+            transform: scale(1.1)
         }
     </style>
 
-    <!-- PWA & Icons -->
+    <!-- Non-Critical CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Manifest -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/assets/icons/favicon.ico">
-    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
     <meta name="theme-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="YT Ultra - Fastest YouTube Downloader">
-    <meta property="og:description" content="Download YouTube videos in ultra-high quality with blazing fast speed">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ytultrahd.com">
-    <meta property="og:image" content="https://ytultrahd.com/assets/images/og-image.png">
+    <!-- Security -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="YT Ultra - Fastest YouTube Downloader">
-    <meta name="twitter:description" content="Download YouTube videos in ultra-high quality with blazing fast speed">
-
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/css/main.css" as="style">
-    <link rel="preload" href="/js/main.js" as="script">
-
-    <!-- Stylesheets -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        crossorigin="anonymous">
-    <link href="/css/main.css" rel="stylesheet">
-
-    <!-- JSON-LD Schema -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "YT Ultra",
-        "description": "Ultra-fast YouTube video downloader",
-        "url": "https://ytultrahd.com",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Any",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        }
-    }
+    <!-- Analytics (will be loaded by analytics.js) -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
     </script>
 </head>
 
 <body>
-    <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg fixed-top bg-white shadow-sm" id="topNav">
-        <div class="container-xl">
-            <a class="navbar-brand fw-bold text-danger d-flex align-items-center" href="/">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="me-2">
-                    <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                </svg>
-                YT Ultra
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg" id="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="/" aria-label="YT Ultra HD Home">
+                <strong>YT Ultra HD</strong>
             </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+
+            <div class="d-flex align-items-center order-lg-3">
+                <button class="theme-toggle me-3" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+                    <span id="themeIcon">🌙</span>
+                </button>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse order-lg-2" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/" aria-current="page">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/download">Download</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/4k-videos">4K Videos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <main class="hero pt-5">
-        <div class="container-xl flex-grow-1 d-flex align-items-center py-5">
-            <div class="row w-100">
-                <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="display-4 fw-bold mb-4">Download YouTube Videos<br>
-                        <span class="text-danger">Ultra Fast</span>
-                    </h1>
-                    <p class="lead text-muted mb-5">Support for 4K, 1080p, 720p, and audio-only formats.
-                        Lightning-fast downloads with our advanced infrastructure.</p>
-
-                    <!-- Download Form -->
-                    <div class="card shadow-lg border-0 rounded-4">
-                        <div class="card-body p-4 p-md-5">
-                            <form id="downloadForm">
-                                <div class="input-group mb-4">
-                                    <input type="url" class="form-control form-control-lg border-end-0" id="urlInput"
-                                        placeholder="Paste YouTube URL here..." required
-                                        pattern="https?://(www\.)?(youtube\.com/watch\?v=|youtu\.be/).*"
-                                        autocomplete="off">
-                                    <button class="btn btn-outline-secondary" type="button" id="pasteBtn">
-                                        <svg width="20" height="20" fill="currentColor">
-                                            <path
-                                                d="M19 3h-2.25c0-1.654-1.346-3-3-3h-7.5c-1.654 0-3 1.346-3 3H1c-.552 0-1 .448-1 1v4c0 .552.448 1 1 1h18c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zM13.75 3h-7.5c-.552 0-1-.448-1-1s.448-1 1-1h7.5c.552 0 1 .448 1 1s-.448 1-1 1z" />
-                                            <path
-                                                d="M18 10H2c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2zm-5 7H7v-2h6v2z" />
-                                        </svg>
-                                        Paste
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 text-white">
+                        <h1 class="display-4 fw-bold mb-4">
+                            Download YouTube Videos in
+                            <span class="text-gradient">Ultra HD 4K</span>
+                        </h1>
+                        <p class="lead mb-4">
+                            Free, fast, and unlimited YouTube video downloader. Download videos in 4K, HD, or extract
+                            audio in MP3 format. No registration required.
+                        </p>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="url" class="form-control url-input" id="videoUrl"
+                                        placeholder="Paste YouTube URL here..." aria-label="YouTube video URL"
+                                        autocomplete="url" spellcheck="false">
+                                    <button class="btn btn-primary" type="button" id="analyzeBtn">
+                                        <span id="analyzeText">Analyze Video</span>
+                                        <span id="analyzeSpinner" class="spinner-border spinner-border-sm ms-2 d-none"
+                                            role="status" aria-hidden="true"></span>
                                     </button>
                                 </div>
-
-                                <div class="row g-3 mb-4 d-none" id="qualitySection">
-                                    <div class="col-12">
-                                        <label class="form-label fw-semibold">Select Quality</label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="quality" id="quality4k" value="4k">
-                                        <label class="btn btn-outline-danger w-100" for="quality4k">4K</label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="quality" id="quality1080p"
-                                            value="1080p" checked>
-                                        <label class="btn btn-outline-danger w-100" for="quality1080p">1080p</label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="quality" id="quality720p"
-                                            value="720p">
-                                        <label class="btn btn-outline-danger w-100" for="quality720p">720p</label>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <input type="radio" class="btn-check" name="quality" id="qualityAudio"
-                                            value="audio">
-                                        <label class="btn btn-outline-danger w-100" for="qualityAudio">Audio</label>
-                                    </div>
+                                <div class="form-text text-white-50 mt-2">
+                                    Supports all YouTube video formats and playlists
                                 </div>
-
-                                <button type="submit"
-                                    class="btn btn-danger btn-lg w-100 d-flex align-items-center justify-content-center"
-                                    id="downloadBtn">
-                                    <svg width="24" height="24" fill="currentColor" class="me-2">
-                                        <path
-                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                                    </svg>
-                                    Get Video Info
-                                </button>
-                            </form>
-
-                            <!-- Video Info Display -->
-                            <div id="videoInfo" class="mt-4 d-none">
-                                <!-- Will be populated dynamically -->
-                            </div>
-
-                            <!-- Progress Display -->
-                            <div id="progressSection" class="mt-4 d-none">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-muted">Downloading...</span>
-                                    <span class="fw-semibold" id="progressPercent">0%</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-danger progress-bar-animated progress-bar-striped"
-                                        role="progressbar" id="progressBar" style="width: 0%"></div>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2 small text-muted">
-                                    <span id="downloadSpeed">0 MB/s</span>
-                                    <span id="downloadEta">Calculating...</span>
-                                </div>
-                            </div>
-
-                            <!-- Error Display -->
-                            <div id="errorAlert" class="alert alert-danger d-none mt-4" role="alert">
-                                <strong>Error:</strong> <span id="errorMessage"></span>
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-6 text-center">
+                        <div class="hero-image">
+                            <img src="/assets/hero-video.svg" alt="Video download illustration" class="img-fluid"
+                                width="500" height="400" loading="eager">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <!-- Features -->
-                    <div class="row mt-5 text-start">
-                        <div class="col-md-4 mb-3">
-                            <div class="d-flex">
-                                <div class="text-danger me-3">
-                                    <svg width="40" height="40" fill="currentColor">
-                                        <path
-                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h5 class="fw-semibold">Ultra Fast</h5>
-                                    <p class="text-muted mb-0">Multi-threaded downloads with speeds up to 100MB/s</p>
+        <!-- Video Info Section -->
+        <section class="py-5" id="videoInfoSection" style="display: none;">
+            <div class="container">
+                <div class="video-info-card" id="videoInfoCard">
+                    <!-- Video info will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Progress Section -->
+        <section class="py-3" id="downloadSection" style="display: none;">
+            <div class="container">
+                <div class="download-progress" id="downloadProgress">
+                    <!-- Download progress will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-5 bg-light" id="features">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bold">Why Choose YT Ultra HD?</h2>
+                    <p class="lead text-muted">The most powerful YouTube downloader with cutting-edge features</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">🚀</div>
+                            <h3 class="feature-title">Ultra-Fast Downloads</h3>
+                            <p class="feature-description">
+                                Lightning-fast download speeds with our optimized servers. Download videos in seconds,
+                                not minutes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">🎬</div>
+                            <h3 class="feature-title">4K Ultra HD Quality</h3>
+                            <p class="feature-description">
+                                Download videos in stunning 4K Ultra HD, 1080p Full HD, 720p HD, and other resolutions.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">🎵</div>
+                            <h3 class="feature-title">Audio Extraction</h3>
+                            <p class="feature-description">
+                                Extract high-quality MP3 audio from YouTube videos. Perfect for music and podcasts.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">🔒</div>
+                            <h3 class="feature-title">100% Secure</h3>
+                            <p class="feature-description">
+                                Your privacy is our priority. No data collection, no tracking, completely secure
+                                downloads.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">📱</div>
+                            <h3 class="feature-title">Mobile Optimized</h3>
+                            <p class="feature-description">
+                                Works perfectly on all devices - desktop, tablet, and mobile. Responsive design
+                                guaranteed.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">🆓</div>
+                            <h3 class="feature-title">Completely Free</h3>
+                            <p class="feature-description">
+                                No hidden fees, no registration required. Unlimited downloads forever, completely free.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="py-5" id="howItWorks">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bold">How to Download YouTube Videos</h2>
+                    <p class="lead text-muted">Simple 3-step process to download any YouTube video</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4 text-center">
+                        <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">1</div>
+                        <h4>Paste URL</h4>
+                        <p class="text-muted">Copy and paste the YouTube video URL into the input field above.</p>
+                    </div>
+
+                    <div class="col-md-4 text-center">
+                        <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">2</div>
+                        <h4>Choose Quality</h4>
+                        <p class="text-muted">Select your preferred video quality or audio format from available
+                            options.</p>
+                    </div>
+
+                    <div class="col-md-4 text-center">
+                        <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">3</div>
+                        <h4>Download</h4>
+                        <p class="text-muted">Click download and save the video to your device. It's that simple!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-5 bg-light" id="faq">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bold">Frequently Asked Questions</h2>
+                    <p class="lead text-muted">Everything you need to know about YT Ultra HD</p>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq1">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                        Is YT Ultra HD free to use?
+                                    </button>
+                                </h3>
+                                <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1"
+                                    data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Yes, YT Ultra HD is completely free to use. There are no hidden fees, no
+                                        registration required, and no download limits. You can download unlimited
+                                        YouTube videos forever at no cost.
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="d-flex">
-                                <div class="text-danger me-3">
-                                    <svg width="40" height="40" fill="currentColor">
-                                        <path
-                                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h5 class="fw-semibold">High Quality</h5>
-                                    <p class="text-muted mb-0">Support for 4K resolution and lossless audio</p>
+
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                        What video qualities are supported?
+                                    </button>
+                                </h3>
+                                <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2"
+                                    data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        We support all available YouTube video qualities including 4K Ultra HD (2160p),
+                                        Full HD (1080p), HD (720p), SD (480p), and mobile formats. You can also extract
+                                        audio in high-quality MP3 format.
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="d-flex">
-                                <div class="text-danger me-3">
-                                    <svg width="40" height="40" fill="currentColor">
-                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-                                    </svg>
+
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq3">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                        Do I need to install any software?
+                                    </button>
+                                </h3>
+                                <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3"
+                                    data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        No software installation required! YT Ultra HD works entirely in your web
+                                        browser. It's compatible with all modern browsers on desktop, tablet, and mobile
+                                        devices.
+                                    </div>
                                 </div>
-                                <div>
-                                    <h5 class="fw-semibold">100% Safe</h5>
-                                    <p class="text-muted mb-0">No ads, no malware, just pure downloads</p>
+                            </div>
+
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="faq4">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                                        Is it legal to download YouTube videos?
+                                    </button>
+                                </h3>
+                                <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="faq4"
+                                    data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Downloading videos for personal use is generally acceptable. However, we
+                                        recommend checking the video's copyright status and YouTube's terms of service.
+                                        Always respect content creators' rights and use downloads responsibly.
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="mobile-bottom-nav d-md-none">
-        <div class="container-fluid">
-            <div class="row text-center">
-                <div class="col-3">
-                    <a href="/" class="nav-link active">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                        </svg>
-                        <span>Home</span>
-                    </a>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="footer-brand">YT Ultra HD</div>
+                    <p class="text-muted">
+                        The most powerful and fastest YouTube video downloader. Download videos in 4K Ultra HD quality
+                        for free.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-muted me-3" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-muted me-3" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-muted me-3" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
-                <div class="col-3">
-                    <a href="#" class="nav-link" id="historyBtn">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path
-                                d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
-                        </svg>
-                        <span>History</span>
-                    </a>
-                </div>
-                <div class="col-3">
-                    <a href="/about" class="nav-link">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                        </svg>
-                        <span>About</span>
-                    </a>
-                </div>
-                <div class="col-3">
-                    <a href="/contact" class="nav-link">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path
-                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                        </svg>
-                        <span>Contact</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Toast Container -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
-        <div id="toast" class="toast" role="alert">
-            <div class="toast-header">
-                <strong class="me-auto">Notification</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Features</h5>
+                    <ul class="footer-links">
+                        <li><a href="/download">Video Download</a></li>
+                        <li><a href="/4k-videos">4K Downloads</a></li>
+                        <li><a href="/free-youtube-downloader">Audio Extract</a></li>
+                        <li><a href="/">Batch Download</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Support</h5>
+                    <ul class="footer-links">
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="#howItWorks">How It Works</a></li>
+                        <li><a href="/about">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Legal</h5>
+                    <ul class="footer-links">
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/terms">Terms of Service</a></li>
+                        <li><a href="/contact">DMCA</a></li>
+                        <li><a href="/contact">Report Abuse</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Quality</h5>
+                    <ul class="footer-links">
+                        <li><a href="/">4K Ultra HD</a></li>
+                        <li><a href="/">1080p Full HD</a></li>
+                        <li><a href="/">720p HD</a></li>
+                        <li><a href="/">MP3 Audio</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="toast-body"></div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 YT Ultra HD. All rights reserved. |
+                    <a href="/privacy" class="text-muted">Privacy</a> |
+                    <a href="/terms" class="text-muted">Terms</a>
+                </p>
+            </div>
         </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay d-none" id="loadingOverlay">
+        <div class="loading-spinner"></div>
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"
-        defer></script>
-    <script src="/js/main.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="/js/theme.js" defer></script>
+    <script src="/js/api.js" defer></script>
+    <script src="/js/preloader.js" defer></script>
     <script src="/js/ui.js" defer></script>
+    <script src="/js/main.js" defer></script>
+    <script src="/js/analytics.js" defer></script>
 
-    <!-- Service Worker -->
+    <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js');
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered:', registration))
+                    .catch(error => console.log('SW registration failed:', error));
             });
         }
     </script>

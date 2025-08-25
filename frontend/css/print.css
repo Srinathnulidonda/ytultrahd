@@ -1,13 +1,43 @@
-/* Print-specific styles for optimal printing */
+/**
+ * YT Ultra HD - Print Styles
+ * Optimized for printing download information and video details
+ */
 
 @media print {
 
-    /* Reset background colors and shadows */
+    /* Reset margins and backgrounds */
     * {
         background: transparent !important;
-        color: #000 !important;
+        color: black !important;
         box-shadow: none !important;
         text-shadow: none !important;
+    }
+
+    body {
+        font-family: "Times New Roman", serif;
+        font-size: 12pt;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Hide non-essential elements */
+    .no-print,
+    .navbar,
+    .footer,
+    .btn,
+    .alert-container,
+    .loading-overlay,
+    .theme-toggle,
+    .navbar-toggler,
+    .custom-alert,
+    #themeToggle,
+    #analyzeBtn,
+    #downloadBtn,
+    #downloadAudioBtn,
+    .quality-selector,
+    .download-progress {
+        display: none !important;
     }
 
     /* Page setup */
@@ -20,247 +50,440 @@
         margin-top: 3cm;
     }
 
-    /* Basic elements */
-    body {
-        font-family: Georgia, serif;
-        font-size: 12pt;
-        line-height: 1.5;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
+    /* Typography for print */
     h1,
     h2,
     h3,
     h4,
     h5,
     h6 {
-        font-family: Arial, sans-serif;
+        font-family: "Arial", sans-serif;
+        font-weight: bold;
+        margin-top: 1em;
+        margin-bottom: 0.5em;
         page-break-after: avoid;
-        page-break-inside: avoid;
     }
 
     h1 {
-        font-size: 24pt;
+        font-size: 18pt;
+        text-align: center;
+        border-bottom: 2pt solid black;
+        padding-bottom: 0.5em;
     }
 
     h2 {
-        font-size: 20pt;
-    }
-
-    h3 {
         font-size: 16pt;
     }
 
-    p,
-    ul,
-    ol,
-    dl {
+    h3 {
+        font-size: 14pt;
+    }
+
+    h4,
+    h5,
+    h6 {
+        font-size: 12pt;
+    }
+
+    p {
+        margin-bottom: 0.5em;
         orphans: 3;
         widows: 3;
     }
 
     /* Links */
     a {
+        color: black;
         text-decoration: underline;
     }
 
-    a[href]:after {
+    a[href^="http"]:after {
         content: " (" attr(href) ")";
         font-size: 10pt;
-        font-style: italic;
+        color: #666;
     }
 
-    /* Abbreviations */
-    abbr[title]:after {
-        content: " (" attr(title) ")";
-    }
-
-    /* Prevent page breaks */
-    img,
-    figure,
-    table,
-    pre,
-    blockquote {
+    /* Video information print layout */
+    .video-info-card {
+        border: 1pt solid black;
+        padding: 1em;
+        margin-bottom: 1em;
         page-break-inside: avoid;
     }
 
-    /* Images */
-    img {
-        max-width: 100% !important;
-        height: auto !important;
+    .video-title {
+        font-size: 16pt;
+        font-weight: bold;
+        margin-bottom: 0.5em;
+        text-align: center;
+    }
+
+    .video-meta {
+        display: block;
+        margin-bottom: 1em;
+    }
+
+    .video-meta-item {
+        display: block;
+        margin-bottom: 0.25em;
+        font-size: 10pt;
+    }
+
+    .video-meta-item:before {
+        content: "• ";
+        font-weight: bold;
+    }
+
+    .video-thumbnail {
+        display: none;
+        /* Don't print images to save ink */
+    }
+
+    /* Show thumbnail URL instead */
+    .video-thumbnail:after {
+        content: "Thumbnail: " attr(src);
+        display: block;
+        font-size: 10pt;
+        color: #666;
+        margin: 0.5em 0;
+    }
+
+    /* Feature cards for print */
+    .feature-card {
+        border: 1pt solid #ccc;
+        padding: 0.5em;
+        margin-bottom: 0.5em;
+        page-break-inside: avoid;
+        display: inline-block;
+        width: 48%;
+        vertical-align: top;
+    }
+
+    .feature-icon {
+        display: none;
+    }
+
+    .feature-title {
+        font-size: 12pt;
+        font-weight: bold;
+        margin-bottom: 0.25em;
+    }
+
+    .feature-description {
+        font-size: 10pt;
+        line-height: 1.3;
     }
 
     /* Tables */
     table {
         border-collapse: collapse;
         width: 100%;
-    }
-
-    table,
-    th,
-    td {
-        border: 1px solid #000;
+        margin-bottom: 1em;
     }
 
     th,
     td {
+        border: 1pt solid black;
         padding: 0.5em;
-    }
-
-    thead {
-        display: table-header-group;
-    }
-
-    /* Code blocks */
-    pre,
-    code {
-        font-family: 'Courier New', monospace;
+        text-align: left;
         font-size: 10pt;
-        border: 1px solid #999;
-        page-break-inside: avoid;
     }
 
-    pre {
-        padding: 1em;
-        white-space: pre-wrap;
-        word-wrap: break-word;
+    th {
+        background: #f0f0f0 !important;
+        font-weight: bold;
     }
 
-    /* Hide non-essential elements */
-    nav,
-    .navbar,
-    .mobile-bottom-nav,
-    .btn,
-    button,
-    form,
-    .no-print,
-    .toast-container,
-    .modal,
-    .dropdown,
-    video,
-    audio,
-    iframe,
-    .advertisement,
-    .social-share,
-    .comments,
-    #toast,
-    [role="navigation"],
-    [role="complementary"] {
-        display: none !important;
+    /* Container adjustments */
+    .container {
+        max-width: none;
+        padding: 0;
+        margin: 0;
     }
 
-    /* Main content */
-    main {
+    .row {
         display: block;
-        padding: 0 !important;
-        margin: 0 !important;
     }
 
-    /* Containers */
-    .container,
-    .container-fluid,
-    .container-xl {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
+    .col-md-4,
+    .col-md-8,
+    .col-lg-4,
+    .col-lg-6,
+    .col-lg-8 {
+        width: 100%;
+        display: block;
+        margin: 0;
+        padding: 0;
     }
 
-    /* Cards */
-    .card {
-        border: 1px solid #000 !important;
-        border-radius: 0 !important;
-        margin-bottom: 1em !important;
+    /* Print-specific information */
+    .print-info {
+        display: block !important;
+        text-align: center;
+        font-size: 10pt;
+        color: #666;
+        border-top: 1pt solid #ccc;
+        padding-top: 1em;
+        margin-top: 2em;
+    }
+
+    .print-url:after {
+        content: "Downloaded from: " attr(data-url);
+        display: block;
+        margin-top: 0.5em;
+    }
+
+    .print-date:after {
+        content: "Printed on: " attr(data-date);
+        display: block;
+        margin-top: 0.25em;
+    }
+
+    /* Hero section for print */
+    .hero {
+        text-align: center;
+        padding: 1em 0;
+        border-bottom: 2pt solid black;
+        margin-bottom: 2em;
+    }
+
+    .hero h1 {
+        font-size: 20pt;
+        margin-bottom: 0.5em;
+    }
+
+    .hero .lead {
+        font-size: 12pt;
+        margin-bottom: 1em;
+    }
+
+    /* FAQ section for print */
+    .accordion-item {
+        margin-bottom: 1em;
         page-break-inside: avoid;
     }
 
-    .card-body {
-        padding: 1em !important;
+    .accordion-button {
+        font-weight: bold;
+        font-size: 11pt;
+        margin-bottom: 0.25em;
     }
 
-    /* Utility classes for print */
-    .print-only {
+    .accordion-body {
+        font-size: 10pt;
+        padding-left: 1em;
+    }
+
+    /* Quality format list for print */
+    .quality-formats {
         display: block !important;
     }
 
-    .screen-only {
-        display: none !important;
+    .quality-formats h4 {
+        font-size: 12pt;
+        margin-bottom: 0.5em;
+    }
+
+    .quality-formats ul {
+        list-style-type: disc;
+        padding-left: 2em;
+    }
+
+    .quality-formats li {
+        margin-bottom: 0.25em;
+        font-size: 10pt;
+    }
+
+    /* Download instructions for print */
+    .print-instructions {
+        display: block !important;
+        border: 2pt solid black;
+        padding: 1em;
+        margin: 2em 0;
+        background: #f9f9f9 !important;
+    }
+
+    .print-instructions h3 {
+        margin-top: 0;
+        text-align: center;
+    }
+
+    .print-instructions ol {
+        padding-left: 2em;
+    }
+
+    .print-instructions li {
+        margin-bottom: 0.5em;
+        font-size: 11pt;
+    }
+
+    /* Status information for print */
+    .status-info {
+        display: block !important;
+        border: 1pt solid #ccc;
+        padding: 0.5em;
+        margin: 1em 0;
+        font-size: 10pt;
+    }
+
+    .status-info strong {
+        font-weight: bold;
     }
 
     /* Page breaks */
-    .page-break-before {
+    .page-break {
         page-break-before: always;
+    }
+
+    .page-break-avoid {
+        page-break-inside: avoid;
     }
 
     .page-break-after {
         page-break-after: always;
     }
 
-    .avoid-break {
-        page-break-inside: avoid;
-    }
-
-    /* Footer for pages */
+    /* Footer information */
     .print-footer {
         position: fixed;
         bottom: 0;
-        left: 0;
-        right: 0;
+        width: 100%;
         text-align: center;
-        font-size: 10pt;
+        font-size: 8pt;
+        color: #666;
+        border-top: 1pt solid #ccc;
+        padding-top: 0.5em;
+    }
+
+    /* QR code placeholder */
+    .qr-code-placeholder {
+        display: block !important;
+        width: 100px;
+        height: 100px;
+        border: 2pt dashed #ccc;
+        margin: 1em auto;
+        text-align: center;
+        line-height: 100px;
+        font-size: 8pt;
         color: #666;
     }
 
-    /* Page numbers */
-    @page {
-        @bottom-right {
-            content: "Page " counter(page) " of " counter(pages);
-        }
+    .qr-code-placeholder:after {
+        content: "QR Code\AWebsite";
+        white-space: pre;
     }
 
-    /* QR codes for links (optional) */
-    .qr-code {
-        display: inline-block;
-        width: 1in;
-        height: 1in;
-        margin: 0.5em;
+    /* Accessibility for print */
+    .sr-only {
+        position: static;
+        width: auto;
+        height: auto;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
     }
-}
 
-/* Print-specific utility classes */
-.print\:hidden {
-    @media print {
-        display: none !important;
+    /* Print-optimized icons */
+    .fa,
+    .fas,
+    .far,
+    .fab {
+        font-family: inherit;
     }
-}
 
-.print\:block {
-    @media print {
+    .fa:before,
+    .fas:before,
+    .far:before,
+    .fab:before {
+        content: none;
+    }
+
+    /* Print utility classes */
+    .print-only {
         display: block !important;
     }
-}
 
-.print\:inline {
-    @media print {
+    .print-inline {
         display: inline !important;
     }
-}
 
-.print\:text-black {
-    @media print {
-        color: #000 !important;
+    .print-none {
+        display: none !important;
+    }
+
+    .print-block {
+        display: block !important;
+    }
+
+    /* Color adjustments for better printing */
+    .text-primary,
+    .text-success,
+    .text-info,
+    .text-warning,
+    .text-danger {
+        color: black !important;
+    }
+
+    .bg-primary,
+    .bg-success,
+    .bg-info,
+    .bg-warning,
+    .bg-danger {
+        background: white !important;
+        border: 1pt solid black;
+    }
+
+    /* Form elements (if any remain visible) */
+    input,
+    textarea,
+    select {
+        border: 1pt solid black;
+        background: white;
+        color: black;
+    }
+
+    /* Ensure adequate contrast */
+    .text-muted {
+        color: #333 !important;
+    }
+
+    /* Compact spacing for print */
+    .print-compact {
+        margin: 0.25em 0 !important;
+        padding: 0.25em !important;
+    }
+
+    .print-no-margin {
+        margin: 0 !important;
+    }
+
+    .print-no-padding {
+        padding: 0 !important;
     }
 }
 
-.print\:bg-white {
-    @media print {
-        background-color: #fff !important;
+/* Print preview styles */
+@media screen {
+    .print-preview {
+        background: white;
+        color: black;
+        font-family: "Times New Roman", serif;
+        font-size: 12pt;
+        line-height: 1.4;
+        max-width: 21cm;
+        min-height: 29.7cm;
+        margin: 2cm auto;
+        padding: 2cm;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
-}
 
-.print\:border {
-    @media print {
-        border: 1px solid #000 !important;
+    .print-preview .no-print {
+        display: none;
+    }
+
+    .print-preview .print-only {
+        display: block;
     }
 }

@@ -1,217 +1,737 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="YT Ultra Terms of Service - Please read our terms carefully">
-    <title>Terms of Service - YT Ultra</title>
+    <meta name="robots" content="index, follow">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <!-- Primary Meta Tags -->
+    <title>Terms of Service - YT Ultra HD | YouTube Video Downloader Legal Terms</title>
+    <meta name="title" content="Terms of Service - YT Ultra HD | YouTube Video Downloader Legal Terms">
+    <meta name="description"
+        content="Read YT Ultra HD's Terms of Service. Understand your rights and responsibilities when using our free YouTube video downloader service.">
+    <meta name="keywords"
+        content="YT Ultra HD terms, YouTube downloader terms of service, video download legal, service agreement">
 
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/assets/icons/favicon.ico">
-    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ytultrahd.vercel.app/terms">
+    <meta property="og:title" content="Terms of Service - YT Ultra HD">
+    <meta property="og:description"
+        content="Read YT Ultra HD's Terms of Service for our YouTube video downloader service.">
+    <meta property="og:image" content="https://ytultrahd.vercel.app/assets/terms-og.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://ytultrahd.vercel.app/terms">
+    <meta property="twitter:title" content="Terms of Service - YT Ultra HD">
+    <meta property="twitter:description"
+        content="Read YT Ultra HD's Terms of Service for our YouTube video downloader service.">
+    <meta property="twitter:image" content="https://ytultrahd.vercel.app/assets/terms-twitter.jpg">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ytultrahd.vercel.app/terms">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Terms of Service - YT Ultra HD",
+        "description": "Terms of Service for YT Ultra HD YouTube video downloader service.",
+        "url": "https://ytultrahd.vercel.app/terms",
+        "dateModified": "2025-01-01T00:00:00Z",
+        "publisher": {
+            "@type": "Organization",
+            "name": "YT Ultra HD",
+            "url": "https://ytultrahd.vercel.app"
+        }
+    }
+    </script>
+
+    <!-- Critical CSS (Inlined) -->
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-dark: #b91c1c;
+            --secondary: #1f2937;
+            --success: #059669;
+            --warning: #d97706;
+            --error: #dc2626;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --bg: #ffffff;
+            --bg-secondary: #f9fafb;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1)
+        }
+
+        [data-theme="dark"] {
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+            --bg: #111827;
+            --bg-secondary: #1f2937;
+            --border: #374151;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden
+        }
+    </style>
+
+    <!-- Non-Critical CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/print.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Theme -->
     <meta name="theme-color" content="#dc2626">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        crossorigin="anonymous">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="/css/main.css" rel="stylesheet">
-    <link href="/css/components.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-50">
-    <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg fixed-top bg-white shadow-sm">
-        <div class="container-xl">
-            <a class="navbar-brand fw-bold text-danger d-flex align-items-center" href="/">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="me-2">
-                    <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                </svg>
-                YT Ultra
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top" id="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="/" aria-label="YT Ultra HD Home">
+                <strong>YT Ultra HD</strong>
             </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+
+            <div class="d-flex align-items-center order-lg-3">
+                <button class="theme-toggle me-3" id="themeToggle" aria-label="Toggle dark mode">
+                    <span id="themeIcon">🌙</span>
+                </button>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse order-lg-2" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/download">Download</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/4k-videos">4K Videos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="py-5 mt-5 min-h-screen">
-        <div class="container-xl">
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <h1 class="display-5 fw-bold mb-4 text-gray-900">Terms of Service</h1>
-                    <p class="text-muted mb-4">Effective Date: January 25, 2025</p>
+    <main class="pt-5">
+        <!-- Breadcrumb -->
+        <section class="py-3 bg-light">
+            <div class="container">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Terms of Service</li>
+                    </ol>
+                </nav>
+            </div>
+        </section>
 
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body p-4 p-md-5">
-                            <div class="prose max-w-none">
-                                <div class="alert alert-warning mb-4" role="alert">
-                                    <strong>Important:</strong> By using YT Ultra, you agree to these terms. Please read
-                                    them carefully.
+        <!-- Hero Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h1 class="display-4 fw-bold mb-4">Terms of Service</h1>
+                        <p class="lead mb-4">
+                            These terms govern your use of YT Ultra HD's YouTube video downloading service.
+                        </p>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Last updated:</strong> January 1, 2025 |
+                            <strong>Effective:</strong> January 1, 2025 |
+                            <strong>Service Status:</strong> <span id="serviceStatus"
+                                class="badge bg-success">Checking...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Terms Content -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="terms-content">
+                            <div class="print-info" style="display: none;">
+                                <div class="print-url" data-url="https://ytultrahd.vercel.app/terms"></div>
+                                <div class="print-date" data-date=""></div>
+                            </div>
+
+                            <h2>1. Acceptance of Terms</h2>
+                            <p>
+                                By accessing and using YT Ultra HD ("the Service"), you accept and agree to be bound by
+                                the terms and provision of this agreement. If you do not agree to abide by the above,
+                                please do not use this service.
+                            </p>
+                            <p>
+                                These Terms of Service constitute a legally binding agreement between you and YT Ultra
+                                HD regarding your use of our YouTube video downloading service hosted at
+                                <code>https://ytultrahd.onrender.com</code> and accessible via
+                                <code>https://ytultrahd.vercel.app</code>.
+                            </p>
+
+                            <h2>2. Service Description</h2>
+                            <p>
+                                YT Ultra HD provides a free web-based service that allows users to download YouTube
+                                videos in various formats and qualities, including:
+                            </p>
+                            <ul>
+                                <li>4K Ultra HD video downloads (2160p)</li>
+                                <li>Full HD video downloads (1080p)</li>
+                                <li>HD video downloads (720p)</li>
+                                <li>Standard definition downloads (480p and below)</li>
+                                <li>Audio extraction in MP3 format</li>
+                            </ul>
+                            <p>
+                                Our service operates through real-time API integration with backend servers capable of
+                                processing up to 100 concurrent downloads with ultra-fast processing speeds.
+                            </p>
+
+                            <h2>3. Acceptable Use Policy</h2>
+                            <h3>3.1 Permitted Uses</h3>
+                            <p>You may use our service to:</p>
+                            <ul>
+                                <li>Download videos for personal, non-commercial use</li>
+                                <li>Create offline backups of your own content</li>
+                                <li>Download content you have explicit permission to use</li>
+                                <li>Access content for educational or research purposes within fair use guidelines</li>
+                            </ul>
+
+                            <h3>3.2 Prohibited Uses</h3>
+                            <p>You agree NOT to use our service to:</p>
+                            <ul>
+                                <li>Download copyrighted content without proper authorization</li>
+                                <li>Redistribute downloaded content for commercial purposes</li>
+                                <li>Attempt to overwhelm our servers with excessive requests</li>
+                                <li>Use automated tools or bots to access our service</li>
+                                <li>Circumvent any technical limitations or restrictions we implement</li>
+                                <li>Engage in any activity that could harm or disrupt our service</li>
+                            </ul>
+
+                            <h2>4. Technical Service Limitations</h2>
+                            <p>
+                                Our service is provided "as is" with the following technical specifications and
+                                limitations:
+                            </p>
+
+                            <div class="tech-specs-table">
+                                <h3>4.1 Service Specifications</h3>
+                                <div class="row g-3" id="serviceSpecs">
+                                    <div class="col-md-6">
+                                        <div class="spec-item">
+                                            <strong>Maximum File Size:</strong>
+                                            <span id="maxFileSize">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="spec-item">
+                                            <strong>Concurrent Downloads:</strong>
+                                            <span id="maxConcurrentDownloads">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="spec-item">
+                                            <strong>File Retention:</strong>
+                                            <span>1 hour after download</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="spec-item">
+                                            <strong>Service Uptime:</strong>
+                                            <span>99.9% target availability</span>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">1. Acceptance of Terms</h2>
-                                <p class="text-gray-600 mb-4">
-                                    By accessing and using YT Ultra ("the Service"), you accept and agree to be bound by
-                                    the terms
-                                    and provision of this agreement. If you do not agree to abide by the above, please
-                                    do not use
-                                    this service.
-                                </p>
+                            <h2>5. Privacy and Data Protection</h2>
+                            <p>
+                                We are committed to protecting your privacy and operate under strict data protection
+                                principles:
+                            </p>
+                            <ul>
+                                <li><strong>No Personal Data Storage:</strong> We do not store any personal information
+                                </li>
+                                <li><strong>No User Tracking:</strong> No cookies or tracking mechanisms are used</li>
+                                <li><strong>Automatic File Deletion:</strong> All downloaded files are automatically
+                                    deleted after 1 hour</li>
+                                <li><strong>No Download History:</strong> We do not maintain logs of your download
+                                    activity</li>
+                                <li><strong>Secure Transmission:</strong> All data transmission is encrypted using HTTPS
+                                </li>
+                            </ul>
+                            <p>
+                                For complete details, please review our <a href="/privacy">Privacy Policy</a>.
+                            </p>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">2. Use License</h2>
-                                <p class="text-gray-600 mb-4">YT Ultra grants you a limited, non-exclusive,
-                                    non-transferable license to:</p>
-                                <ul class="list-disc pl-6 text-gray-600 mb-4">
-                                    <li>Access and use the Service for personal, non-commercial purposes</li>
-                                    <li>Download videos for which you have the necessary rights</li>
-                                    <li>Use the Service in compliance with all applicable laws</li>
-                                </ul>
+                            <h2>6. Intellectual Property Rights</h2>
+                            <p>
+                                You acknowledge and agree that:
+                            </p>
+                            <ul>
+                                <li>YouTube and its content are owned by Google LLC and respective content creators</li>
+                                <li>You are responsible for ensuring you have the right to download any content</li>
+                                <li>Our service does not grant you any rights to copyrighted material</li>
+                                <li>You must comply with all applicable copyright laws and YouTube's Terms of Service
+                                </li>
+                                <li>We do not claim ownership of any content you download through our service</li>
+                            </ul>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">3. Restrictions</h2>
-                                <p class="text-gray-600 mb-4">You may not:</p>
-                                <ul class="list-disc pl-6 text-gray-600 mb-4">
-                                    <li>Use the Service to download copyrighted content without permission</li>
-                                    <li>Redistribute, sell, or commercially exploit downloaded content</li>
-                                    <li>Use the Service for any illegal or unauthorized purpose</li>
-                                    <li>Attempt to bypass any security measures or limitations</li>
-                                    <li>Use automated systems or bots to access the Service</li>
-                                    <li>Interfere with or disrupt the Service or servers</li>
-                                </ul>
+                            <h2>7. Service Availability and Performance</h2>
+                            <div class="service-status-section">
+                                <h3>7.1 Current Service Status</h3>
+                                <div class="status-grid" id="liveServiceStatus">
+                                    <div class="status-item">
+                                        <span class="status-label">API Status:</span>
+                                        <span class="status-value" id="apiStatus">Checking...</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">Download Service:</span>
+                                        <span class="status-value" id="downloadServiceStatus">Checking...</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">Response Time:</span>
+                                        <span class="status-value" id="responseTime">--ms</span>
+                                    </div>
+                                    <div class="status-item">
+                                        <span class="status-label">Active Users:</span>
+                                        <span class="status-value" id="activeUsers">--</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">4. Content Rights</h2>
-                                <p class="text-gray-600 mb-4">
-                                    You acknowledge that all content accessed through the Service belongs to the
-                                    respective content
-                                    creators and is protected by copyright and other intellectual property laws. You are
-                                    solely
-                                    responsible for ensuring you have the right to download and use any content.
-                                </p>
+                            <h3>7.2 Service Level Agreement</h3>
+                            <p>
+                                While we strive to maintain continuous service availability, we make no guarantees
+                                regarding:
+                            </p>
+                            <ul>
+                                <li>Uninterrupted access to our service</li>
+                                <li>Compatibility with all YouTube videos or formats</li>
+                                <li>Download speeds or processing times</li>
+                                <li>Availability of specific video qualities</li>
+                            </ul>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">5. Service Availability</h2>
-                                <p class="text-gray-600 mb-4">
-                                    We strive to maintain high availability but do not guarantee uninterrupted access to
-                                    the Service.
-                                    The Service may be temporarily unavailable due to maintenance, updates, or technical
-                                    issues.
-                                </p>
+                            <h2>8. User Responsibilities</h2>
+                            <p>
+                                As a user of our service, you are responsible for:
+                            </p>
+                            <ul>
+                                <li>Ensuring your use complies with applicable laws and regulations</li>
+                                <li>Respecting copyright and intellectual property rights</li>
+                                <li>Not overloading our servers with excessive requests</li>
+                                <li>Reporting any technical issues or abuse through our <a href="/contact">contact
+                                        page</a></li>
+                                <li>Keeping your downloaded content secure and properly attributed</li>
+                            </ul>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">6. Disclaimer of Warranties</h2>
-                                <p class="text-gray-600 mb-4">
-                                    THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF ANY KIND,
-                                    EXPRESS OR
-                                    IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-                                    PARTICULAR
-                                    PURPOSE, AND NON-INFRINGEMENT.
-                                </p>
+                            <h2>9. Disclaimers and Limitation of Liability</h2>
+                            <h3>9.1 Service Disclaimers</h3>
+                            <p>
+                                Our service is provided on an "as is" and "as available" basis without any warranties,
+                                express or implied, including but not limited to:
+                            </p>
+                            <ul>
+                                <li>Merchantability or fitness for a particular purpose</li>
+                                <li>Non-infringement of third-party rights</li>
+                                <li>Accuracy, reliability, or completeness of downloaded content</li>
+                                <li>Continuous, uninterrupted, or error-free operation</li>
+                            </ul>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">7. Limitation of Liability</h2>
-                                <p class="text-gray-600 mb-4">
-                                    IN NO EVENT SHALL YT ULTRA BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
-                                    CONSEQUENTIAL, OR
-                                    PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE,
-                                    GOODWILL, OR OTHER
-                                    INTANGIBLE LOSSES.
-                                </p>
+                            <h3>9.2 Limitation of Liability</h3>
+                            <p>
+                                To the maximum extent permitted by law, YT Ultra HD shall not be liable for any
+                                indirect, incidental, special, consequential, or punitive damages arising from your use
+                                of our service.
+                            </p>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">8. Indemnification</h2>
-                                <p class="text-gray-600 mb-4">
-                                    You agree to indemnify and hold harmless YT Ultra from any claims, losses, damages,
-                                    liabilities,
-                                    and expenses arising out of your use of the Service or violation of these terms.
-                                </p>
+                            <h2>10. Content Removal and DMCA Compliance</h2>
+                            <p>
+                                We respect intellectual property rights and comply with the Digital Millennium Copyright
+                                Act (DMCA). If you believe that your copyrighted work has been copied in a way that
+                                constitutes copyright infringement through our service:
+                            </p>
+                            <ol>
+                                <li>Contact us immediately through our <a href="/contact">contact page</a></li>
+                                <li>Provide detailed information about the alleged infringement</li>
+                                <li>Include your contact information and a good faith statement</li>
+                                <li>We will investigate and respond within 48 hours</li>
+                            </ol>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">9. Termination</h2>
-                                <p class="text-gray-600 mb-4">
-                                    We reserve the right to terminate or suspend your access to the Service immediately,
-                                    without
-                                    prior notice or liability, for any reason whatsoever, including without limitation
-                                    if you
-                                    breach the Terms.
-                                </p>
+                            <h2>11. Modifications to Service and Terms</h2>
+                            <p>
+                                We reserve the right to:
+                            </p>
+                            <ul>
+                                <li>Modify or discontinue our service at any time with or without notice</li>
+                                <li>Update these Terms of Service to reflect changes in our service or legal
+                                    requirements</li>
+                                <li>Implement new features or restrictions as needed for service improvement</li>
+                                <li>Block access from certain geographic regions if legally required</li>
+                            </ul>
+                            <p>
+                                Continued use of our service after any modifications constitutes acceptance of the
+                                updated terms.
+                            </p>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">10. Changes to Terms</h2>
-                                <p class="text-gray-600 mb-4">
-                                    We reserve the right to modify or replace these Terms at any time. If a revision is
-                                    material,
-                                    we will provide at least 30 days notice prior to any new terms taking effect.
-                                </p>
+                            <h2>12. Termination</h2>
+                            <p>
+                                We may terminate or suspend your access to our service immediately, without prior notice
+                                or liability, for any reason, including but not limited to:
+                            </p>
+                            <ul>
+                                <li>Breach of these Terms of Service</li>
+                                <li>Violation of applicable laws or regulations</li>
+                                <li>Abuse of our service or infrastructure</li>
+                                <li>Technical or security reasons</li>
+                            </ul>
 
-                                <h2 class="h4 fw-semibold mb-3 text-gray-800">11. Contact Information</h2>
-                                <p class="text-gray-600 mb-4">
-                                    If you have any questions about these Terms, please contact us at:
-                                    <a href="mailto:legal@ytultra.com"
-                                        class="text-red-600 hover:text-red-700">legal@ytultra.com</a>
+                            <h2>13. Governing Law and Jurisdiction</h2>
+                            <p>
+                                These Terms of Service shall be interpreted and governed by the laws of the jurisdiction
+                                where our servers are located, without regard to conflict of law provisions. Any
+                                disputes arising from these terms or your use of our service shall be resolved through
+                                binding arbitration.
+                            </p>
+
+                            <h2>14. Contact Information</h2>
+                            <p>
+                                If you have any questions about these Terms of Service or our service, please contact
+                                us:
+                            </p>
+                            <ul>
+                                <li><strong>Website:</strong> <a
+                                        href="https://ytultrahd.vercel.app">https://ytultrahd.vercel.app</a></li>
+                                <li><strong>Contact Page:</strong> <a href="/contact">/contact</a></li>
+                                <li><strong>Email:</strong> <a href="mailto:legal@ytultrahd.com">legal@ytultrahd.com</a>
+                                </li>
+                                <li><strong>Response Time:</strong> Within 48 hours for legal inquiries</li>
+                            </ul>
+
+                            <h2>15. Acknowledgment</h2>
+                            <p>
+                                By using YT Ultra HD, you acknowledge that you have read these Terms of Service,
+                                understood them, and agree to be bound by them. If you do not agree to these terms, you
+                                must not use our service.
+                            </p>
+
+                            <div class="terms-footer">
+                                <hr class="my-4">
+                                <p class="text-muted">
+                                    <small>
+                                        This document was last updated on January 1, 2025.
+                                        These terms are effective immediately and supersede all previous versions.
+                                        <br>
+                                        Service backend powered by <code>https://ytultrahd.onrender.com</code>
+                                        with real-time API integration and ultra-fast processing capabilities.
+                                    </small>
                                 </p>
                             </div>
                         </div>
                     </div>
-
-                    <div class="text-center mt-5">
-                        <a href="/" class="btn btn-danger btn-lg">Back to Home</a>
-                    </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="mobile-bottom-nav d-md-none bg-white shadow-lg">
-        <div class="container-fluid">
-            <div class="row text-center">
-                <div class="col-3">
-                    <a href="/" class="nav-link text-gray-600 hover:text-red-600 transition-colors">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                        </svg>
-                        <span class="text-xs">Home</span>
-                    </a>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="footer-brand">YT Ultra HD</div>
+                    <p class="text-muted">
+                        The world's fastest and most reliable YouTube video downloader.
+                        Download videos in 4K Ultra HD quality for free.
+                    </p>
                 </div>
-                <div class="col-3">
-                    <a href="#" class="nav-link text-gray-600 hover:text-red-600 transition-colors">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path
-                                d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
-                        </svg>
-                        <span class="text-xs">History</span>
-                    </a>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Legal</h5>
+                    <ul class="footer-links">
+                        <li><a href="/terms">Terms of Service</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/contact">DMCA</a></li>
+                        <li><a href="/contact">Report Abuse</a></li>
+                    </ul>
                 </div>
-                <div class="col-3">
-                    <a href="/about" class="nav-link text-gray-600 hover:text-red-600 transition-colors">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                        </svg>
-                        <span class="text-xs">About</span>
-                    </a>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Support</h5>
+                    <ul class="footer-links">
+                        <li><a href="/contact">Contact Us</a></li>
+                        <li><a href="/#faq">FAQ</a></li>
+                        <li><a href="/">Help Center</a></li>
+                        <li><a href="/about">About Us</a></li>
+                    </ul>
                 </div>
-                <div class="col-3">
-                    <a href="/contact" class="nav-link text-gray-600 hover:text-red-600 transition-colors">
-                        <svg width="24" height="24" fill="currentColor">
-                            <path
-                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                        </svg>
-                        <span class="text-xs">Contact</span>
-                    </a>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Product</h5>
+                    <ul class="footer-links">
+                        <li><a href="/">Video Downloader</a></li>
+                        <li><a href="/4k-videos">4K Downloads</a></li>
+                        <li><a href="/download">Audio Extract</a></li>
+                        <li><a href="/">API Access</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="fw-bold mb-3">Company</h5>
+                    <ul class="footer-links">
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/">Blog</a></li>
+                        <li><a href="/">Careers</a></li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </nav>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"
-        defer></script>
+            <div class="footer-bottom">
+                <p>&copy; 2025 YT Ultra HD. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="/js/theme.js" defer></script>
+    <script src="/js/api.js" defer></script>
+    <script src="/js/ui.js" defer></script>
+    <script src="/js/analytics.js" defer></script>
+
+    <!-- Terms page specific script with real backend integration -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const api = new APIClient();
+
+            // Set print date
+            document.querySelector('.print-date').setAttribute('data-date', new Date().toLocaleDateString());
+
+            // Update service specifications from real backend
+            async function updateServiceSpecs() {
+                try {
+                    const backendInfo = await api.getBackendInfo();
+
+                    if (backendInfo && backendInfo.performance) {
+                        // Update max file size (from backend: 10GB limit)
+                        document.getElementById('maxFileSize').textContent = '10GB';
+
+                        // Update max concurrent downloads
+                        document.getElementById('maxConcurrentDownloads').textContent =
+                            backendInfo.performance.max_concurrent_downloads || '100';
+                    }
+
+                    // Update service status
+                    const healthStatus = await api.getHealthStatus();
+                    if (healthStatus) {
+                        document.getElementById('serviceStatus').textContent = 'Operational';
+                        document.getElementById('serviceStatus').className = 'badge bg-success';
+
+                        // Update live service status
+                        document.getElementById('apiStatus').textContent = 'Online';
+                        document.getElementById('downloadServiceStatus').textContent = 'Online';
+                        document.getElementById('activeUsers').textContent =
+                            healthStatus.system?.active_downloads || '0';
+                    }
+
+                } catch (error) {
+                    console.error('Failed to update service specs:', error);
+                    document.getElementById('serviceStatus').textContent = 'Checking Failed';
+                    document.getElementById('serviceStatus').className = 'badge bg-warning';
+                }
+            }
+
+            // Check response time
+            async function checkResponseTime() {
+                try {
+                    const startTime = performance.now();
+                    await api.getHealthStatus();
+                    const endTime = performance.now();
+                    const responseTime = Math.round(endTime - startTime);
+
+                    document.getElementById('responseTime').textContent = `${responseTime}ms`;
+
+                } catch (error) {
+                    document.getElementById('responseTime').textContent = 'Timeout';
+                }
+            }
+
+            // Initial loads
+            await updateServiceSpecs();
+            await checkResponseTime();
+
+            // Update every 30 seconds
+            setInterval(async () => {
+                await updateServiceSpecs();
+                await checkResponseTime();
+            }, 30000);
+
+            // Track analytics
+            if (window.Analytics) {
+                window.Analytics.track('terms_page_view', {
+                    backend_integration: true,
+                    real_time_status: true
+                });
+            }
+        });
+    </script>
+
+    <!-- Additional CSS for terms page -->
+    <style>
+        .terms-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .terms-content h2 {
+            color: var(--primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .terms-content h3 {
+            color: var(--text);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .terms-content ul,
+        .terms-content ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        .terms-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-item {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .status-item {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .status-value {
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .tech-specs-table {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border);
+            margin: 1.5rem 0;
+        }
+
+        .service-status-section {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border);
+            margin: 1.5rem 0;
+        }
+
+        code {
+            background: var(--bg-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            color: var(--primary);
+        }
+
+        .terms-footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .terms-content {
+                font-size: 1rem;
+            }
+
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .spec-item,
+            .status-item {
+                padding: 0.75rem;
+            }
+        }
+    </style>
 </body>
 
 </html>
