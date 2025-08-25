@@ -5,8 +5,6 @@ import asyncio
 import threading
 import tempfile
 import hashlib
-import gzip
-import io
 import multiprocessing
 import random
 from datetime import datetime, timedelta
@@ -16,6 +14,7 @@ from collections import defaultdict, deque
 from queue import Queue, Empty
 import gc
 import weakref
+from base64 import b64decode
 
 from flask import Flask, request, jsonify, send_file, Response, g
 from flask_cors import CORS
@@ -23,14 +22,16 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import yt_dlp
 import logging
 
-# Render Free Tier Optimizations
+# =========================
+# Render Free Tier Settings
+# =========================
 CPU_COUNT = max(1, multiprocessing.cpu_count() // 2)
 MAX_WORKERS = min(8, CPU_COUNT * 2)
 MAX_PROCESSES = 2
 DOWNLOAD_WORKERS = min(4, CPU_COUNT)
 CHUNK_SIZE = 512 * 1024
 BUFFER_SIZE = 2 * 1024 * 1024
-MAX_CONCURRENT_DOWNLOADS = 3  # Reduced further to avoid rate limits
+MAX_CONCURRENT_DOWNLOADS = 3  # Consider 1-2 if still getting 429s
 MAX_FILE_SIZE = 1024 * 1024 * 1024
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'yt_render')
 CACHE_DURATION = 600
@@ -42,22 +43,36 @@ RATE_LIMIT_DELAY = 2  # Minimum seconds between requests
 last_request_time = 0
 request_count = 0
 
+# Env overrides / extras
+FORCE_IPV4 = os.environ.get('YTDLP_FORCE_IPV4', '1') == '1'
+DEFAULT_HL = os.environ.get('YTDLP_HL', 'en')
+DEFAULT_GL = os.environ.get('YTDLP_GL', 'US')
+ENV_COOKIES_B64 = os.environ.get('YTDLP_COOKIES_B64')  # base64 Netscape cookies.txt
+ENV_PROXY = os.environ.get('YTDLP_PROXY')  # e.g., http://user:pass@host:port
+
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# Enhanced logging for debugging
+# =========================
+# Logging
+# =========================
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[logging.StreamHandler()]
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('app')
 logging.getLogger('yt_dlp').setLevel(logging.WARNING)
 
+# =========================
+# Flask App
+# =========================
 app = Flask(__name__)
 CORS(app, origins=["*"], methods=["GET", "POST", "OPTIONS"])
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
-# Global structures
+# =========================
+# Globals
+# =========================
 executor = ThreadPoolExecutor(max_workers=MAX_WORKERS, thread_name_prefix='API')
 download_status = weakref.WeakValueDictionary()
 active_downloads = {}
@@ -82,6 +97,9 @@ USER_AGENTS = [
 def get_random_user_agent():
     return random.choice(USER_AGENTS)
 
+# =========================
+# Cache
+# =========================
 class LimitedCache:
     def __init__(self, max_size=MAX_CACHE_SIZE):
         self.cache = {}
@@ -112,6 +130,9 @@ class LimitedCache:
 
 memory_cache = LimitedCache()
 
+# =========================
+# Status Tracking
+# =========================
 class Status:
     def __init__(self, download_id):
         self.download_id = download_id
@@ -177,6 +198,9 @@ class RenderProgressHook:
 def get_cache_key(url: str) -> str:
     return hashlib.md5(url.encode()).hexdigest()[:12]
 
+# =========================
+# Rate Limiting
+# =========================
 def apply_rate_limiting():
     """Apply rate limiting to avoid bot detection"""
     global last_request_time, request_count
@@ -199,29 +223,87 @@ def apply_rate_limiting():
     if request_count > 20:  # After 20 requests, add random delay
         time.sleep(random.uniform(1, 3))
 
-def get_anti_bot_ydl_opts() -> dict:
+# =========================
+# Cookies / Proxy helpers
+# =========================
+def _materialize_cookiefile_from_b64(b64txt: str, label: str = 'user') -> str | None:
+    if not b64txt:
+        return None
+    try:
+        text = b64decode(b64txt).decode('utf-8', 'ignore')
+        path = os.path.join(TEMP_DIR, f'cookies_{label}_{int(time.time())}.txt')
+        with open(path, 'w', encoding='utf-8', newline='\n') as f:
+            f.write(text)
+        return path
+    except Exception as e:
+        logger.warning(f'Failed to decode cookies b64: {e}')
+        return None
+
+def _collect_request_extras(data: dict) -> dict:
+    extras = {}
+
+    # Cookies precedence: request cookies_b64 -> env cookies -> none
+    cookiefile = None
+    if data.get('cookies_b64'):
+        cookiefile = _materialize_cookiefile_from_b64(data['cookies_b64'], 'req')
+    elif ENV_COOKIES_B64:
+        cookiefile = _materialize_cookiefile_from_b64(ENV_COOKIES_B64, 'env')
+    if cookiefile:
+        extras['cookiefile'] = cookiefile
+
+    # Optional raw Cookie header string
+    if data.get('cookie_header'):
+        extras['cookie_header'] = data['cookie_header']
+
+    # Proxy precedence: request -> env -> none
+    proxy = data.get('proxy') or ENV_PROXY
+    if proxy:
+        extras['proxy'] = proxy
+
+    # Locale tuning
+    extras['hl'] = data.get('hl', DEFAULT_HL)
+    extras['gl'] = data.get('gl', DEFAULT_GL)
+    return extras
+
+# =========================
+# yt-dlp Options
+# =========================
+def get_anti_bot_ydl_opts(cookiefile=None, proxy=None, cookie_header=None, hl='en', gl='US') -> dict:
     """Get yt-dlp options designed to avoid bot detection"""
     user_agent = get_random_user_agent()
+    headers = {
+        'User-Agent': user_agent,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': f'{hl}-{gl},{hl};q=0.8',
+        'Accept-Encoding': 'gzip, deflate',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Cache-Control': 'max-age=0'
+    }
+    if cookie_header:
+        headers['Cookie'] = cookie_header
     
-    return {
+    opts = {
         'quiet': False,
         'no_warnings': False,  # Keep warnings for debugging
         'extract_flat': False,
         'skip_download': True,
         'socket_timeout': 30,
-        'http_headers': {
-            'User-Agent': user_agent,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Cache-Control': 'max-age=0'
-        },
+        'http_headers': headers,
+        'noplaylist': True,
+        'geo_bypass': True,
+        'extractor_retries': 2,
+        # Additional anti-detection measures
+        'sleep_interval_requests': random.uniform(1.5, 3.5),  # Random delay between requests
+        'max_sleep_interval': 6,  # Keep compatible with earlier code
+        'http_chunk_size': random.randint(16384, 65536),  # Random chunk size
+        'retries': 3,
+        'fragment_retries': 3,
+        'ignoreerrors': True,
         'extractor_args': {
             'youtube': {
                 'player_client': ['web', 'android', 'ios'],
@@ -229,54 +311,83 @@ def get_anti_bot_ydl_opts() -> dict:
                 'skip': ['dash'],
                 'max_comments': [0],  # Don't extract comments
                 'comment_sort': ['top'],
-                'max_comment_depth': 1
+                'max_comment_depth': 1,
+                # Locale hints (ignored if not recognized)
+                'lang': [hl],
+                'geo_bypass_country': [gl],
             }
         },
-        # Additional anti-detection measures
-        'sleep_interval_requests': random.uniform(1, 3),  # Random delay between requests
-        'max_sleep_interval': 5,
-        'http_chunk_size': random.randint(8192, 65536),  # Random chunk size
-        'retries': 3,
-        'fragment_retries': 3,
-        'ignoreerrors': True,
     }
 
-def extract_info_with_fallbacks(url: str) -> dict:
+    if FORCE_IPV4:
+        opts['source_address'] = '0.0.0.0'
+
+    if cookiefile:
+        opts['cookiefile'] = cookiefile
+    if proxy:
+        opts['proxy'] = proxy
+
+    return opts
+
+# =========================
+# Extraction logic
+# =========================
+def extract_with_strategy(url: str, opts: dict) -> dict:
+    """Extract with specific strategy"""
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        return ydl.extract_info(url, download=False)
+
+def extract_info_with_fallbacks(url: str, extras: dict | None = None) -> dict:
     """Extract info with multiple fallback strategies"""
     apply_rate_limiting()
+    extras = extras or {}
+
+    base = get_anti_bot_ydl_opts(
+        cookiefile=extras.get('cookiefile'),
+        proxy=extras.get('proxy'),
+        cookie_header=extras.get('cookie_header'),
+        hl=extras.get('hl', 'en'),
+        gl=extras.get('gl', 'US')
+    )
     
     strategies = [
         # Strategy 1: Standard extraction with anti-bot measures
-        lambda: extract_with_strategy(url, get_anti_bot_ydl_opts()),
+        lambda: extract_with_strategy(url, {**base}),
         
         # Strategy 2: Mobile client preference
         lambda: extract_with_strategy(url, {
-            **get_anti_bot_ydl_opts(),
+            **base,
             'extractor_args': {
                 'youtube': {
                     'player_client': ['android', 'ios'],
                     'player_skip': ['webpage', 'configs'],
+                    'lang': [extras.get('hl', 'en')],
+                    'geo_bypass_country': [extras.get('gl', 'US')],
                 }
             }
         }),
         
         # Strategy 3: Embedded extraction
         lambda: extract_with_strategy(url, {
-            **get_anti_bot_ydl_opts(),
+            **base,
             'extractor_args': {
                 'youtube': {
                     'player_client': ['web_embedded'],
+                    'lang': [extras.get('hl', 'en')],
+                    'geo_bypass_country': [extras.get('gl', 'US')],
                 }
             }
         }),
         
         # Strategy 4: Age gate bypass
         lambda: extract_with_strategy(url, {
-            **get_anti_bot_ydl_opts(),
+            **base,
             'age_limit': 99,
             'extractor_args': {
                 'youtube': {
                     'player_client': ['web_age_gate_bypass'],
+                    'lang': [extras.get('hl', 'en')],
+                    'geo_bypass_country': [extras.get('gl', 'US')],
                 }
             }
         })
@@ -286,7 +397,7 @@ def extract_info_with_fallbacks(url: str) -> dict:
     
     for i, strategy in enumerate(strategies, 1):
         try:
-            logger.info(f"Trying extraction strategy {i}/4")
+            logger.info(f"Trying extraction strategy {i}/{len(strategies)}")
             result = strategy()
             if result:
                 performance_metrics['successful_extractions'] += 1
@@ -297,22 +408,17 @@ def extract_info_with_fallbacks(url: str) -> dict:
             error_msg = str(e).lower()
             
             # Check for bot detection
-            if any(phrase in error_msg for phrase in ['bot', 'sign in', 'captcha', '429']):
+            if any(phrase in error_msg for phrase in ['bot', 'sign in', 'captcha', '429', 'too many requests']):
                 performance_metrics['bot_detections'] += 1
-                logger.warning(f"Bot detection in strategy {i}: {str(e)[:100]}")
+                logger.warning(f"Bot detection in strategy {i}: {str(e)[:120]}")
                 # Add longer delay before next attempt
-                time.sleep(random.uniform(3, 6))
+                time.sleep(random.uniform(4, 7))
             else:
-                logger.warning(f"Strategy {i} failed: {str(e)[:100]}")
-                time.sleep(1)  # Short delay between strategies
+                logger.warning(f"Strategy {i} failed: {str(e)[:120]}")
+                time.sleep(1.2)  # Short delay between strategies
     
     performance_metrics['failed_extractions'] += 1
     raise Exception(f"All extraction strategies failed. Last error: {str(last_error)[:150]}")
-
-def extract_with_strategy(url: str, opts: dict) -> dict:
-    """Extract with specific strategy"""
-    with yt_dlp.YoutubeDL(opts) as ydl:
-        return ydl.extract_info(url, download=False)
 
 def process_info_safely(info: dict) -> dict:
     """Safely process extracted info"""
@@ -369,12 +475,22 @@ def process_info_safely(info: dict) -> dict:
             'extractor': 'youtube'
         }
 
-def get_download_opts(quality: str, download_id: str) -> dict:
+# =========================
+# Download logic
+# =========================
+def get_download_opts(quality: str, download_id: str, extras: dict | None = None) -> dict:
     """Get download options with anti-bot measures"""
+    extras = extras or {}
     timestamp = int(time.time())
     output_path = os.path.join(TEMP_DIR, f'render_{download_id}_{timestamp}.%(ext)s')
     
-    base_opts = get_anti_bot_ydl_opts()
+    base_opts = get_anti_bot_ydl_opts(
+        cookiefile=extras.get('cookiefile'),
+        proxy=extras.get('proxy'),
+        cookie_header=extras.get('cookie_header'),
+        hl=extras.get('hl', 'en'),
+        gl=extras.get('gl', 'US')
+    )
     
     opts = {
         **base_opts,
@@ -415,7 +531,7 @@ def get_download_opts(quality: str, download_id: str) -> dict:
     
     return opts
 
-async def download_with_render_limits(url: str, quality: str, download_id: str):
+async def download_with_render_limits(url: str, quality: str, download_id: str, extras: dict | None = None):
     """Download with anti-bot measures"""
     loop = asyncio.get_event_loop()
     
@@ -432,7 +548,7 @@ async def download_with_render_limits(url: str, quality: str, download_id: str):
             # Apply rate limiting before download
             apply_rate_limiting()
             
-            opts = get_download_opts(quality, download_id)
+            opts = get_download_opts(quality, download_id, extras)
             
             status_obj.update(
                 status='downloading',
@@ -490,6 +606,9 @@ async def download_with_render_limits(url: str, quality: str, download_id: str):
     
     return await loop.run_in_executor(executor, download_worker)
 
+# =========================
+# Cleanup
+# =========================
 def cleanup_render_friendly():
     """Enhanced cleanup"""
     try:
@@ -498,7 +617,7 @@ def cleanup_render_friendly():
         
         if os.path.exists(TEMP_DIR):
             for file in os.listdir(TEMP_DIR):
-                if file.startswith('render_'):
+                if file.startswith(('render_', 'cookies_')):
                     file_path = os.path.join(TEMP_DIR, file)
                     try:
                         if current_time - os.path.getctime(file_path) > FILE_RETENTION_TIME:
@@ -506,7 +625,7 @@ def cleanup_render_friendly():
                             cleaned += 1
                             if cleaned > 10:  # Limit cleanup per run
                                 break
-                    except:
+                    except Exception:
                         pass
         
         # Clean old downloads
@@ -518,7 +637,7 @@ def cleanup_render_friendly():
                     if status_obj.get('file_path'):
                         try:
                             os.remove(status_obj.get('file_path'))
-                        except:
+                        except Exception:
                             pass
                     del active_downloads[download_id]
         
@@ -542,7 +661,9 @@ def start_cleanup_thread():
     thread = threading.Thread(target=cleanup_worker, daemon=True)
     thread.start()
 
+# =========================
 # API Routes
+# =========================
 @app.route('/')
 def index():
     uptime = time.time() - performance_metrics['start_time']
@@ -561,7 +682,8 @@ def index():
             'User-agent rotation',
             'Rate limiting',
             'Fallback mechanisms',
-            'Mobile client support'
+            'Mobile client support',
+            'Cookie/Proxy support'
         ],
         'stats': {
             'total_requests': performance_metrics['total_requests'],
@@ -570,7 +692,7 @@ def index():
             'bot_detections': performance_metrics['bot_detections'],
             'success_rate': f"{success_rate:.1f}%",
             'active_downloads': len([d for d in active_downloads.values() 
-                                   if d.get('status') == 'downloading']),
+                                   if d.get('status') in ['downloading', 'starting']]),
             'cache_size': len(memory_cache.cache)
         }
     })
@@ -582,7 +704,7 @@ def health():
         'timestamp': int(time.time()),
         'metrics': performance_metrics,
         'active_downloads': len(active_downloads),
-        'temp_files': len([f for f in os.listdir(TEMP_DIR) if f.startswith('render_')])
+        'temp_files': len([f for f in os.listdir(TEMP_DIR) if f.startswith(('render_', 'cookies_'))])
     })
 
 @app.route('/api/info', methods=['POST'])
@@ -591,12 +713,15 @@ def get_info():
     performance_metrics['total_requests'] += 1
     
     try:
-        data = request.get_json()
-        if not data or 'url' not in data:
+        data = request.get_json() or {}
+        if 'url' not in data:
             return jsonify({'success': False, 'error': 'URL required'}), 400
         
         url = data['url'].strip()
-        cache_key = get_cache_key(url)
+        extras = _collect_request_extras(data)
+
+        # Include locale in cache key so we don't mix locales
+        cache_key = get_cache_key(url + json.dumps({'hl': extras.get('hl'), 'gl': extras.get('gl')}, sort_keys=True))
         
         # Check cache first
         cached = memory_cache.get(cache_key)
@@ -610,7 +735,7 @@ def get_info():
         
         # Extract with anti-bot strategies
         logger.info(f"Extracting info for: {url[:50]}...")
-        info = extract_info_with_fallbacks(url)
+        info = extract_info_with_fallbacks(url, extras=extras)
         processed = process_info_safely(info)
         
         # Cache successful extraction
@@ -628,14 +753,14 @@ def get_info():
         return jsonify({
             'success': False,
             'error': str(e)[:200],
-            'suggestion': 'Try again in a few minutes. The video might be restricted or temporarily unavailable.',
+            'suggestion': 'Provide browser cookies (cookies.txt base64) or try again later.',
             'response_time_ms': round((time.time() - start_time) * 1000, 1)
         }), 400
 
 @app.route('/api/download', methods=['POST'])
 def start_download():
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         if not data or 'url' not in data:
             return jsonify({'success': False, 'error': 'URL required'}), 400
         
@@ -654,13 +779,14 @@ def start_download():
         url = data['url'].strip()
         quality = data.get('quality', '720p')
         download_id = f"render_{int(time.time() * 1000)}"
+        extras = _collect_request_extras(data)
         
         # Start download
         def download_starter():
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
-                loop.run_until_complete(download_with_render_limits(url, quality, download_id))
+                loop.run_until_complete(download_with_render_limits(url, quality, download_id, extras))
             except Exception as e:
                 logger.error(f"Download failed: {e}")
             finally:
@@ -740,7 +866,9 @@ def download_file(download_id):
         logger.error(f"File download error: {e}")
         return jsonify({'error': 'File download failed'}), 500
 
+# =========================
 # Error handlers
+# =========================
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({'error': 'Not found'}), 404
@@ -758,6 +886,9 @@ def internal_error(e):
     logger.error(f"Internal error: {e}")
     return jsonify({'error': 'Internal server error'}), 500
 
+# =========================
+# Request timing / headers
+# =========================
 @app.before_request
 def before_request():
     g.start_time = time.time()
@@ -778,6 +909,9 @@ def after_request(response):
     
     return response
 
+# =========================
+# Entrypoint
+# =========================
 if __name__ == '__main__':
     start_cleanup_thread()
     
@@ -787,6 +921,9 @@ if __name__ == '__main__':
 🚀 YouTube Downloader - Anti-Bot Edition
 🛡️  Multiple extraction strategies enabled
 🔄 User-agent rotation active
+🍪 Cookies: {'env-provided' if ENV_COOKIES_B64 else 'none by default'}
+🧭 Proxy: {'set via env' if ENV_PROXY else 'none'}
+🌐 Locale: {DEFAULT_HL}-{DEFAULT_GL} | IPv4: {FORCE_IPV4}
 📊 Rate limiting: {RATE_LIMIT_DELAY}s between requests
 💾 Cache enabled: {MAX_CACHE_SIZE} entries
 🧹 Auto-cleanup: {FILE_RETENTION_TIME}s retention
